@@ -4,7 +4,7 @@
     android:id="@+id/activity_watching"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cyborg.td.WatchingActivity">
+    tools:context="com.traveldiary.android.WatchingActivity">
 
    <!-- <ProgressBar
         android:id="@+id/progressBar"

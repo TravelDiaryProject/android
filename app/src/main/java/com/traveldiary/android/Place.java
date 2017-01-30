@@ -1,4 +1,4 @@
-package com.cyborg.td;
+package com.traveldiary.android;
 
 /**
  * Created by Cyborg on 1/29/2017.

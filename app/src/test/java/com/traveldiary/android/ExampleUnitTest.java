@@ -1,4 +1,4 @@
-package com.cyborg.td;
+package com.traveldiary.android;
 
 import org.junit.Test;
 

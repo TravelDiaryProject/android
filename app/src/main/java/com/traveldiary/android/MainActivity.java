@@ -1,4 +1,4 @@
-package com.cyborg.td;
+package com.traveldiary.android;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;

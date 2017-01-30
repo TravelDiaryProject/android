@@ -1,4 +1,4 @@
-package com.cyborg.td;
+package com.traveldiary.android;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
