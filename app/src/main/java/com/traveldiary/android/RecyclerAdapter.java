@@ -6,7 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.support.v7.widget.RecyclerView;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -22,12 +26,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         public TextView title;
-        public WebView webView;
+        public ImageView imageView;
 
         public MyViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.title);
-            webView = (WebView) view.findViewById(R.id.webView);
+            imageView = (ImageView) view.findViewById(R.id.imageView);
         }
     }
 
@@ -49,7 +53,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         Place place = mPlaceList.get(position);
         holder.title.setText(place.getTitle());
-        //holder.webView.loadUrl(WatchingActivity.ROOT_URL + place.getPhoto());
+
+        Glide.with(mContext).load(WatchingActivity.ROOT_URL + place.getPhoto())
+                .thumbnail(0.5f)
+                .crossFade()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.imageView);
 
     }
 
