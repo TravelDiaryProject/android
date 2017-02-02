@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         watchingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, WatchingActivity.class);
+                Intent intent = new Intent(MainActivity.this, AllTripsActivity.class);
                 startActivity(intent);
             }
         });

@@ -1,24 +1,25 @@
 package com.traveldiary.android;
 
-/**
- * Created by Cyborg on 1/29/2017.
- */
 
 public class Place {
-    private String title;
+    private int id;
     private String photo;
+    private String latitude;
+    private String longitude;
 
-    public Place(String title, String photo) {
-        this.title = title;
+    public Place(int id, String photo, String latitude, String longitude) {
+        this.id = id;
         this.photo = photo;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public String getTitle() {
-        return title;
+    public int getId() {
+        return id;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getPhoto() {
@@ -29,11 +30,29 @@ public class Place {
         this.photo = photo;
     }
 
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
-                "title='" + title + '\'' +
+                "id=" + id +
                 ", photo='" + photo + '\'' +
+                ", latitude='" + latitude + '\'' +
+                ", longitude='" + longitude + '\'' +
                 '}';
     }
 }

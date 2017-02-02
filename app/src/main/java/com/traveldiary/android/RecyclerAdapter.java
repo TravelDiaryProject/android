@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,13 +13,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
-/**
- * Created by Cyborg on 1/29/2017.
- */
-
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
+    private final View.OnClickListener mOnClickListener;
+
     private Context mContext;
+    private List<Trip> mTripsList;
     private List<Place> mPlaceList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -30,40 +28,62 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
         public MyViewHolder(View view) {
             super(view);
-            title = (TextView) view.findViewById(R.id.title);
-            imageView = (ImageView) view.findViewById(R.id.imageView);
+            title = (TextView) view.findViewById(R.id.tripTitleView);
+            imageView = (ImageView) view.findViewById(R.id.tripImageView);
         }
     }
 
-
-    public RecyclerAdapter(Context mContext, List<Place> placeList) {
+    public RecyclerAdapter(Context mContext, List<Trip> tripList, View.OnClickListener onClickListener, List<Place> placeList ) {
         this.mContext = mContext;
+        this.mTripsList = tripList;
+        mOnClickListener = onClickListener;
         this.mPlaceList = placeList;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.place_card, parent, false);
+                .inflate(R.layout.trip_card, parent, false);
 
         return new MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
-        Place place = mPlaceList.get(position);
-        holder.title.setText(place.getTitle());
+        if (mTripsList != null) {
+            Trip trip = mTripsList.get(position);
 
-        Glide.with(mContext).load(WatchingActivity.ROOT_URL + place.getPhoto())
-                .thumbnail(0.5f)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.imageView);
+            holder.title.setText(trip.getTitle());
+            Glide.with(mContext).load(AllTripsActivity.ROOT_URL + trip.getPhoto())
+                    .thumbnail(0.5f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imageView);
+            holder.imageView.setOnClickListener(mOnClickListener);
+            holder.imageView.setTag(trip);
 
+        }else if (mPlaceList != null){
+            Place place = mPlaceList.get(position);
+
+            holder.title.setText("Latitude = " + place.getLatitude() + "/nLongitude = " + place.getLongitude());
+            Glide.with(mContext).load(AllTripsActivity.ROOT_URL + place.getPhoto())
+                    .thumbnail(0.5f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imageView);
+            holder.imageView.setOnClickListener(mOnClickListener);
+            holder.title.setTag(place);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mPlaceList.size();
+        int size = 0;
+        if (mTripsList==null){
+            size = mPlaceList.size();
+        }else if (mPlaceList==null){
+            size = mTripsList.size();
+        }
+        return size;
     }
 }

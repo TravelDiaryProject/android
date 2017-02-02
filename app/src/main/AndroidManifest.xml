@@ -18,7 +18,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.traveldiary.android.WatchingActivity"></activity>
+        <activity android:name="com.traveldiary.android.AllTripsActivity"></activity>
     </application>
 
 </manifest>

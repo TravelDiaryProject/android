@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Travel Diary</string>
+
+    <string name="trips">Trips</string>
 </resources>
