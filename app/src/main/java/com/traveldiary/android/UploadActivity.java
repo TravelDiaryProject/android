@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,6 +87,7 @@ public class UploadActivity extends AppCompatActivity {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
                     System.out.println("onResponse = " + response);
+                    inform();
                 }
 
                 @Override
@@ -93,24 +95,16 @@ public class UploadActivity extends AppCompatActivity {
                     System.out.println("onFail");
                 }
             });
-
-            /*Call<ResponseBody> req = travelDiaryService.postImage(reqFile);
-            req.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                    System.out.println("ONRESPONSE!!!! = " + response.toString());
-                    // Do Something
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                    System.out.println("FAIL!!");
-                    t.printStackTrace();
-                }
-            });*/
         }
+    }
+
+    public void inform(){
+        Toast toast = Toast.makeText(this,
+                "Place has been created!!!", Toast.LENGTH_SHORT);
+        toast.show();
+
+        Intent intent = new Intent(this, AllTripsActivity.class);
+        startActivity(intent);
     }
 
 }
