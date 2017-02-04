@@ -8,19 +8,29 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button watchingButton;
+    private Button allTripsActivityButton;
+    private Button uploadActivityButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        watchingButton = (Button) findViewById(R.id.watchingButton);
+        uploadActivityButton = (Button) findViewById(R.id.uploadActivityButton);
+        allTripsActivityButton = (Button) findViewById(R.id.allTripsActivityButton);
 
-        watchingButton.setOnClickListener(new View.OnClickListener() {
+        allTripsActivityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, AllTripsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        uploadActivityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, UploadActivity.class);
                 startActivity(intent);
             }
         });
