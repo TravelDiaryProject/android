@@ -10,18 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TripsFragment extends Fragment {
 
@@ -32,13 +29,15 @@ public class TripsFragment extends Fragment {
     private List<Trip> mTripList;
     private LinearLayoutManager mLayoutManager;
 
+    private Retrofit retrofit;
+    private static TravelDiaryService travelDiaryService;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_trips,
                 container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.trips_recycler_view);
-        //mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         mTripList = new ArrayList<>();
 
@@ -78,37 +77,24 @@ public class TripsFragment extends Fragment {
 
     private void downloadImage() {
 
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        retrofit = new Retrofit.Builder()
+                .baseUrl("http://188.166.77.89")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+        travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(AllTripsActivity.URL_TRIPS,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-
-                        for (int i = 0; i < response.length(); i++) {
-                            try {
-                                JSONObject tripJson = response.getJSONObject(i);
-
-                                trip = new Trip(tripJson.getInt("id"), tripJson.getString("title"), tripJson.getString("photo"));
-                                mTripList.add(trip);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        recyclerAdapter.notifyDataSetChanged();
-
-                    }
-                }, new Response.ErrorListener() {
+        travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println("ERROR = " + error.toString());
+            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
+
+                mTripList.addAll(response.body());
+
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Trip>> call, Throwable t) {
+
             }
         });
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonArrayRequest);
-
     }
 }

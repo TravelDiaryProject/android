@@ -11,18 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class PlacesFragment extends Fragment {
@@ -33,14 +28,10 @@ public class PlacesFragment extends Fragment {
     private List<Place> mPlacesList;
     private LinearLayoutManager mLayoutManager;
 
-    private String URL_PLACES = "http://188.166.77.89/api/v1/trip/";
-    private String URL_PLACES_2 = "/places";
+    private Retrofit retrofit;
+    private static TravelDiaryService travelDiaryService;
 
     private int tripId;
-
-    public PlacesFragment() {
-        // Required empty public constructor
-    }
 
 
     @Override
@@ -88,38 +79,24 @@ public class PlacesFragment extends Fragment {
 
     private void downloadImage() {
 
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        retrofit = new Retrofit.Builder()
+                .baseUrl("http://188.166.77.89")
+                .addConverterFactory(GsonConverterFactory.create()).build();
+        travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(URL_PLACES + tripId + URL_PLACES_2,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-
-                        for (int i = 0; i < response.length(); i++) {
-                            try {
-                                JSONObject placeJson = response.getJSONObject(i);
-
-                                place = new Place(placeJson.getInt("id"), placeJson.getString("photo"),
-                                        placeJson.getString("latitude"), placeJson.getString("longitude"));
-                                mPlacesList.add(place);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        recyclerAdapter.notifyDataSetChanged();
-
-                    }
-                }, new Response.ErrorListener() {
+        travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println("ERROR = " + error.toString());
+            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+
+                mPlacesList.addAll(response.body());
+
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Place>> call, Throwable t) {
+
             }
         });
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonArrayRequest);
-
     }
 }

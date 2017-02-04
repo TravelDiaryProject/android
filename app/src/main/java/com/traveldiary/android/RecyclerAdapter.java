@@ -17,6 +17,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     private final View.OnClickListener mOnClickListener;
 
+    private String ROOT_URL = "http://188.166.77.89/";
+
     private Context mContext;
     private List<Trip> mTripsList;
     private List<Place> mPlaceList;
@@ -54,7 +56,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             Trip trip = mTripsList.get(position);
 
             holder.title.setText(trip.getTitle());
-            Glide.with(mContext).load(AllTripsActivity.ROOT_URL + trip.getPhoto())
+            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -66,7 +68,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             Place place = mPlaceList.get(position);
 
             holder.title.setText("Latitude = " + place.getLatitude() + "/nLongitude = " + place.getLongitude());
-            Glide.with(mContext).load(AllTripsActivity.ROOT_URL + place.getPhoto())
+            Glide.with(mContext).load(ROOT_URL + place.getPhoto())
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

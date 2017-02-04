@@ -7,9 +7,6 @@ import android.os.Bundle;
 
 public class AllTripsActivity extends AppCompatActivity implements ChangeFragmentInterface {
 
-    static final String ROOT_URL = "http://188.166.77.89/";
-    static final String URL_TRIPS = "http://188.166.77.89/api/v1/trips";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
