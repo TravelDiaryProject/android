@@ -11,4 +11,11 @@
         android:layout_height="match_parent"
         xmlns:android="http://schemas.android.com/apk/res/android" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_trip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:src="@android:drawable/ic_input_add" />
+
 </FrameLayout>

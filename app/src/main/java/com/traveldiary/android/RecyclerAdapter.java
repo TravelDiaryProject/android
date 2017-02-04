@@ -61,8 +61,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
-            holder.imageView.setOnClickListener(mOnClickListener);
-            holder.imageView.setTag(trip);
+            holder.title.setOnClickListener(mOnClickListener);
+            holder.title.setTag(trip);
 
         }else if (mPlaceList != null){
             Place place = mPlaceList.get(position);
@@ -73,7 +73,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
-            holder.imageView.setOnClickListener(mOnClickListener);
+            holder.title.setOnClickListener(mOnClickListener);
             holder.title.setTag(place);
         }
     }

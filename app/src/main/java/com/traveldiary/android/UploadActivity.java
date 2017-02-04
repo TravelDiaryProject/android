@@ -28,12 +28,15 @@ public class UploadActivity extends AppCompatActivity {
 
     private Button uploadFromGalleryButton;
     private int RESULT_LOAD_IMAGE = 1;
+    private int tripId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
+
+        tripId = getIntent().getIntExtra("tripId", 0);
 
         uploadFromGalleryButton = (Button) findViewById(R.id.uploadFromGalleryButton);
 
@@ -53,7 +56,6 @@ public class UploadActivity extends AppCompatActivity {
 
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
 
-            Uri uri = data.getData();
             TravelDiaryService travelDiaryService;
 
             Retrofit retrofit = new Retrofit.Builder()
@@ -70,15 +72,29 @@ public class UploadActivity extends AppCompatActivity {
             cursor.close();
             ///
 
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAa uri path = " + uri.getPath() + " picturePath = " + picturePath);
 
             File file = new File(picturePath); // picture path like in phone
 
             RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
 
-            MultipartBody.Part body = MultipartBody.Part.createFormData("upload", file.getName(), reqFile);
+            RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(tripId));
 
-            final retrofit2.Call<okhttp3.ResponseBody> req = travelDiaryService.postImage(reqFile);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
+
+            travelDiaryService.postImage(body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+                    System.out.println("onResponse = " + response);
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    System.out.println("onFail");
+                }
+            });
+
+            /*Call<ResponseBody> req = travelDiaryService.postImage(reqFile);
             req.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -93,7 +109,7 @@ public class UploadActivity extends AppCompatActivity {
                     System.out.println("FAIL!!");
                     t.printStackTrace();
                 }
-            });
+            });*/
         }
     }
 
