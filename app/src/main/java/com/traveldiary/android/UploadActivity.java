@@ -1,10 +1,12 @@
 package com.traveldiary.android;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -103,8 +105,9 @@ public class UploadActivity extends AppCompatActivity {
                 "Place has been created!!!", Toast.LENGTH_SHORT);
         toast.show();
 
-        Intent intent = new Intent(this, AllTripsActivity.class);
-        startActivity(intent);
-    }
+        Intent openPlacesFragmentIntent = new Intent(this, AllTripsActivity.class);
+        openPlacesFragmentIntent.putExtra("OPEN_PLACES_FRAGMENT_WITH_ID", tripId);
+        startActivity(openPlacesFragmentIntent);
 
+    }
 }

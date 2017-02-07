@@ -12,9 +12,17 @@ public class AllTripsActivity extends AppCompatActivity implements ChangeFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_trips);
 
-        Fragment allTripsFragment = new TripsFragment();
-        trans(allTripsFragment);
+        if (getIntent().hasExtra("OPEN_PLACES_FRAGMENT_WITH_ID")){
+            Fragment placesFragment = new PlacesFragment();
+            Bundle args = new Bundle();
+            args.putInt("id", getIntent().getIntExtra("OPEN_PLACES_FRAGMENT_WITH_ID", 0));
+            placesFragment.setArguments(args);
+            trans(placesFragment);
+        }else {
 
+            Fragment allTripsFragment = new TripsFragment();
+            trans(allTripsFragment);
+        }
     }
 
     public void trans(Fragment fragment){

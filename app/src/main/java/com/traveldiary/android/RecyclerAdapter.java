@@ -67,7 +67,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         }else if (mPlaceList != null){
             Place place = mPlaceList.get(position);
 
-            holder.title.setText("Latitude = " + place.getLatitude() + "/nLongitude = " + place.getLongitude());
+            holder.title.setText("Latitude = " + place.getLatitude() + " Longitude = " + place.getLongitude());
             Glide.with(mContext).load(ROOT_URL + place.getPhoto())
                     .thumbnail(0.5f)
                     .crossFade()
