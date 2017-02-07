@@ -5,6 +5,8 @@ import android.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
+
 public class AllTripsActivity extends AppCompatActivity implements ChangeFragmentInterface {
 
     @Override

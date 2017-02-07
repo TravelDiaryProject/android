@@ -1,4 +1,7 @@
-package com.traveldiary.android;
+package com.traveldiary.android.Interfaces;
+
+import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.Trip;
 
 import java.util.List;
 

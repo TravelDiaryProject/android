@@ -12,6 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
+import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.adapter.RecyclerAdapter;
+import com.traveldiary.android.essence.Trip;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +60,10 @@ public class TripsFragment extends Fragment {
         recyclerAdapter = new RecyclerAdapter(getActivity(), mTripList, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Trip trip = (Trip) view.getTag(); //получаем нажатый трип
+
+                int itemPossition = recyclerView.getChildLayoutPosition(view);
+                Trip trip = mTripList.get(itemPossition);
+
                 Fragment fragment = new PlacesFragment();
 
                 Bundle args = new Bundle();

@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.traveldiary.android.R;
+import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.Trip;
 
 import java.util.List;
 
@@ -47,6 +50,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.trip_card, parent, false);
 
+        itemView.setOnClickListener(mOnClickListener);
+
         return new MyViewHolder(itemView);
     }
 
@@ -61,8 +66,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
-            holder.title.setOnClickListener(mOnClickListener);
-            holder.title.setTag(trip);
 
         }else if (mPlaceList != null){
             Place place = mPlaceList.get(position);
@@ -73,8 +76,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
-            holder.title.setOnClickListener(mOnClickListener);
-            holder.title.setTag(place);
         }
     }
 
