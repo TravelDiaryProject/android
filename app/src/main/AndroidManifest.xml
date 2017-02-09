@@ -13,15 +13,23 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+
+        </activity>
+        <activity android:name=".AllTripsActivity" />
+        <activity android:name=".UploadActivity" />
+        <activity android:name=".CreateTripActivity" />
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@style/NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AllTripsActivity" />
-        <activity android:name=".UploadActivity" />
-        <activity android:name=".CreateTripActivity"></activity>
+        <activity android:name=".RegistrationActivity"
+            android:theme="@style/NoActionBar">
+        </activity>
     </application>
 
 </manifest>

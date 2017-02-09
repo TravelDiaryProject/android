@@ -2,4 +2,27 @@
     <string name="app_name">Travel Diary</string>
 
     <string name="trips">Trips</string>
+
+
+    <string name="label_email">Email address</string>
+    <string name="label_password">Password</string>
+    <string name="login">Login</string>
+    <string name="register_prompt">Do not have an account? Register now</string>
+    <string name="register_link">Register</string>
+
+
+    <string name="registration_name">Name</string>
+    <string name="register">Register</string>
+
+
+    <string name="warning_email_empty">Email can not be empty</string>
+    <string name="warning_email_invalid">Invalid email format</string>
+    <string name="warning_password_empty">Password can not be empty</string>
+    <string name="warning_password_with_space">Password can not contain spaces</string>
+    <string name="warning_name_with_space">Name can not contain spaces</string>
+    <string name="warning_name_lowercase">Name should start from an uppercase letter</string>
+
+
+
+
 </resources>

@@ -23,7 +23,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class UploadActivity extends AppCompatActivity {
+public class UploadActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button uploadFromGalleryButton;
     private int RESULT_LOAD_IMAGE = 1;
@@ -38,14 +38,7 @@ public class UploadActivity extends AppCompatActivity {
         tripId = getIntent().getIntExtra("tripId", 0);
 
         uploadFromGalleryButton = (Button) findViewById(R.id.uploadFromGalleryButton);
-
-        uploadFromGalleryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
-            }
-        });
+        uploadFromGalleryButton.setOnClickListener(this);
 
     }
 
@@ -104,6 +97,17 @@ public class UploadActivity extends AppCompatActivity {
         Intent openPlacesFragmentIntent = new Intent(this, AllTripsActivity.class);
         openPlacesFragmentIntent.putExtra("OPEN_PLACES_FRAGMENT_WITH_ID", tripId);
         startActivity(openPlacesFragmentIntent);
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.uploadFromGalleryButton:
+                Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                break;
+        }
 
     }
 }
