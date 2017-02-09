@@ -6,15 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
 import com.traveldiary.android.essence.Place;
 import com.traveldiary.android.essence.Trip;
 
 import java.util.List;
+
+import static android.R.attr.resource;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
@@ -26,6 +32,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     private List<Trip> mTripsList;
     private List<Place> mPlaceList;
 
+    private ProgressBar mProgressBar;
+
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
         public TextView title;
@@ -35,6 +43,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             super(view);
             title = (TextView) view.findViewById(R.id.tripTitleView);
             imageView = (ImageView) view.findViewById(R.id.tripImageView);
+            mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
         }
     }
 
@@ -61,23 +70,52 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
             Trip trip = mTripsList.get(position);
 
             holder.title.setText(trip.getTitle());
+            mProgressBar.setVisibility(View.VISIBLE);
+
             Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
-                    .thumbnail(0.5f)
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .thumbnail(0.1f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
 
         }else if (mPlaceList != null){
             Place place = mPlaceList.get(position);
+            mProgressBar.setVisibility(View.VISIBLE);
 
             //holder.title.setText("Latitude = " + place.getLatitude() + " Longitude = " + place.getLongitude());
             Glide.with(mContext).load(ROOT_URL + place.getPhoto())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imageView);
         }
     }
+
+
 
     @Override
     public int getItemCount() {
