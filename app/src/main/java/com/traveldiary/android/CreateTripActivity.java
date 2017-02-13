@@ -45,7 +45,7 @@ public class CreateTripActivity extends AppCompatActivity {
                     travelDiaryService = retrofit.create(TravelDiaryService.class);
 
                     RequestBody tripTitleRequest = RequestBody.create(MediaType.parse("multipart/form-data"), tripTitle);
-                    travelDiaryService.createTrip(tripTitle).enqueue(new Callback<ResponseBody>() {
+                    travelDiaryService.createTrip("Bearer " + LoginActivity.TOKEN, tripTitle).enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 

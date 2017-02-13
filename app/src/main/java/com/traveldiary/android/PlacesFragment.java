@@ -37,6 +37,8 @@ public class PlacesFragment extends Fragment {
     private List<Place> mPlacesList;
     private LinearLayoutManager mLayoutManager;
 
+    private ProgressBar mProgressBar;
+
     private FloatingActionButton addPlaceButton;
 
     private Retrofit retrofit;
@@ -57,6 +59,9 @@ public class PlacesFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_places,
                 container, false);
+
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
+        mProgressBar.setVisibility(View.VISIBLE);
 
         addPlaceButton = (FloatingActionButton) rootView.findViewById(R.id.add_place_button);
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
@@ -105,11 +110,13 @@ public class PlacesFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create()).build();
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
+        travelDiaryService.listPlacesByTrip("Bearer " + LoginActivity.TOKEN, tripId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
 
                 mPlacesList.addAll(response.body());
+
+                mProgressBar.setVisibility(View.GONE);
 
                 recyclerAdapter.notifyDataSetChanged();
             }

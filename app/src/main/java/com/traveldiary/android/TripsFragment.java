@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
@@ -35,6 +36,8 @@ public class TripsFragment extends Fragment {
     private LinearLayoutManager mLayoutManager;
     private FloatingActionButton addTripButton;
 
+    private ProgressBar mProgressBar;
+
     private Retrofit retrofit;
     private static TravelDiaryService travelDiaryService;
 
@@ -43,6 +46,9 @@ public class TripsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_trips,
                 container, false);
+
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.trips_progress);
+        mProgressBar.setVisibility(View.VISIBLE);
 
         addTripButton = (FloatingActionButton) rootView.findViewById(R.id.add_trip_button);
         addTripButton.setOnClickListener(new View.OnClickListener() {
@@ -101,11 +107,13 @@ public class TripsFragment extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create()).build();
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
+        travelDiaryService.listAllTrips("Bearer " + LoginActivity.TOKEN).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
 
                 mTripList.addAll(response.body());
+
+                mProgressBar.setVisibility(View.GONE);
 
                 recyclerAdapter.notifyDataSetChanged();
             }

@@ -5,6 +5,14 @@
     android:layout_height="match_parent"
     tools:context="com.traveldiary.android.PlacesFragment">
 
+    <ProgressBar
+        android:id="@+id/places_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/places_recycler_view"
         android:scrollbars="vertical"

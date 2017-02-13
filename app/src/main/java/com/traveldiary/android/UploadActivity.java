@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
 
 import java.io.File;
+import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -73,11 +74,15 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
             MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-            travelDiaryService.postImage(body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
+            travelDiaryService.postImage("Bearer " + LoginActivity.TOKEN, body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-                    System.out.println("onResponse = " + response);
+                    try {
+                        System.out.println("onResponse = " + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     inform();
                 }
 

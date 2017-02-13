@@ -13,19 +13,41 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+
+import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.essence.RegistrationResponse;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText mEditEmail;
-    private EditText mEditPassword;
+    private EditText mEditLoginName;
+    private EditText mEditLoginPassword;
     private Button mLoginButton;
+
+    public static String TOKEN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mEditEmail = (EditText) findViewById(R.id.editEmail);
-        mEditPassword = (EditText) findViewById(R.id.editPassword);
+        mEditLoginName = (EditText) findViewById(R.id.editLoginName);
+        mEditLoginPassword = (EditText) findViewById(R.id.editLoginPassword);
 
         mLoginButton = (Button) findViewById(R.id.loginButton);
         mLoginButton.setOnClickListener( buttonClickListener() );
@@ -39,23 +61,53 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                CharSequence email = mEditEmail.getText();
-                CharSequence password = mEditPassword.getText();
+                String name = String.valueOf(mEditLoginName.getText());
+                String password = String.valueOf(mEditLoginPassword.getText());
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
+                if (isLoginValuesValid(name, password)){
 
-                if( isLoginValuesValid( email, password ) ) {
-                    Log.d("LOG and PASS are VALID:", email.toString() + password.toString());
-                    //emeil and password are Valid! we can send they to server
+                    Log.d("LOG and PASS are", "VALID");
+
+                    TravelDiaryService travelDiaryService;
+
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl("http://188.166.77.89").addConverterFactory(GsonConverterFactory.create()).build();
+                    travelDiaryService = retrofit.create(TravelDiaryService.class);
+
+                    travelDiaryService.getToken(name, password).enqueue(new Callback<RegistrationResponse>() {
+                        @Override
+                        public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
+
+                            RegistrationResponse registrationResponse = response.body();
+                            TOKEN = registrationResponse.getToken();
+
+                            Log.d("Token", " OK");
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<RegistrationResponse> call, Throwable t) {
+
+                            Log.d("Token", t.getMessage());
+
+                        }
+                    });
+
                 }
+
+                /*Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);*/
+
             }
         };
     }
 
-    public boolean isLoginValuesValid( CharSequence email, CharSequence password )
+    public boolean isLoginValuesValid( CharSequence name, CharSequence password )
     {
-        return Validator.isEmailValid( this, email ) && Validator.isPasswordValid( this, password );
+        return Validator.isNameValid( this, name ) && Validator.isPasswordValid( this, password );
     }
 
     public void makeRegistrationLink()

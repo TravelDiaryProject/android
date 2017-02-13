@@ -14,7 +14,7 @@ public class Validator {
     {
         if( name.toString().isEmpty() )
         {
-            Toast.makeText( currentContext, currentContext.getString( R.string.warning_email_empty ), Toast.LENGTH_LONG ).show();
+            Toast.makeText( currentContext, currentContext.getString( R.string.warning_name_with_space ), Toast.LENGTH_LONG ).show();
             return false;
         }
 
@@ -24,13 +24,6 @@ public class Validator {
                 return false;
             }
         }
-
-        if( !Character.isUpperCase( name.charAt( 0 ) ) )
-        {
-            Toast.makeText( currentContext, currentContext.getString( R.string.warning_name_lowercase ), Toast.LENGTH_LONG ).show();
-            return false;
-        }
-
 
         return true;
     }
