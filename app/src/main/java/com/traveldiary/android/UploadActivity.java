@@ -24,10 +24,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import static com.traveldiary.android.Constans.ROOT_URL;
+import static com.traveldiary.android.Constans.TRIP_ID_STRING;
+
 public class UploadActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button uploadFromGalleryButton;
-    private int RESULT_LOAD_IMAGE = 1;
+    private static int RESULT_LOAD_IMAGE = 1;
     private int tripId;
 
 
@@ -36,7 +39,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
 
-        tripId = getIntent().getIntExtra("tripId", 0);
+        tripId = getIntent().getIntExtra(TRIP_ID_STRING, 0);
 
         uploadFromGalleryButton = (Button) findViewById(R.id.uploadFromGalleryButton);
         uploadFromGalleryButton.setOnClickListener(this);
@@ -52,7 +55,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
             TravelDiaryService travelDiaryService;
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("http://188.166.77.89").build();
+                    .baseUrl(ROOT_URL).build();
             travelDiaryService = retrofit.create(TravelDiaryService.class);
 
             ///get path to image
@@ -74,7 +77,7 @@ public class UploadActivity extends AppCompatActivity implements View.OnClickLis
 
             MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-            travelDiaryService.postImage("Bearer " + LoginActivity.TOKEN, body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
+            travelDiaryService.postImage(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 

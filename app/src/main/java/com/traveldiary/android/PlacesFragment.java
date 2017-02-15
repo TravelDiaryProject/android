@@ -28,6 +28,10 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.ROOT_URL;
+import static com.traveldiary.android.Constans.TRIP_ID_STRING;
+
 
 public class PlacesFragment extends Fragment {
     private ChangeFragmentInterface mFragmentInterface;
@@ -50,7 +54,7 @@ public class PlacesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tripId = getArguments().getInt("id");
+        tripId = getArguments().getInt(ID_STRING);
     }
 
 
@@ -68,7 +72,7 @@ public class PlacesFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent uploadActivity = new Intent(getActivity(), UploadActivity.class);
-                uploadActivity.putExtra("tripId", tripId);
+                uploadActivity.putExtra(TRIP_ID_STRING, tripId);
                 startActivity(uploadActivity);
             }
         });
@@ -106,11 +110,11 @@ public class PlacesFragment extends Fragment {
     private void downloadImage() {
 
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://188.166.77.89")
+                .baseUrl(ROOT_URL)
                 .addConverterFactory(GsonConverterFactory.create()).build();
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        travelDiaryService.listPlacesByTrip("Bearer " + LoginActivity.TOKEN, tripId).enqueue(new Callback<List<Place>>() {
+        travelDiaryService.listPlacesByTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
 

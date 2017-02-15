@@ -26,6 +26,9 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.ROOT_URL;
+
 public class TripsFragment extends Fragment {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
@@ -73,7 +76,7 @@ public class TripsFragment extends Fragment {
                 Fragment fragment = new PlacesFragment();
 
                 Bundle args = new Bundle();
-                args.putInt("id", trip.getId());
+                args.putInt(ID_STRING, trip.getId());
                 fragment.setArguments(args);//передаем в новый фрагмент ид трипа чтобы подтянуть имг этого трипа
 
                 mChangeFragmentInterface.trans(fragment);
@@ -103,11 +106,11 @@ public class TripsFragment extends Fragment {
     private void downloadImage() {
 
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://188.166.77.89")
+                .baseUrl(ROOT_URL)
                 .addConverterFactory(GsonConverterFactory.create()).build();
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        travelDiaryService.listAllTrips("Bearer " + LoginActivity.TOKEN).enqueue(new Callback<List<Trip>>() {
+        travelDiaryService.listAllTrips(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
 

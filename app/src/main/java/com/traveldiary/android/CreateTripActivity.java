@@ -18,6 +18,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import static com.traveldiary.android.Constans.ROOT_URL;
+
 public class CreateTripActivity extends AppCompatActivity {
 
     private Button createTripButton;
@@ -41,11 +43,11 @@ public class CreateTripActivity extends AppCompatActivity {
                     TravelDiaryService travelDiaryService;
 
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("http://188.166.77.89").build();
+                            .baseUrl(ROOT_URL).build();
                     travelDiaryService = retrofit.create(TravelDiaryService.class);
 
                     RequestBody tripTitleRequest = RequestBody.create(MediaType.parse("multipart/form-data"), tripTitle);
-                    travelDiaryService.createTrip("Bearer " + LoginActivity.TOKEN, tripTitle).enqueue(new Callback<ResponseBody>() {
+                    travelDiaryService.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle).enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 

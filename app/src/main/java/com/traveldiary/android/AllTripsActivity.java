@@ -7,6 +7,8 @@ import android.os.Bundle;
 
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 
+import static com.traveldiary.android.Constans.ID_STRING;
+
 public class AllTripsActivity extends AppCompatActivity implements ChangeFragmentInterface {
 
     @Override
@@ -17,7 +19,7 @@ public class AllTripsActivity extends AppCompatActivity implements ChangeFragmen
         if (getIntent().hasExtra("OPEN_PLACES_FRAGMENT_WITH_ID")){
             Fragment placesFragment = new PlacesFragment();
             Bundle args = new Bundle();
-            args.putInt("id", getIntent().getIntExtra("OPEN_PLACES_FRAGMENT_WITH_ID", 0));
+            args.putInt(ID_STRING, getIntent().getIntExtra("OPEN_PLACES_FRAGMENT_WITH_ID", 0));
             placesFragment.setArguments(args);
             trans(placesFragment);
         }else {

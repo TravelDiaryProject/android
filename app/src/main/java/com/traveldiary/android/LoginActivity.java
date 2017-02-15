@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.traveldiary.android.Interfaces.TravelDiaryService;
@@ -33,18 +35,25 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.traveldiary.android.Constans.ROOT_URL;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText mEditLoginName;
     private EditText mEditLoginPassword;
     private Button mLoginButton;
 
-    public static String TOKEN;
+    private ProgressBar mProgressBar;
+
+    private String TOKEN;
+    public static StringBuilder TOKEN_TO_SEND = new StringBuilder("Bearer ");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.login_progress);
 
         mEditLoginName = (EditText) findViewById(R.id.editLoginName);
         mEditLoginPassword = (EditText) findViewById(R.id.editLoginPassword);
@@ -61,6 +70,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                mLoginButton.setClickable(false);
+                mProgressBar.setVisibility(View.VISIBLE);
+
                 String name = String.valueOf(mEditLoginName.getText());
                 String password = String.valueOf(mEditLoginPassword.getText());
 
@@ -71,38 +83,55 @@ public class LoginActivity extends AppCompatActivity {
                     TravelDiaryService travelDiaryService;
 
                     Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl("http://188.166.77.89").addConverterFactory(GsonConverterFactory.create()).build();
+                            .baseUrl(ROOT_URL).addConverterFactory(GsonConverterFactory.create()).build();
                     travelDiaryService = retrofit.create(TravelDiaryService.class);
 
                     travelDiaryService.getToken(name, password).enqueue(new Callback<RegistrationResponse>() {
                         @Override
                         public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
 
-                            RegistrationResponse registrationResponse = response.body();
-                            TOKEN = registrationResponse.getToken();
+                            if (response.body()!=null){
+                                RegistrationResponse registrationResponse = response.body();
 
-                            Log.d("Token", " OK");
+                                TOKEN = registrationResponse.getToken();
+                                TOKEN_TO_SEND.append(TOKEN);
 
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
+                                Log.d("Token", " OK");
 
+                                mProgressBar.setVisibility(View.GONE);
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+
+                            }else{
+                                Log.d("Token", " BAD");
+                                mProgressBar.setVisibility(View.GONE);
+                                mLoginButton.setClickable(true);
+                                badLogOrPass();
+                            }
                         }
+
 
                         @Override
                         public void onFailure(Call<RegistrationResponse> call, Throwable t) {
 
+                            mProgressBar.setVisibility(View.GONE);
+                            mLoginButton.setClickable(true);
                             Log.d("Token", t.getMessage());
 
                         }
                     });
 
+                }else {
+                    mProgressBar.setVisibility(View.GONE);
+                    mLoginButton.setClickable(true);
                 }
-
-                /*Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);*/
-
             }
         };
+    }
+
+    public void badLogOrPass(){
+        Toast.makeText(this, "BAD LOG OR PASS", Toast.LENGTH_LONG).show();
     }
 
     public boolean isLoginValuesValid( CharSequence name, CharSequence password )
