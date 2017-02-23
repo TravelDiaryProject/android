@@ -1,6 +1,9 @@
 package com.traveldiary.android;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -61,7 +64,6 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton = (Button) findViewById(R.id.loginButton);
         mLoginButton.setOnClickListener( buttonClickListener() );
 
-
         makeRegistrationLink();
     }
 
@@ -76,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                 String name = String.valueOf(mEditLoginName.getText());
                 String password = String.valueOf(mEditLoginPassword.getText());
 
-                if (isLoginValuesValid(name, password)){
+                if (isLoginValuesValid(name, password) && isNetworkValid()) {
 
                     Log.d("LOG and PASS are", "VALID");
 
@@ -90,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
 
-                            if (response.body()!=null){
+                            if (response.body() != null) {
                                 RegistrationResponse registrationResponse = response.body();
 
                                 TOKEN = registrationResponse.getToken();
@@ -103,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
 
-                            }else{
+                            } else {
                                 Log.d("Token", " BAD");
                                 mProgressBar.setVisibility(View.GONE);
                                 mLoginButton.setClickable(true);
@@ -122,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
 
-                }else {
+                } else {
                     mProgressBar.setVisibility(View.GONE);
                     mLoginButton.setClickable(true);
                 }
@@ -132,6 +134,10 @@ public class LoginActivity extends AppCompatActivity {
 
     public void badLogOrPass(){
         Toast.makeText(this, "BAD LOG OR PASS", Toast.LENGTH_LONG).show();
+    }
+
+    private boolean isNetworkValid() {
+        return Validator.isNetworkAvailable(this);
     }
 
     public boolean isLoginValuesValid( CharSequence name, CharSequence password )

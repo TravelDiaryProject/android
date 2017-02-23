@@ -1,6 +1,8 @@
 package com.traveldiary.android;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Patterns;
 import android.widget.Toast;
 
@@ -9,6 +11,17 @@ import android.widget.Toast;
  */
 
 public class Validator {
+
+    public static boolean isNetworkAvailable(Context currentContext) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) currentContext.getSystemService(currentContext.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if(activeNetworkInfo == null){
+            Toast.makeText(currentContext, "NO INTERNET", Toast.LENGTH_SHORT).show();
+        }
+
+        return activeNetworkInfo != null;
+    }
 
     public static boolean isNameValid( Context currentContext, CharSequence name )
     {

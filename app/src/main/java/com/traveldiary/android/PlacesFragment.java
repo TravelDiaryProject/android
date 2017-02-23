@@ -3,6 +3,7 @@ package com.traveldiary.android;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +23,7 @@ import com.traveldiary.android.essence.Place;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -85,6 +87,23 @@ public class PlacesFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 System.out.println("Click on place ");
+
+                int itemPossition = recyclerView.getChildLayoutPosition(view);
+                Place place = mPlacesList.get(itemPossition);
+
+                if (!place.getLatitude().isEmpty() && !place.getLongitude().isEmpty()) {
+
+
+                    String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    startActivity(intent);
+
+                  /*  Intent intent = new Intent(getActivity(), MapsActivity.class);
+                    intent.putExtra("Latitude", place.getLatitude());
+                    intent.putExtra("Longitude", place.getLongitude());
+                    startActivity(intent);*/
+                }
+
             }
         }, mPlacesList);
         mLayoutManager = new GridLayoutManager(getActivity(), 2);
