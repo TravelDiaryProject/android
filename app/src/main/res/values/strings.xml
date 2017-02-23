@@ -23,6 +23,10 @@
     <string name="warning_name_lowercase">Name should start from an uppercase letter</string>
 
 
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

@@ -57,8 +57,8 @@ public class TripsFragment extends Fragment {
         addTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent createTripActivity = new Intent(getActivity(), CreateTripActivity.class);
-                startActivity(createTripActivity);
+                Fragment fragment = new CreatTripFragment();
+                mChangeFragmentInterface.trans(fragment);
             }
         });
 

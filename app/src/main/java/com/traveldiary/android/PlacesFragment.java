@@ -2,6 +2,7 @@ package com.traveldiary.android;
 
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
@@ -32,17 +34,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.ROOT_URL;
-import static com.traveldiary.android.Constans.TRIP_ID_STRING;
 
 
 public class PlacesFragment extends Fragment {
-    private ChangeFragmentInterface mFragmentInterface;
+    private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
     private Place place;
     private List<Place> mPlacesList;
     private LinearLayoutManager mLayoutManager;
-
     private ProgressBar mProgressBar;
 
     private FloatingActionButton addPlaceButton;
@@ -52,6 +52,9 @@ public class PlacesFragment extends Fragment {
 
     private int tripId;
 
+    private Dialog mDialog;
+    private Button uploadFromGalleryBut;
+    private Button uploadFromCameraBut;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,11 @@ public class PlacesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_places,
                 container, false);
 
+        mDialog = new Dialog(getActivity());
+        mDialog.setContentView(R.layout.dialog_view);
+        uploadFromGalleryBut = (Button) mDialog.findViewById(R.id.uploadFromGalleryBut);
+        uploadFromCameraBut = (Button) mDialog.findViewById(R.id.uploadFromCameraBut);
+
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
 
@@ -73,9 +81,28 @@ public class PlacesFragment extends Fragment {
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent uploadActivity = new Intent(getActivity(), UploadActivity.class);
+                mDialog.show();
+                //mDialogBackButton();
+                uploadFromGalleryBut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDialog.dismiss();
+                        System.out.println("NAZAK");
+
+                        Fragment fragment = new UploadFragment();
+
+                        Bundle args = new Bundle();
+                        args.putInt(ID_STRING, tripId);
+                        fragment.setArguments(args);//передаем в новый фрагмент ид трипа чтобы подтянуть имг этого трипа
+
+                        mChangeFragmentInterface.trans(fragment);
+                        //startActivity(new Intent(TestActivity.this, MainActivity.class));
+                    }
+                });
+
+                /*Intent uploadActivity = new Intent(getActivity(), UploadActivity.class);
                 uploadActivity.putExtra(TRIP_ID_STRING, tripId);
-                startActivity(uploadActivity);
+                startActivity(uploadActivity);*/
             }
         });
 
@@ -120,7 +147,7 @@ public class PlacesFragment extends Fragment {
         super.onAttach(activity);
 
         try {
-            mFragmentInterface = (ChangeFragmentInterface) activity;
+            mChangeFragmentInterface = (ChangeFragmentInterface) activity;
         }catch (ClassCastException e){
             e.printStackTrace();
         }

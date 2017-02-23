@@ -1,13 +1,16 @@
 package com.traveldiary.android;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
+import android.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
 
 import okhttp3.MediaType;
@@ -20,19 +23,27 @@ import retrofit2.Retrofit;
 
 import static com.traveldiary.android.Constans.ROOT_URL;
 
-public class CreateTripActivity extends AppCompatActivity {
+
+public class CreatTripFragment extends Fragment {
 
     private Button createTripButton;
     private EditText editTripTitle;
 
+    private ChangeFragmentInterface mChangeFragmentInterface;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_trip);
+    }
 
-        createTripButton = (Button) findViewById(R.id.createTripButton);
-        editTripTitle = (EditText) findViewById(R.id.editTripTitle);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_creat_trip,
+                container, false);
+
+        createTripButton = (Button) rootView.findViewById(R.id.createTripButton);
+        editTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
 
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +57,7 @@ public class CreateTripActivity extends AppCompatActivity {
                             .baseUrl(ROOT_URL).build();
                     travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-                    RequestBody tripTitleRequest = RequestBody.create(MediaType.parse("multipart/form-data"), tripTitle);
+                    //RequestBody tripTitleRequest = RequestBody.create(MediaType.parse("multipart/form-data"), tripTitle);
                     travelDiaryService.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle).enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -60,20 +71,30 @@ public class CreateTripActivity extends AppCompatActivity {
 
                         }
                     });
-
-
                 }
             }
         });
 
+        return rootView;
     }
 
     public void inform(){
-        Toast toast = Toast.makeText(this,
+        Toast toast = Toast.makeText(getActivity(),
                 "Trip created!!!", Toast.LENGTH_SHORT);
         toast.show();
 
-        Intent intent = new Intent(this, AllTripsActivity.class);
-        startActivity(intent);
+        Fragment fragment = new TripsFragment();
+        mChangeFragmentInterface.trans(fragment);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        try {
+            mChangeFragmentInterface = (ChangeFragmentInterface) activity;
+        }catch (ClassCastException e){
+            e.printStackTrace();
+        }
     }
 }
