@@ -4,11 +4,17 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/menu_trips"
-            android:title="@string/trips" />
+            android:title="All Trips" />
+
+        <item
+            android:id="@+id/menu_places"
+            android:title="All Places" />
 
         <item
             android:id="@+id/menu_upload"
-            android:title="Upload" />
+            android:title="Search" />
+
+
 
     </group>
 

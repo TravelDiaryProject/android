@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -45,6 +46,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == R.id.action_login) {
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment fragment;
 
@@ -53,8 +71,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new TripsFragment();
                 trans(fragment);
                 break;
+            case R.id.menu_places:
+                fragment = new PlacesFragment();
+                trans(fragment);
+                break;
             case R.id.menu_upload:
-                System.out.println("Menu Upload");
+                fragment = new MainFragment();
+                trans(fragment);
                 break;
         }
         drawerLayout.closeDrawer(GravityCompat.START);

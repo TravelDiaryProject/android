@@ -24,19 +24,22 @@ import retrofit2.http.Path;
  */
 
 public interface TravelDiaryService {
-    /*@GET("/api/v1/trips")
-    Call<List<Trip>> listAllTrips();*/
 
     @GET("/api/v1/trips")
+    Call<List<Trip>> listAllTrips();
+
+    @GET("/api/v1/places")
+    Call<List<Place>> listAllPlaces();
+
+   /* @GET("/api/v1/trips")
     Call<List<Trip>> listAllTrips(@Header("Authorization") String token);
-
-
-
-   /* @GET("/api/v1/trip/{id}/places")
-    Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);*/
+*/
 
     @GET("/api/v1/trip/{id}/places")
-    Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);
+    Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
+
+    /*@GET("/api/v1/trip/{id}/places")
+    Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);*/
 
 
     /*@Multipart
@@ -62,5 +65,9 @@ public interface TravelDiaryService {
     @FormUrlEncoded
     @POST("/api/v1/login_check")
     Call<RegistrationResponse> getToken(@Field("_username") String username, @Field("_password") String password);
+
+    @FormUrlEncoded
+    @POST("/api/v1/register")
+    Call<RegistrationResponse> registration(@Field("_email") String username, @Field("_password") String password);
 
 }

@@ -59,7 +59,11 @@ public class PlacesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tripId = getArguments().getInt(ID_STRING);
+
+        if (getArguments() != null){
+            tripId = getArguments().getInt(ID_STRING);
+        }
+
     }
 
 
@@ -87,7 +91,6 @@ public class PlacesFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         mDialog.dismiss();
-                        System.out.println("NAZAK");
 
                         Fragment fragment = new UploadFragment();
 
@@ -138,7 +141,11 @@ public class PlacesFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-        downloadImage();
+        if (getArguments() != null){
+            downloadImageById();
+        }else {
+            downloadAllPlaces();
+        }
 
         return rootView;
     }
@@ -153,14 +160,39 @@ public class PlacesFragment extends Fragment {
         }
     }
 
-    private void downloadImage() {
+    private void downloadAllPlaces() {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(ROOT_URL)
                 .addConverterFactory(GsonConverterFactory.create()).build();
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        travelDiaryService.listPlacesByTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripId).enqueue(new Callback<List<Place>>() {
+        travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
+            @Override
+            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+
+                mPlacesList.addAll(response.body());
+
+                mProgressBar.setVisibility(View.GONE);
+
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Place>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void downloadImageById() {
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ROOT_URL)
+                .addConverterFactory(GsonConverterFactory.create()).build();
+        travelDiaryService = retrofit.create(TravelDiaryService.class);
+
+        travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
 

@@ -2,6 +2,7 @@ package com.traveldiary.android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
@@ -42,7 +43,7 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText mEditLoginName;
+    private EditText mEditEmail;
     private EditText mEditLoginPassword;
     private Button mLoginButton;
 
@@ -50,6 +51,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private String TOKEN;
     public static StringBuilder TOKEN_TO_SEND = new StringBuilder("Bearer ");
+    //private SharedPreferences mLoginSetting;
+    //public static final String SAVED_TOKEN = "saved_token";
+    //public static final String APP_PREFERENCES = "mLoginSetting";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mProgressBar = (ProgressBar) findViewById(R.id.login_progress);
 
-        mEditLoginName = (EditText) findViewById(R.id.editLoginName);
+        mEditEmail = (EditText) findViewById(R.id.editEmail);
         mEditLoginPassword = (EditText) findViewById(R.id.editLoginPassword);
 
         mLoginButton = (Button) findViewById(R.id.loginButton);
@@ -75,10 +80,10 @@ public class LoginActivity extends AppCompatActivity {
                 mLoginButton.setClickable(false);
                 mProgressBar.setVisibility(View.VISIBLE);
 
-                String name = String.valueOf(mEditLoginName.getText());
+                String email = String.valueOf(mEditEmail.getText());
                 String password = String.valueOf(mEditLoginPassword.getText());
 
-                if (isLoginValuesValid(name, password) && isNetworkValid()) {
+                if (isLoginValuesValid(email, password) && isNetworkValid()) {
 
                     Log.d("LOG and PASS are", "VALID");
 
@@ -88,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                             .baseUrl(ROOT_URL).addConverterFactory(GsonConverterFactory.create()).build();
                     travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-                    travelDiaryService.getToken(name, password).enqueue(new Callback<RegistrationResponse>() {
+                    travelDiaryService.getToken(email, password).enqueue(new Callback<RegistrationResponse>() {
                         @Override
                         public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
 
@@ -97,6 +102,10 @@ public class LoginActivity extends AppCompatActivity {
 
                                 TOKEN = registrationResponse.getToken();
                                 TOKEN_TO_SEND.append(TOKEN);
+
+                                //SharedPreferences.Editor editor = mLoginSetting.edit();
+                                //editor.putString(SAVED_TOKEN, TOKEN);
+                                //editor.apply();
 
                                 Log.d("Token", " OK");
 
@@ -142,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public boolean isLoginValuesValid( CharSequence name, CharSequence password )
     {
-        return Validator.isNameValid( this, name ) && Validator.isPasswordValid( this, password );
+        return Validator.isEmailValid( this, name ) && Validator.isPasswordValid( this, password );
     }
 
     public void makeRegistrationLink()

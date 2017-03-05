@@ -1,0 +1,32 @@
+package com.traveldiary.android.essence;
+
+/**
+ * Created by Cyborg on 2/27/2017.
+ */
+
+public class City {
+
+    private int id;
+    private String name;
+
+    public City(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+}
