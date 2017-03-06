@@ -31,9 +31,11 @@ public interface TravelDiaryService {
     @GET("/api/v1/places")
     Call<List<Place>> listAllPlaces();
 
-   /* @GET("/api/v1/trips")
-    Call<List<Trip>> listAllTrips(@Header("Authorization") String token);
-*/
+    @GET("/api/v1/my/trips")
+    Call<List<Trip>> listMyTrips(@Header("Authorization") String token);
+
+    @GET("/api/v1/my/places")
+    Call<List<Place>> listMyPlaces(@Header("Authorization") String token);
 
     @GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
@@ -47,7 +49,7 @@ public interface TravelDiaryService {
     Call<ResponseBody> postImage(@Part MultipartBody.Part image, @Part("tripId") RequestBody tripId);*/
 
     @Multipart
-    @POST("/api/v1/place")
+    @POST("/api/v1/my/place")
     Call<ResponseBody> postImage(@Header("Authorization") String token, @Part MultipartBody.Part image, @Part("tripId") RequestBody tripId);
 
 
@@ -57,7 +59,7 @@ public interface TravelDiaryService {
     Call<ResponseBody> createTrip(@Field("title") String tripTitle);*/
 
     @FormUrlEncoded
-    @POST("/api/v1/trip")
+    @POST("/api/v1/my/trip")
     Call<ResponseBody> createTrip(@Header("Authorization") String token, @Field("title") String tripTitle);
 
 

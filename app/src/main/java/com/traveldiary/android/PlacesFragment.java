@@ -32,7 +32,10 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.MY;
+import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.ROOT_URL;
 
 
@@ -56,16 +59,17 @@ public class PlacesFragment extends Fragment {
     private Button uploadFromGalleryBut;
     private Button uploadFromCameraBut;
 
+    private String placesFor;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null){
+            placesFor = getArguments().getString(PLACES_FOR);
             tripId = getArguments().getInt(ID_STRING);
         }
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -141,9 +145,12 @@ public class PlacesFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-        if (getArguments() != null){
+
+        if (placesFor == null){
             downloadImageById();
-        }else {
+        }else if (placesFor.equals(MY)){
+            downloadMyPlaces();
+        }else if (placesFor.equals(ALL)){
             downloadAllPlaces();
         }
 
@@ -158,6 +165,31 @@ public class PlacesFragment extends Fragment {
         }catch (ClassCastException e){
             e.printStackTrace();
         }
+    }
+
+    private void downloadMyPlaces() {
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ROOT_URL)
+                .addConverterFactory(GsonConverterFactory.create()).build();
+        travelDiaryService = retrofit.create(TravelDiaryService.class);
+
+        travelDiaryService.listMyPlaces(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Place>>() {
+            @Override
+            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+
+                mPlacesList.addAll(response.body());
+
+                mProgressBar.setVisibility(View.GONE);
+
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Place>> call, Throwable t) {
+
+            }
+        });
     }
 
     private void downloadAllPlaces() {

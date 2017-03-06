@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.ROOT_URL;
+import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class TripsFragment extends Fragment implements View.OnClickListener {
 
@@ -44,6 +46,18 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
 
     private Retrofit retrofit;
     private static TravelDiaryService travelDiaryService;
+
+    private String tripsFor = "All";
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() != null){
+            tripsFor = getArguments().getString(TRIPS_FOR);
+        }
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,7 +79,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-        downloadImage();
+        if (tripsFor.equals("My")) {
+            downloadMyTrips();
+            System.out.println("token = " + LoginActivity.TOKEN_TO_SEND);
+        }else {
+            downloadAllTrips();
+        }
 
         return rootView;
     }
@@ -81,7 +100,34 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void downloadImage() {
+    private void downloadMyTrips() {
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(ROOT_URL)
+                .addConverterFactory(GsonConverterFactory.create()).build();
+        travelDiaryService = retrofit.create(TravelDiaryService.class);
+
+        travelDiaryService.listMyTrips(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Trip>>() {
+            @Override
+            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
+
+                System.out.println(response.body().toString());
+
+                mTripList.addAll(response.body());
+
+                mProgressBar.setVisibility(View.GONE);
+
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Trip>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void downloadAllTrips() {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(ROOT_URL)

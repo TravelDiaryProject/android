@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
 
     private String TOKEN;
-    public static StringBuilder TOKEN_TO_SEND = new StringBuilder("Bearer ");
+    public static StringBuilder TOKEN_TO_SEND;
     //private SharedPreferences mLoginSetting;
     //public static final String SAVED_TOKEN = "saved_token";
     //public static final String APP_PREFERENCES = "mLoginSetting";
@@ -101,6 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                                 RegistrationResponse registrationResponse = response.body();
 
                                 TOKEN = registrationResponse.getToken();
+                                TOKEN_TO_SEND = new StringBuilder("Bearer ");
                                 TOKEN_TO_SEND.append(TOKEN);
 
                                 //SharedPreferences.Editor editor = mLoginSetting.edit();
