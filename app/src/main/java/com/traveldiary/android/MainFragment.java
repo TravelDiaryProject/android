@@ -80,8 +80,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 .addConverterFactory(GsonConverterFactory.create()).build();
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
-        System.out.println("AAAAAAAAAAAaa = " + LoginActivity.TOKEN_TO_SEND.toString());
-
         travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {

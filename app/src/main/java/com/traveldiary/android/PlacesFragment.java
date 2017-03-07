@@ -197,6 +197,7 @@ public class PlacesFragment extends Fragment {
         retrofit = new Retrofit.Builder()
                 .baseUrl(ROOT_URL)
                 .addConverterFactory(GsonConverterFactory.create()).build();
+
         travelDiaryService = retrofit.create(TravelDiaryService.class);
 
         travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
