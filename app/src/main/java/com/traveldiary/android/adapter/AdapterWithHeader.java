@@ -7,10 +7,14 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -18,9 +22,11 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
+import com.traveldiary.android.essence.City;
 import com.traveldiary.android.essence.Header;
 import com.traveldiary.android.essence.Trip;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,6 +35,8 @@ import java.util.List;
  */
 
 public class AdapterWithHeader extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    public static City searchCity;
 
     private static final int TYPE_HEADRE = 0;
     private static final int TYPE_ITEM = 1;
@@ -40,13 +48,15 @@ public class AdapterWithHeader extends RecyclerView.Adapter<RecyclerView.ViewHol
     Context mContext;
 
     Header header;
-    List<Trip> listTrips;
+    private List<Trip> listTrips;
+    private List<City> listCities;
 
     Button button;
 
-    public AdapterWithHeader(Header header, List<Trip> listTrips, View.OnClickListener onClickListener) {
+    public AdapterWithHeader(Header header, List<Trip> listTrips, List<City> listCities, View.OnClickListener onClickListener) {
         this.header = header;
         this.listTrips = listTrips;
+        this.listCities = listCities;
         this.mOnClickListener = onClickListener;
     }
 
@@ -82,21 +92,29 @@ public class AdapterWithHeader extends RecyclerView.Adapter<RecyclerView.ViewHol
             headerHolder.headreText.setText(header.getName());
             //header.setId(String.valueOf(headerHolder.editText1.getText()));
 
-            headerHolder.editText1.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            List<String> cities = new ArrayList<>();
+            for (int i = 0; i < listCities.size(); i++){
+                cities.add(listCities.get(i).getName());
+            }
 
+            ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(mContext,
+                    android.R.layout.simple_spinner_item, cities);
+            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            headerHolder.spinnerCity.setAdapter(dataAdapter);
+
+            headerHolder.spinnerCity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapter, View v,
+                                           int position, long id) {
+
+                    searchCity = listCities.get(position);
+                    //searchCity = adapter.getItemAtPosition(position).toString();
+                    //Toast.makeText(mContext,
+                    //        "Selected Country : " + searchCity, Toast.LENGTH_SHORT).show();
                 }
-
                 @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    header.setId(charSequence.toString());
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    // TODO Auto-generated method stub
                 }
             });
 
@@ -151,13 +169,15 @@ public class AdapterWithHeader extends RecyclerView.Adapter<RecyclerView.ViewHol
     class VHHeader extends RecyclerView.ViewHolder{
 
         TextView headreText;
-        EditText editText1;
+        //EditText editText1;
+        Spinner spinnerCity;
         Button button;
 
         public VHHeader(View itemView) {
             super(itemView);
             this.headreText = (TextView) itemView.findViewById(R.id.txtHeader);
-            this.editText1 = (EditText) itemView.findViewById(R.id.editText);
+            //this.editText1 = (EditText) itemView.findViewById(R.id.editText);
+            this.spinnerCity = (Spinner) itemView.findViewById(R.id.spinnerCity);
             this.button = (Button) itemView.findViewById(R.id.createTripButton);
 //            this.button.setOnClickListener(mOnClickListener);
         }

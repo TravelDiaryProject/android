@@ -50,7 +50,6 @@ public class PlacesFragment extends Fragment {
 
     private FloatingActionButton addPlaceButton;
 
-    private Retrofit retrofit;
     private static TravelDiaryService travelDiaryService;
 
     private int tripId;
@@ -128,14 +127,14 @@ public class PlacesFragment extends Fragment {
                 if (!place.getLatitude().isEmpty() && !place.getLongitude().isEmpty()) {
 
 
-                    String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
+                   /* String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(intent);
+                    startActivity(intent);*/
 
-                  /*  Intent intent = new Intent(getActivity(), MapsActivity.class);
+                    Intent intent = new Intent(getActivity(), MapsActivity.class);
                     intent.putExtra("Latitude", place.getLatitude());
                     intent.putExtra("Longitude", place.getLongitude());
-                    startActivity(intent);*/
+                    startActivity(intent);
                 }
 
             }
@@ -169,10 +168,7 @@ public class PlacesFragment extends Fragment {
 
     private void downloadMyPlaces() {
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        travelDiaryService = retrofit.create(TravelDiaryService.class);
+        travelDiaryService = Api.getTravelDiaryService();
 
         travelDiaryService.listMyPlaces(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Place>>() {
             @Override
@@ -194,11 +190,7 @@ public class PlacesFragment extends Fragment {
 
     private void downloadAllPlaces() {
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-
-        travelDiaryService = retrofit.create(TravelDiaryService.class);
+        travelDiaryService = Api.getTravelDiaryService();
 
         travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
             @Override
@@ -220,10 +212,7 @@ public class PlacesFragment extends Fragment {
 
     private void downloadImageById() {
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        travelDiaryService = retrofit.create(TravelDiaryService.class);
+        travelDiaryService = Api.getTravelDiaryService();
 
         travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
             @Override

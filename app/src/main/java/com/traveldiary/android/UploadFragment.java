@@ -33,6 +33,7 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class UploadFragment extends Fragment {
 
+    private TravelDiaryService mTravelDiaryService;
     private ChangeFragmentInterface mChangeFragmentInterface;
     private int mTripId;
     private static int RESULT_LOAD_IMAGE = 1;
@@ -62,12 +63,6 @@ public class UploadFragment extends Fragment {
 
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
 
-            TravelDiaryService travelDiaryService;
-
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(ROOT_URL).build();
-            travelDiaryService = retrofit.create(TravelDiaryService.class);
-
             ///get path to image
             Uri selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
@@ -87,7 +82,8 @@ public class UploadFragment extends Fragment {
 
             MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-            travelDiaryService.postImage(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
+            mTravelDiaryService = Api.getTravelDiaryService();
+            mTravelDiaryService.postImage(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 

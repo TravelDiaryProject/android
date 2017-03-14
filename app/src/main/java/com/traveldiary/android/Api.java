@@ -7,36 +7,41 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.traveldiary.android.Constans.ROOT_URL;
 
-/**
- * Created by Cyborg on 3/7/2017.
- */
 
 public class Api {
 
-    private static Api instance = null;
+    private static Retrofit retrofit = null;
 
-    private TravelDiaryService travelDiaryService;
+    private static TravelDiaryService travelDiaryService;
 
-    public static Api getInstance(){
-        if (instance == null) {
+    private Api() {
+    }
+
+    public static TravelDiaryService getTravelDiaryService(){
+        return initTravelDiaryService();
+    }
+
+    private static TravelDiaryService initTravelDiaryService(){
+        if (travelDiaryService == null) {
             synchronized (Api.class) {
-                if (instance == null) {
-                    instance = new Api();
+                if (travelDiaryService == null) {
+                    travelDiaryService = getRetrofit().create(TravelDiaryService.class);
                 }
             }
         }
-        return instance;
+        return travelDiaryService;
     }
 
-    private Api(){
-        buildRetrofit();
-    }
-
-    private void buildRetrofit(){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-
-        this.travelDiaryService = retrofit.create(TravelDiaryService.class);
+    private synchronized static Retrofit getRetrofit() {
+        if (retrofit == null) {
+            synchronized (Api.class) {
+                if (retrofit == null) {
+                    retrofit = new Retrofit.Builder()
+                            .baseUrl(ROOT_URL)
+                            .addConverterFactory(GsonConverterFactory.create()).build();
+                }
+            }
+        }
+        return retrofit;
     }
 }

@@ -1,5 +1,6 @@
 package com.traveldiary.android.Interfaces;
 
+import com.traveldiary.android.essence.City;
 import com.traveldiary.android.essence.Place;
 import com.traveldiary.android.essence.RegistrationResponse;
 import com.traveldiary.android.essence.Trip;
@@ -31,6 +32,9 @@ public interface TravelDiaryService {
     @GET("/api/v1/places")
     Call<List<Place>> listAllPlaces();
 
+    @GET("/api/v1/cities")
+    Call<List<City>> listAllCities();
+
     @GET("/api/v1/my/trips")
     Call<List<Trip>> listMyTrips(@Header("Authorization") String token);
 
@@ -39,6 +43,9 @@ public interface TravelDiaryService {
 
     @GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
+
+    @GET("/api/v1/places?city_id={id}")
+    Call<List<Place>> listPlacesByCity(@Path("id") int cityId);
 
     /*@GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);*/

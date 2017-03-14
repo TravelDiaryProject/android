@@ -22,6 +22,7 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class RegistrationActivity extends AppCompatActivity {
 
+    private TravelDiaryService travelDiaryService;
     //private EditText mEditName;
     private EditText mEditEmail;
     private EditText mEditPassword;
@@ -56,11 +57,7 @@ public class RegistrationActivity extends AppCompatActivity {
                     Log.d("All info VALID:", /*name.toString() + " - " +*/ email + " - " + password);
                     //All info VAlid we will send it so server
 
-                    TravelDiaryService travelDiaryService;
-
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(ROOT_URL).addConverterFactory(GsonConverterFactory.create()).build();
-                    travelDiaryService = retrofit.create(TravelDiaryService.class);
+                    travelDiaryService = Api.getTravelDiaryService();
 
                     travelDiaryService.registration(email, password).enqueue(new Callback<RegistrationResponse>() {
                         @Override

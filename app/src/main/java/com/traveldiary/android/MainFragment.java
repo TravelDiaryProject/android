@@ -16,6 +16,7 @@ import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
 import com.traveldiary.android.adapter.AdapterWithHeader;
 import com.traveldiary.android.adapter.RecyclerAdapter;
+import com.traveldiary.android.essence.City;
 import com.traveldiary.android.essence.Header;
 import com.traveldiary.android.essence.Trip;
 
@@ -39,9 +40,11 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     private LinearLayoutManager mLayoutManager;
     RecyclerView recyclerView;
+
     List<Trip> mTripList;
+    List<City> mCityList;
+
     AdapterWithHeader adapterWithHeader;
-    private Retrofit retrofit;
     private static TravelDiaryService travelDiaryService;
 
     @Override
@@ -59,26 +62,48 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         recyclerView = (RecyclerView) rootView.findViewById(R.id.fragment_recycler_view);
 
         mTripList = new ArrayList<>();
+        mCityList = new ArrayList<>();
 
-        adapterWithHeader = new AdapterWithHeader(getHeader(), mTripList, this);
+        downloadCity();
+
+        adapterWithHeader = new AdapterWithHeader(getHeader(), mTripList, mCityList, this);
         mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapterWithHeader);
 
 
-        downloadImage();
+        downloadTrips();
 
         return rootView;
     }
 
+    private void downloadCity(){
 
-    private void downloadImage() {
+        travelDiaryService = Api.getTravelDiaryService();
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        travelDiaryService = retrofit.create(TravelDiaryService.class);
+        travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
+            @Override
+            public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {
+
+                mCityList.addAll(response.body());
+
+               // System.out.println("size ====== " + mCityList.size());
+
+                //mProgressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<List<City>> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void downloadTrips() {
+
+        travelDiaryService = Api.getTravelDiaryService();
 
         travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
@@ -101,7 +126,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     public Header getHeader(){
         header = new Header();
-        header.setName("Вот и хефдер");
+        header.setName("Вот и хедер");
         return header;
     }
 
@@ -121,10 +146,17 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
         //Button listener
         if (view.getParent()instanceof LinearLayout){
-            System.out.println("instanceof Liner");
-            System.out.println("id" + header.getId());
 
-            Trip trip = mTripList.get(Integer.parseInt(header.getId()));
+            System.out.println("CIIIIIIIIIIIIIIIIIITy = " + AdapterWithHeader.searchCity.getId() + AdapterWithHeader.searchCity.getName());
+
+
+
+
+        //list item listener
+        }else if (view.getParent()instanceof RecyclerView){
+
+            int possition = recyclerView.getChildLayoutPosition(view);
+            Trip trip = mTripList.get(possition - 1);
 
             Fragment fragment = new PlacesFragment();
 
@@ -133,10 +165,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             fragment.setArguments(args);//передаем в новый фрагмент ид трипа чтобы подтянуть имг этого трипа
 
             mChangeFragmentInterface.trans(fragment);
-
-        //list item listener
-        }else if (view.getParent()instanceof RecyclerView){
-            System.out.println("Recycler");
         }
     }
 }

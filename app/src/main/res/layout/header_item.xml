@@ -7,18 +7,22 @@
     <TextView
         android:id="@+id/txtHeader"
         android:gravity="center"
-        android:textColor="@android:color/primary_text_dark"
         android:textSize="@dimen/abc_text_size_large_material"
         android:layout_width="match_parent"
         android:layout_height="50dp" />
 
-    <EditText
+   <!-- <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
         android:text="Name"
         android:ems="10"
-        android:id="@+id/editText" />
+        android:id="@+id/editText" />-->
+
+    <Spinner
+        android:id="@+id/spinnerCity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
         android:text="Button"

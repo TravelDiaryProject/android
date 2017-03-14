@@ -26,6 +26,7 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class CreatTripFragment extends Fragment {
 
+    private TravelDiaryService travelDiaryService;
     private Button createTripButton;
     private EditText editTripTitle;
 
@@ -51,11 +52,7 @@ public class CreatTripFragment extends Fragment {
                 if (editTripTitle != null){
                     String tripTitle = editTripTitle.getText().toString();
 
-                    TravelDiaryService travelDiaryService;
-
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(ROOT_URL).build();
-                    travelDiaryService = retrofit.create(TravelDiaryService.class);
+                    travelDiaryService = Api.getTravelDiaryService();
 
                     //RequestBody tripTitleRequest = RequestBody.create(MediaType.parse("multipart/form-data"), tripTitle);
                     travelDiaryService.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle).enqueue(new Callback<ResponseBody>() {

@@ -43,6 +43,7 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private TravelDiaryService travelDiaryService;
     private EditText mEditEmail;
     private EditText mEditLoginPassword;
     private Button mLoginButton;
@@ -87,11 +88,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     Log.d("LOG and PASS are", "VALID");
 
-                    TravelDiaryService travelDiaryService;
-
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(ROOT_URL).addConverterFactory(GsonConverterFactory.create()).build();
-                    travelDiaryService = retrofit.create(TravelDiaryService.class);
+                    travelDiaryService = Api.getTravelDiaryService();
 
                     travelDiaryService.getToken(email, password).enqueue(new Callback<RegistrationResponse>() {
                         @Override

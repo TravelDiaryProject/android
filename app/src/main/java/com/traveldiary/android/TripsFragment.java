@@ -102,10 +102,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
 
     private void downloadMyTrips() {
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        travelDiaryService = retrofit.create(TravelDiaryService.class);
+        travelDiaryService = Api.getTravelDiaryService();
 
         travelDiaryService.listMyTrips(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Trip>>() {
             @Override
@@ -129,16 +126,17 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
 
     private void downloadAllTrips() {
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl(ROOT_URL)
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        travelDiaryService = retrofit.create(TravelDiaryService.class);
+        travelDiaryService = Api.getTravelDiaryService();
 
         travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
 
+                System.out.printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAonResponse = " + response.body().toString());
+
+
                 mTripList.addAll(response.body());
+
 
                 mProgressBar.setVisibility(View.GONE);
 
@@ -147,7 +145,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-
+                System.out.printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAonFailure = " + t.toString());
             }
         });
     }
