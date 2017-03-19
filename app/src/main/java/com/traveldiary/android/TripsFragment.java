@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.icu.util.ValueIterator;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,7 +28,9 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.ROOT_URL;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
@@ -47,7 +49,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
     private Retrofit retrofit;
     private static TravelDiaryService travelDiaryService;
 
-    private String tripsFor = "All";
+    private String tripsFor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,10 +81,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-        if (tripsFor.equals("My")) {
+
+        if (tripsFor == null){
+            System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
+        }else if (tripsFor.equals(MY)) {
             downloadMyTrips();
-            System.out.println("token = " + LoginActivity.TOKEN_TO_SEND);
-        }else {
+        }else if (tripsFor.equals(ALL)){
             downloadAllTrips();
         }
 
@@ -131,9 +135,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
         travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
-                System.out.printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAonResponse = " + response.body().toString());
-
 
                 mTripList.addAll(response.body());
 

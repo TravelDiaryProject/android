@@ -114,7 +114,7 @@ public class AdapterWithHeader extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
-                    // TODO Auto-generated method stub
+
                 }
             });
 

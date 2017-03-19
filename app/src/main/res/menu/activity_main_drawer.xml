@@ -10,6 +10,9 @@
         <item
             android:id="@+id/menu_my_places"
             android:title="My Places" />
+        <item
+            android:id="@+id/menu_my_trips_and_places"
+            android:title="My Trips AND Places" />
 
     </group>
 
@@ -28,6 +31,10 @@
         <item
             android:id="@+id/menu_search"
             android:title="Search" />
+
+        <item
+            android:id="@+id/menu_tripsandplaces"
+            android:title="TripsAndPlaces"/>
 
 
 

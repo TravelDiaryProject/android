@@ -1,7 +1,9 @@
 package com.traveldiary.android;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+//import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -22,6 +24,7 @@ import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import java.util.Locale;
 
 import static com.traveldiary.android.Constans.ALL;
+import static com.traveldiary.android.Constans.LOAD_TO;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
@@ -70,12 +73,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Fragment fragment;
+        Bundle args;
 
         switch (item.getItemId()){
             case R.id.menu_my_trips:
                 if (LoginActivity.TOKEN_TO_SEND != null) {
                     fragment = new TripsFragment();
-                    Bundle args = new Bundle();
+                    args = new Bundle();
                     args.putString(TRIPS_FOR, MY);
                     fragment.setArguments(args);
                     trans(fragment);
@@ -86,8 +90,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_my_places:
                 if (LoginActivity.TOKEN_TO_SEND != null) {
                     fragment = new PlacesFragment();
-                    Bundle args = new Bundle();
+                    args = new Bundle();
                     args.putString(PLACES_FOR, MY);
+                    fragment.setArguments(args);
+                    trans(fragment);
+                }else {
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+                break;
+            case R.id.menu_my_trips_and_places:
+                if (LoginActivity.TOKEN_TO_SEND != null) {
+                    fragment = new FragmentTabs();
+                    args = new Bundle();
+                    args.putString(LOAD_TO, MY);
                     fragment.setArguments(args);
                     trans(fragment);
                 }else {
@@ -96,11 +111,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_all_trips:
                 fragment = new TripsFragment();
+                args = new Bundle();
+                args.putString(TRIPS_FOR, ALL);
+                fragment.setArguments(args);
                 trans(fragment);
                 break;
             case R.id.menu_all_places:
                 fragment = new PlacesFragment();
-                Bundle args = new Bundle();
+                args = new Bundle();
                 args.putString(PLACES_FOR, ALL);
                 fragment.setArguments(args);
                 trans(fragment);
@@ -109,13 +127,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new MainFragment();
                 trans(fragment);
                 break;
+            case R.id.menu_tripsandplaces:
+                fragment = new FragmentTabs();
+                args = new Bundle();
+                args.putString(LOAD_TO, ALL);
+                fragment.setArguments(args);
+                trans(fragment);
+                break;
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return false;
     }
 
-    public void trans(Fragment fragment){
+  /*  public void trans(Fragment fragment){
         FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_main, fragment);
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+    }*/
+
+    @Override
+    public void trans(android.support.v4.app.Fragment fragment) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
         ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

@@ -1,6 +1,6 @@
 package com.traveldiary.android.Interfaces;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 
 /**
  * Created by Cyborg on 2/2/2017.

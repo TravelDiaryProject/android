@@ -6,7 +6,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -131,9 +131,14 @@ public class PlacesFragment extends Fragment {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                     startActivity(intent);*/
 
-                    Intent intent = new Intent(getActivity(), MapsActivity.class);
+                  /*  Intent intent = new Intent(getActivity(), MapsActivity.class);
                     intent.putExtra("Latitude", place.getLatitude());
                     intent.putExtra("Longitude", place.getLongitude());
+                    startActivity(intent);*/
+
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    intent.putExtra("Id", place.getId());
+                    intent.putExtra("Photo", place.getPhoto());
                     startActivity(intent);
                 }
 
