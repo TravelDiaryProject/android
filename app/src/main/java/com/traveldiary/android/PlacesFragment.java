@@ -35,6 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
+import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.ROOT_URL;
 
@@ -53,6 +54,7 @@ public class PlacesFragment extends Fragment {
     private static TravelDiaryService travelDiaryService;
 
     private int tripId;
+    private int cityId;
 
     private Dialog mDialog;
     private Button uploadFromGalleryBut;
@@ -67,6 +69,7 @@ public class PlacesFragment extends Fragment {
         if (getArguments() != null){
             placesFor = getArguments().getString(PLACES_FOR);
             tripId = getArguments().getInt(ID_STRING);
+            cityId = getArguments().getInt(PLACES_BY_CITY);
         }
     }
 
@@ -131,15 +134,15 @@ public class PlacesFragment extends Fragment {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                     startActivity(intent);*/
 
-                  /*  Intent intent = new Intent(getActivity(), MapsActivity.class);
+                    Intent intent = new Intent(getActivity(), MapsActivity.class);
                     intent.putExtra("Latitude", place.getLatitude());
                     intent.putExtra("Longitude", place.getLongitude());
-                    startActivity(intent);*/
+                    startActivity(intent);
 
-                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                   /* Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra("Id", place.getId());
                     intent.putExtra("Photo", place.getPhoto());
-                    startActivity(intent);
+                    startActivity(intent);*/
                 }
 
             }
@@ -150,11 +153,20 @@ public class PlacesFragment extends Fragment {
         recyclerView.setAdapter(recyclerAdapter);
 
 
+
+        // временный ужас!!!!!!
         if (placesFor == null){
-            downloadImageById();
+            System.out.println("null places for");
+
+            if (cityId != 0){
+                downloadImageByCity();
+            }else{
+                downloadImageById();
+            }
+
         }else if (placesFor.equals(MY)){
             downloadMyPlaces();
-        }else if (placesFor.equals(ALL)){
+        }else if (placesFor.equals(ALL)) {
             downloadAllPlaces();
         }
 
@@ -232,6 +244,31 @@ public class PlacesFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Place>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void downloadImageByCity() {
+
+        System.out.println("1");
+        travelDiaryService = Api.getTravelDiaryService();
+
+        travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
+            @Override
+            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+
+                System.out.println("2");
+                mPlacesList.addAll(response.body());
+
+                mProgressBar.setVisibility(View.GONE);
+
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<List<Place>> call, Throwable t) {
+                System.out.println("3");
 
             }
         });

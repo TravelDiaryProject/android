@@ -14,6 +14,8 @@ public class Constans {
     public static final String MY = "My";
     public static final String ALL = "All";
     public static final String LOAD_TO = "LOAD_TO";
+    public static final String  PLACES_BY_CITY = "LOAD_TO";
+
 
 
 }

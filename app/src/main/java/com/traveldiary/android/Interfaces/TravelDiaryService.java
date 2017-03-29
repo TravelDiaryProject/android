@@ -19,6 +19,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by Cyborg on 2/3/2017.
@@ -44,8 +45,11 @@ public interface TravelDiaryService {
     @GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
 
-    @GET("/api/v1/places?city_id={id}")
-    Call<List<Place>> listPlacesByCity(@Path("id") int cityId);
+    /*@GET("/api/v1/places?city_id={id}")
+    Call<List<Place>> listPlacesByCity(@Path("id") int cityId);*/
+
+    @GET("/api/v1/places")
+    Call<List<Place>> listPlacesByCity(@Query("city_id") int cityId);
 
     /*@GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);*/

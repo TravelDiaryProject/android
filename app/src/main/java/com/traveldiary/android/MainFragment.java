@@ -1,81 +1,105 @@
 package com.traveldiary.android;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
+import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.provider.BaseColumns;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
 
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
-import com.traveldiary.android.adapter.AdapterWithHeader;
-import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Header;
-import com.traveldiary.android.essence.Trip;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.traveldiary.android.Constans.ID_STRING;
-import static com.traveldiary.android.Constans.ROOT_URL;
+import static com.traveldiary.android.Constans.PLACES_BY_CITY;
+import static com.traveldiary.android.Constans.PLACES_FOR;
 
 
-public class MainFragment extends Fragment implements View.OnClickListener {
-
-    private Header header;
+public class MainFragment extends Fragment {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
 
-    private LinearLayoutManager mLayoutManager;
-    RecyclerView recyclerView;
-
-    List<Trip> mTripList;
-    List<City> mCityList;
-
-    AdapterWithHeader adapterWithHeader;
+    private List<City> mCityList;
+    private List<String> mCities;
     private static TravelDiaryService travelDiaryService;
+    private SearchView searchView;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private SimpleCursorAdapter simpleCursorAdapter;
 
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_main,
                 container, false);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.fragment_recycler_view);
-
-        mTripList = new ArrayList<>();
         mCityList = new ArrayList<>();
+        mCities = new ArrayList<>();
 
         downloadCity();
 
-        adapterWithHeader = new AdapterWithHeader(getHeader(), mTripList, mCityList, this);
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapterWithHeader);
+        final String[] from = new String[] {"cityName"};
+        final int[] to = new int[] {android.R.id.text1};
+        simpleCursorAdapter = new SimpleCursorAdapter(getActivity(),android.R.layout.simple_list_item_1,null,from,to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
+        searchView = (SearchView) rootView.findViewById(R.id.search);
 
-        downloadTrips();
+        searchView.setSuggestionsAdapter(simpleCursorAdapter);
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionClick(int position) {
+                CursorAdapter ca = searchView.getSuggestionsAdapter();
+                Cursor cursor = ca.getCursor();
+                cursor.moveToPosition(position);
+                searchView.setQuery(cursor.getString(cursor.getColumnIndex("cityName")),false);
+                return true;
+            }
+
+            @Override
+            public boolean onSuggestionSelect(int position) {
+
+                // Your code here
+                return true;
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                selectedCity(s);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                populateAdapter(s);
+                return false;
+            }
+        });
 
         return rootView;
+    }
+
+    private void populateAdapter(String query) {
+        final MatrixCursor c = new MatrixCursor(new String[]{ BaseColumns._ID, "cityName" });
+        for (int i=0; i<mCities.size(); i++) {
+            if (mCities.get(i).toLowerCase().startsWith(query.toLowerCase()))
+                c.addRow(new Object[] {i, mCities.get(i)});
+        }
+        simpleCursorAdapter.changeCursor(c);
     }
 
     private void downloadCity(){
@@ -88,9 +112,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
                 mCityList.addAll(response.body());
 
-               // System.out.println("size ====== " + mCityList.size());
+                System.out.println("gorod = " + mCityList.get(0).getName() + " id " + mCityList.get(0).getId());
+                System.out.println("gorod = " + mCityList.get(1).getName() + " id " + mCityList.get(1).getId());
+                System.out.println("gorod = " + mCityList.get(2).getName() + " id " + mCityList.get(2).getId());
 
-                //mProgressBar.setVisibility(View.GONE);
+                for (int i = 0; i < mCityList.size(); i++){
+                    mCities.add(mCityList.get(i).getName());
+                }
             }
 
             @Override
@@ -98,36 +126,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
             }
         });
-
-    }
-
-    private void downloadTrips() {
-
-        travelDiaryService = Api.getTravelDiaryService();
-
-        travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
-            @Override
-            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
-                mTripList.addAll(response.body());
-
-                //mProgressBar.setVisibility(View.GONE);
-
-                adapterWithHeader.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Trip>> call, Throwable t) {
-
-            }
-        });
-    }
-
-
-    public Header getHeader(){
-        header = new Header();
-        header.setName("Вот и хедер");
-        return header;
     }
 
     @Override
@@ -141,30 +139,22 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    @Override
-    public void onClick(View view) {
-
-        //Button listener
-        if (view.getParent()instanceof LinearLayout){
-
-            System.out.println("CIIIIIIIIIIIIIIIIIITy = " + AdapterWithHeader.searchCity.getId() + AdapterWithHeader.searchCity.getName());
-
-
-
-
-        //list item listener
-        }else if (view.getParent()instanceof RecyclerView){
-
-            int possition = recyclerView.getChildLayoutPosition(view);
-            Trip trip = mTripList.get(possition - 1);
-
-            Fragment fragment = new PlacesFragment();
-
-            Bundle args = new Bundle();
-            args.putInt(ID_STRING, trip.getId());
-            fragment.setArguments(args);//передаем в новый фрагмент ид трипа чтобы подтянуть имг этого трипа
-
-            mChangeFragmentInterface.trans(fragment);
+    public void selectedCity(String city){
+        System.out.println("selected");
+        if (city != null){
+            System.out.println("selected1");
+            for (int i = 0; i < mCityList.size(); i++){
+                System.out.println("selected2");
+                if (mCityList.get(i).getName().equals(city)) {
+                    System.out.println("selected3 id = " + mCityList.get(i).getName() + " " + mCityList.get(i).getId());
+                    PlacesFragment placesFragment = new PlacesFragment();
+                    Bundle args = new Bundle();
+                    args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
+                    placesFragment.setArguments(args);
+                    mChangeFragmentInterface.trans(placesFragment);
+                    break;
+                }
+            }
         }
     }
 }

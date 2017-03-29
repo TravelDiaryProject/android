@@ -138,6 +138,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
 
                 mTripList.addAll(response.body());
 
+                System.out.println(mTripList.get(0).getTitle() + " " + mTripList.get(0).getId());
 
                 mProgressBar.setVisibility(View.GONE);
 
