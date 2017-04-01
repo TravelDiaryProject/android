@@ -11,12 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.network.TravelDiaryService;
 import com.traveldiary.android.adapter.AdapterWithHeader;
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Header;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Header;
+import com.traveldiary.android.model.Trip;
+import com.traveldiary.android.network.Api;
 
 import java.util.ArrayList;
 import java.util.List;

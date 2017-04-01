@@ -1,13 +1,9 @@
 package com.traveldiary.android.network;
 
-import com.traveldiary.android.Api;
-import com.traveldiary.android.Interfaces.CallBackInterface;
-import com.traveldiary.android.Interfaces.NetworkInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Place;
-import com.traveldiary.android.essence.RegistrationResponse;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.RegistrationResponse;
+import com.traveldiary.android.model.Trip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +23,16 @@ public class Network implements NetworkInterface{
 
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
 
-    private List<Place> allPlaces = new ArrayList<>();
-    private List<Place> myPlaces = new ArrayList<>();
-    private List<Place> placesByTrip = new ArrayList<>();
-    private List<Place> placesByCity = new ArrayList<>();
+    private List<Place> allPlaces;
+    private List<Place> myPlaces;
+    private List<Place> placesByTrip;
+    private List<Place> placesByCity;
 
-    private List<Trip> allTrips = new ArrayList<>();
-    private List<Trip> myTrips = new ArrayList<>();
-    private List<Trip> tripsByCity = new ArrayList<>();
+    private List<Trip> allTrips;
+    private List<Trip> myTrips;
+    private List<Trip> tripsByCity;
 
-    private List<City> allCities = new ArrayList<>();
+    private List<City> allCities;
 
     private CallBackInterface callBackInterface;
 
@@ -51,7 +47,7 @@ public class Network implements NetworkInterface{
     @Override
     public void getAllPlaces() {
 
-        if (allPlaces.size() == 0) {
+        if (allPlaces==null) {
             downloadAllPlaces();
         }else {
             callBackInterface.getAllPlaces(allPlaces);
@@ -61,7 +57,7 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getMyPlaces(String token) {
-        if (myPlaces.size() == 0){
+        if (myPlaces==null){
             downloadMyPlaces(token);
         }else {
             callBackInterface.getMyPlaces(myPlaces);
@@ -87,7 +83,7 @@ public class Network implements NetworkInterface{
      */
     @Override
     public void getAllTrips() {
-        if (allTrips.size()==0){
+        if (allTrips==null){
             downloadAllTrips();
         }else {
             callBackInterface.getAllTrips(allTrips);
@@ -96,7 +92,7 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getMyTrips(String token) {
-        if (myTrips.size()==0){
+        if (myTrips==null){
             downloadMyTrips(token);
         }else {
             callBackInterface.getMyTrips(myTrips);
@@ -134,7 +130,7 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getAllCities() {
-        if (allCities.size()==0){
+        if (allCities==null){
             downloadAllCities();
         }else {
             callBackInterface.getAllCities(allCities);
@@ -144,6 +140,8 @@ public class Network implements NetworkInterface{
 
 
     private void downloadAllPlaces() {
+
+        allPlaces = new ArrayList<>();
 
         travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
             @Override
@@ -164,6 +162,8 @@ public class Network implements NetworkInterface{
 
     private void downloadMyPlaces(String token) {
 
+        myPlaces = new ArrayList<>();
+
         travelDiaryService.listMyPlaces(token).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
@@ -182,6 +182,8 @@ public class Network implements NetworkInterface{
 
     private void downloadPlacesByTripId(int tripId) {
 
+        placesByTrip = new ArrayList<>();
+
         travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
@@ -199,6 +201,8 @@ public class Network implements NetworkInterface{
     }
 
     private void downloadPlacesByCityId(int cityId) {
+
+        placesByCity = new ArrayList<>();
 
         travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
             @Override
@@ -219,6 +223,8 @@ public class Network implements NetworkInterface{
 
     private void downloadAllTrips() {
 
+        allTrips = new ArrayList<>();
+
         travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
@@ -236,6 +242,8 @@ public class Network implements NetworkInterface{
     }
 
     private void downloadMyTrips(String token) {
+
+        myTrips = new ArrayList<>();
 
         travelDiaryService.listMyTrips(token).enqueue(new Callback<List<Trip>>() {
             @Override
@@ -258,6 +266,8 @@ public class Network implements NetworkInterface{
                 Не проверенно!!!!!!
      */
     private void downloadTripsByCityId(int cityId) {
+
+        tripsByCity = new ArrayList<>();
 
         travelDiaryService.listTripsByCity(cityId).enqueue(new Callback<List<Trip>>() {
             @Override
@@ -345,6 +355,9 @@ public class Network implements NetworkInterface{
     }
 
     private void downloadAllCities(){
+
+        allCities = new ArrayList<>();
+
         travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
             @Override
             public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {

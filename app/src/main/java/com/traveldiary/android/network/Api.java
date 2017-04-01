@@ -1,6 +1,4 @@
-package com.traveldiary.android;
-
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+package com.traveldiary.android.network;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

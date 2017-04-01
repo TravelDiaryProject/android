@@ -2,19 +2,15 @@ package com.traveldiary.android.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -22,9 +18,9 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Header;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Header;
+import com.traveldiary.android.model.Trip;
 
 import java.util.ArrayList;
 import java.util.List;

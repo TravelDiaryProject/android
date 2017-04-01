@@ -1,4 +1,4 @@
-package com.traveldiary.android.essence;
+package com.traveldiary.android.model;
 
 /**
  * Created by Cyborg on 2/26/2017.

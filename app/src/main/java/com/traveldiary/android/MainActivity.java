@@ -15,8 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-
 import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.LOAD_TO;
 import static com.traveldiary.android.Constans.MY;

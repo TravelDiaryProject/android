@@ -1,4 +1,4 @@
-package com.traveldiary.android.essence;
+package com.traveldiary.android.model;
 
 
 public class Place {

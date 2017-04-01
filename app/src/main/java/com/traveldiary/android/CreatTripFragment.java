@@ -10,12 +10,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.traveldiary.android.Interfaces.CallBackInterface;
-import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Place;
-import com.traveldiary.android.essence.RegistrationResponse;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.CallBackInterface;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.RegistrationResponse;
+import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.Network;
 
 import java.util.List;

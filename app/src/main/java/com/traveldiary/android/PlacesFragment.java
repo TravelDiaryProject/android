@@ -4,7 +4,6 @@ package com.traveldiary.android;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -18,33 +17,25 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.traveldiary.android.Interfaces.CallBackInterface;
-import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.network.CallBackInterface;
 import com.traveldiary.android.adapter.RecyclerAdapter;
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Place;
-import com.traveldiary.android.essence.RegistrationResponse;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.RegistrationResponse;
+import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
-import static com.traveldiary.android.Constans.ROOT_URL;
 
 
 public class PlacesFragment extends Fragment implements CallBackInterface {

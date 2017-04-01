@@ -1,4 +1,4 @@
-package com.traveldiary.android.Interfaces;
+package com.traveldiary.android;
 
 import android.support.v4.app.Fragment;
 

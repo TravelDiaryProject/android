@@ -15,12 +15,10 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
-import com.traveldiary.android.essence.Place;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.Trip;
 
 import java.util.List;
-
-import static android.R.attr.resource;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 

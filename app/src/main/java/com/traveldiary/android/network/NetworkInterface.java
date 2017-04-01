@@ -1,4 +1,4 @@
-package com.traveldiary.android.Interfaces;
+package com.traveldiary.android.network;
 
 
 import okhttp3.MultipartBody;

@@ -1,44 +1,34 @@
 package com.traveldiary.android;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.icu.util.ValueIterator;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.traveldiary.android.Interfaces.CallBackInterface;
-import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.network.CallBackInterface;
 import com.traveldiary.android.adapter.RecyclerAdapter;
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Place;
-import com.traveldiary.android.essence.RegistrationResponse;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.RegistrationResponse;
+import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
-import static com.traveldiary.android.Constans.ROOT_URL;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class TripsFragment extends Fragment implements View.OnClickListener, CallBackInterface {

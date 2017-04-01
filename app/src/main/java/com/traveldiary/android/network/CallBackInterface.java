@@ -1,9 +1,9 @@
-package com.traveldiary.android.Interfaces;
+package com.traveldiary.android.network;
 
-import com.traveldiary.android.essence.City;
-import com.traveldiary.android.essence.Place;
-import com.traveldiary.android.essence.RegistrationResponse;
-import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.RegistrationResponse;
+import com.traveldiary.android.model.Trip;
 
 import java.util.List;
 
