@@ -18,17 +18,24 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import com.traveldiary.android.Interfaces.CallBackInterface;
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
 import com.traveldiary.android.adapter.RecyclerAdapter;
+import com.traveldiary.android.essence.City;
 import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.RegistrationResponse;
+import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -40,18 +47,15 @@ import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.ROOT_URL;
 
 
-public class PlacesFragment extends Fragment {
+public class PlacesFragment extends Fragment implements CallBackInterface {
     private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
-    private Place place;
     private List<Place> mPlacesList;
     private LinearLayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
 
     private FloatingActionButton addPlaceButton;
-
-    private static TravelDiaryService travelDiaryService;
 
     private int tripId;
     private int cityId;
@@ -153,21 +157,22 @@ public class PlacesFragment extends Fragment {
         recyclerView.setAdapter(recyclerAdapter);
 
 
+        Network network = new Network(this);
 
         // временный ужас!!!!!!
         if (placesFor == null){
             System.out.println("null places for");
 
             if (cityId != 0){
-                downloadImageByCity();
+                network.getPlacesByCity(cityId);
             }else{
-                downloadImageById();
+                network.getPlacesByTrip(tripId);
             }
 
         }else if (placesFor.equals(MY)){
-            downloadMyPlaces();
+            network.getMyPlaces(LoginActivity.TOKEN_TO_SEND.toString());
         }else if (placesFor.equals(ALL)) {
-            downloadAllPlaces();
+            network.getAllPlaces();
         }
 
         return rootView;
@@ -183,94 +188,84 @@ public class PlacesFragment extends Fragment {
         }
     }
 
-    private void downloadMyPlaces() {
 
-        travelDiaryService = Api.getTravelDiaryService();
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
 
-        travelDiaryService.listMyPlaces(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+        mPlacesList.addAll(allPlaces);
 
-                mPlacesList.addAll(response.body());
+        recyclerAdapter.notifyDataSetChanged();
 
-                mProgressBar.setVisibility(View.GONE);
-
-                recyclerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-
-            }
-        });
+        mProgressBar.setVisibility(View.GONE);
     }
 
-    private void downloadAllPlaces() {
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
 
-        travelDiaryService = Api.getTravelDiaryService();
+        mPlacesList.addAll(myPlaces);
 
-        travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+        mProgressBar.setVisibility(View.GONE);
 
-                mPlacesList.addAll(response.body());
-
-                mProgressBar.setVisibility(View.GONE);
-
-                recyclerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-
-            }
-        });
+        recyclerAdapter.notifyDataSetChanged();
     }
 
-    private void downloadImageById() {
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
 
-        travelDiaryService = Api.getTravelDiaryService();
+        mPlacesList.addAll(placesByTrip);
 
-        travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+        mProgressBar.setVisibility(View.GONE);
 
-                mPlacesList.addAll(response.body());
-
-                mProgressBar.setVisibility(View.GONE);
-
-                recyclerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-
-            }
-        });
+        recyclerAdapter.notifyDataSetChanged();
     }
 
-    private void downloadImageByCity() {
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
 
-        System.out.println("1");
-        travelDiaryService = Api.getTravelDiaryService();
+        mPlacesList.addAll(placesByCity);
 
-        travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+        mProgressBar.setVisibility(View.GONE);
 
-                System.out.println("2");
-                mPlacesList.addAll(response.body());
+        recyclerAdapter.notifyDataSetChanged();
+    }
 
-                mProgressBar.setVisibility(View.GONE);
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
 
-                recyclerAdapter.notifyDataSetChanged();
-            }
+    }
 
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-                System.out.println("3");
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
 
-            }
-        });
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void createTrip(String info) {
+
+    }
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+
     }
 }

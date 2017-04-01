@@ -51,6 +51,9 @@ public interface TravelDiaryService {
     @GET("/api/v1/places")
     Call<List<Place>> listPlacesByCity(@Query("city_id") int cityId);
 
+    @GET("/api/v1/trips")
+    Call<List<Trip>> listTripsByCity(@Query("city_id") int cityId);
+
     /*@GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);*/
 

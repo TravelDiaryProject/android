@@ -13,28 +13,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.traveldiary.android.Interfaces.CallBackInterface;
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
 import com.traveldiary.android.essence.City;
+import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.RegistrationResponse;
+import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 
 
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements CallBackInterface{
 
     private ChangeFragmentInterface mChangeFragmentInterface;
 
     private List<City> mCityList;
     private List<String> mCities;
-    private static TravelDiaryService travelDiaryService;
     private SearchView searchView;
+
+    private Network network;
 
     private SimpleCursorAdapter simpleCursorAdapter;
 
@@ -46,10 +51,12 @@ public class MainFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main,
                 container, false);
 
+        network = new Network(this);
+
         mCityList = new ArrayList<>();
         mCities = new ArrayList<>();
 
-        downloadCity();
+        network.getAllCities();
 
         final String[] from = new String[] {"cityName"};
         final int[] to = new int[] {android.R.id.text1};
@@ -102,32 +109,6 @@ public class MainFragment extends Fragment {
         simpleCursorAdapter.changeCursor(c);
     }
 
-    private void downloadCity(){
-
-        travelDiaryService = Api.getTravelDiaryService();
-
-        travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
-            @Override
-            public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {
-
-                mCityList.addAll(response.body());
-
-                System.out.println("gorod = " + mCityList.get(0).getName() + " id " + mCityList.get(0).getId());
-                System.out.println("gorod = " + mCityList.get(1).getName() + " id " + mCityList.get(1).getId());
-                System.out.println("gorod = " + mCityList.get(2).getName() + " id " + mCityList.get(2).getId());
-
-                for (int i = 0; i < mCityList.size(); i++){
-                    mCities.add(mCityList.get(i).getName());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<City>> call, Throwable t) {
-
-            }
-        });
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -156,5 +137,69 @@ public class MainFragment extends Fragment {
                 }
             }
         }
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+        mCityList.addAll(allCities);
+
+        for (int i = 0; i < mCityList.size(); i++){
+            mCities.add(mCityList.get(i).getName());
+        }
+    }
+
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
+
+    }
+
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
+
+    }
+
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
+
+    }
+
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
+
+    }
+
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
+
+    }
+
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
+
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void createTrip(String info) {
+
+    }
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+
     }
 }

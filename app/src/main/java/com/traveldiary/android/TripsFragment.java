@@ -15,16 +15,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.traveldiary.android.Interfaces.CallBackInterface;
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
 import com.traveldiary.android.adapter.RecyclerAdapter;
+import com.traveldiary.android.essence.City;
+import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.RegistrationResponse;
 import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -34,20 +41,16 @@ import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.ROOT_URL;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
-public class TripsFragment extends Fragment implements View.OnClickListener {
+public class TripsFragment extends Fragment implements View.OnClickListener, CallBackInterface {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
-    private Trip trip;
     private List<Trip> mTripList;
     private LinearLayoutManager mLayoutManager;
     private FloatingActionButton addTripButton;
 
     private ProgressBar mProgressBar;
-
-    private Retrofit retrofit;
-    private static TravelDiaryService travelDiaryService;
 
     private String tripsFor;
 
@@ -82,12 +85,14 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
         recyclerView.setAdapter(recyclerAdapter);
 
 
+        Network network = new Network(this);
+
         if (tripsFor == null){
             System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
         }else if (tripsFor.equals(MY)) {
-            downloadMyTrips();
+            network.getMyTrips(LoginActivity.TOKEN_TO_SEND.toString());
         }else if (tripsFor.equals(ALL)){
-            downloadAllTrips();
+            network.getAllTrips();
         }
 
         return rootView;
@@ -102,54 +107,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
         }catch (ClassCastException e){
             e.printStackTrace();
         }
-    }
-
-    private void downloadMyTrips() {
-
-        travelDiaryService = Api.getTravelDiaryService();
-
-        travelDiaryService.listMyTrips(LoginActivity.TOKEN_TO_SEND.toString()).enqueue(new Callback<List<Trip>>() {
-            @Override
-            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
-                System.out.println(response.body().toString());
-
-                mTripList.addAll(response.body());
-
-                mProgressBar.setVisibility(View.GONE);
-
-                recyclerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Trip>> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void downloadAllTrips() {
-
-        travelDiaryService = Api.getTravelDiaryService();
-
-        travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
-            @Override
-            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
-                mTripList.addAll(response.body());
-
-                System.out.println(mTripList.get(0).getTitle() + " " + mTripList.get(0).getId());
-
-                mProgressBar.setVisibility(View.GONE);
-
-                recyclerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Trip>> call, Throwable t) {
-                System.out.printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAonFailure = " + t.toString());
-            }
-        });
     }
 
     @Override
@@ -177,4 +134,80 @@ public class TripsFragment extends Fragment implements View.OnClickListener {
             mChangeFragmentInterface.trans(fragment);
         }
     }
+
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
+
+        mTripList.addAll(allTrips);
+
+        mProgressBar.setVisibility(View.GONE);
+
+        recyclerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
+
+        mTripList.addAll(myTrips);
+
+        mProgressBar.setVisibility(View.GONE);
+
+        recyclerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
+        mTripList.addAll(tripsByCity);
+
+        mProgressBar.setVisibility(View.GONE);
+
+        recyclerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void createTrip(String info) {
+
+    }
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+
+    }
+
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
+
+    }
+
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
+
+    }
+
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
+
+    }
+
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
+
+    }
+
 }

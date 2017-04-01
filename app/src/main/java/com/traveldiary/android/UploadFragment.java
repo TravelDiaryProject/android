@@ -12,36 +12,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.traveldiary.android.Interfaces.CallBackInterface;
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.essence.City;
+import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.RegistrationResponse;
+import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 import static android.app.Activity.RESULT_OK;
 import static com.traveldiary.android.Constans.ID_STRING;
-import static com.traveldiary.android.Constans.ROOT_URL;
 
-public class UploadFragment extends Fragment {
+public class UploadFragment extends Fragment implements CallBackInterface{
 
-    private TravelDiaryService mTravelDiaryService;
     private ChangeFragmentInterface mChangeFragmentInterface;
     private int mTripId;
     private static int RESULT_LOAD_IMAGE = 1;
+
+    private Network network;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTripId = getArguments().getInt(ID_STRING);
+
+        network = new Network(this);
     }
 
     @Override
@@ -52,7 +57,6 @@ public class UploadFragment extends Fragment {
 
         Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, RESULT_LOAD_IMAGE);
-
 
         return rootView;
     }
@@ -73,7 +77,6 @@ public class UploadFragment extends Fragment {
             cursor.close();
             ///
 
-
             File file = new File(picturePath); // picture path like in phone
 
             RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
@@ -82,24 +85,8 @@ public class UploadFragment extends Fragment {
 
             MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-            mTravelDiaryService = Api.getTravelDiaryService();
-            mTravelDiaryService.postImage(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            network.uploadPlace(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest);
 
-                    try {
-                        System.out.println("onResponse = " + response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    inform();
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    System.out.println("onFail");
-                }
-            });
         }
     }
 
@@ -128,4 +115,71 @@ public class UploadFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+        try {
+            System.out.println("onResponse = " + response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        inform();
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+
+    }
+
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
+
+    }
+
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
+
+    }
+
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
+
+    }
+
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
+
+    }
+
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
+
+    }
+
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
+
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void createTrip(String info) {
+
+    }
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+    }
+
 }

@@ -10,23 +10,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.traveldiary.android.Interfaces.CallBackInterface;
 import com.traveldiary.android.Interfaces.ChangeFragmentInterface;
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.essence.City;
+import com.traveldiary.android.essence.Place;
+import com.traveldiary.android.essence.RegistrationResponse;
+import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
+import java.util.List;
+
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-
-import static com.traveldiary.android.Constans.ROOT_URL;
 
 
-public class CreatTripFragment extends Fragment {
+public class CreatTripFragment extends Fragment implements CallBackInterface {
 
-    private TravelDiaryService travelDiaryService;
     private Button createTripButton;
     private EditText editTripTitle;
 
@@ -46,42 +45,20 @@ public class CreatTripFragment extends Fragment {
         createTripButton = (Button) rootView.findViewById(R.id.createTripButton);
         editTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
 
+        final Network network = new Network(this);
+
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (editTripTitle != null){
                     String tripTitle = editTripTitle.getText().toString();
 
-                    travelDiaryService = Api.getTravelDiaryService();
-
-                    //RequestBody tripTitleRequest = RequestBody.create(MediaType.parse("multipart/form-data"), tripTitle);
-                    travelDiaryService.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle).enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                            inform();
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                        }
-                    });
+                    network.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle);
                 }
             }
         });
 
         return rootView;
-    }
-
-    public void inform(){
-        Toast toast = Toast.makeText(getActivity(),
-                "Trip created!!!", Toast.LENGTH_SHORT);
-        toast.show();
-
-        Fragment fragment = new TripsFragment();
-        mChangeFragmentInterface.trans(fragment);
     }
 
     @Override
@@ -93,5 +70,70 @@ public class CreatTripFragment extends Fragment {
         }catch (ClassCastException e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void createTrip(String info) {
+        Toast toast = Toast.makeText(getActivity(),
+                "Trip created!!! + response = " + info, Toast.LENGTH_SHORT);
+        toast.show();
+
+        Fragment fragment = new TripsFragment();
+        mChangeFragmentInterface.trans(fragment);
+    }
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+
+    }
+
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
+
+    }
+
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
+
+    }
+
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
+
+    }
+
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
+
+    }
+
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
+
+    }
+
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
+
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
     }
 }

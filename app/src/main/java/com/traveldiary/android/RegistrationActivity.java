@@ -9,24 +9,25 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.Interfaces.CallBackInterface;
+import com.traveldiary.android.essence.City;
+import com.traveldiary.android.essence.Place;
 import com.traveldiary.android.essence.RegistrationResponse;
+import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
-import retrofit2.Call;
-import retrofit2.Callback;
+import java.util.List;
+
+import okhttp3.ResponseBody;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.traveldiary.android.Constans.ROOT_URL;
+public class RegistrationActivity extends AppCompatActivity implements CallBackInterface{
 
-public class RegistrationActivity extends AppCompatActivity {
-
-    private TravelDiaryService travelDiaryService;
-    //private EditText mEditName;
     private EditText mEditEmail;
     private EditText mEditPassword;
     private Button mRegistrationButton;
+
+    private Network network;
 
     private String TOKEN;
     public static StringBuilder TOKEN_TO_SEND = new StringBuilder("Bearer ");
@@ -37,11 +38,12 @@ public class RegistrationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_registration);
 
         mEditEmail = (EditText) findViewById(R.id.editEmailRegistration);
-        //mEditName = (EditText) findViewById(R.id.editNameRegistration);
         mEditPassword = (EditText) findViewById(R.id.editPasswordRegistration);
 
         mRegistrationButton = (Button) findViewById(R.id.registerButton);
         mRegistrationButton.setOnClickListener(registerBtnClickListener());
+
+        network = new Network(this);
 
     }
 
@@ -54,40 +56,8 @@ public class RegistrationActivity extends AppCompatActivity {
                 String password = String.valueOf(mEditPassword.getText());
 
                 if( isRegistrationValuesValid(email, password)) {
-                    Log.d("All info VALID:", /*name.toString() + " - " +*/ email + " - " + password);
-                    //All info VAlid we will send it so server
 
-                    travelDiaryService = Api.getTravelDiaryService();
-
-                    travelDiaryService.registration(email, password).enqueue(new Callback<RegistrationResponse>() {
-                        @Override
-                        public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
-
-                            if (response.body() != null) {
-                                RegistrationResponse registrationResponse = response.body();
-
-                                TOKEN = registrationResponse.getToken();
-                                TOKEN_TO_SEND.append(TOKEN);
-
-                                Log.d("Token", " OK");
-
-                                Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
-                                startActivity(intent);
-
-                            } else {
-                                Log.d("Token", " BAD");
-                                badLogOrPass();
-                            }
-                        }
-
-
-                        @Override
-                        public void onFailure(Call<RegistrationResponse> call, Throwable t) {
-
-                            Log.d("Token", t.getMessage());
-
-                        }
-                    });
+                    network.registration(email, password);
 
                 }
             }
@@ -104,4 +74,79 @@ public class RegistrationActivity extends AppCompatActivity {
                 && Validator.isPasswordValid( this, password );
     }
 
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+        if (response.body() != null) {
+            RegistrationResponse registrationResponse = response.body();
+
+            TOKEN = registrationResponse.getToken();
+            TOKEN_TO_SEND.append(TOKEN);
+
+            Log.d("Token", " OK");
+
+            Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+            startActivity(intent);
+
+        } else {
+            Log.d("Token", " BAD");
+            badLogOrPass();
+        }
+    }
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+
+    }
+
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
+
+    }
+
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
+
+    }
+
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
+
+    }
+
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
+
+    }
+
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
+
+    }
+
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
+
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void createTrip(String info) {
+
+    }
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+
+    }
 }

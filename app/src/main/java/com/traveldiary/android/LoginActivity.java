@@ -1,10 +1,6 @@
 package com.traveldiary.android;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -20,28 +16,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.traveldiary.android.Interfaces.CallBackInterface;
 import com.traveldiary.android.Interfaces.TravelDiaryService;
+import com.traveldiary.android.essence.City;
+import com.traveldiary.android.essence.Place;
 import com.traveldiary.android.essence.RegistrationResponse;
+import com.traveldiary.android.essence.Trip;
+import com.traveldiary.android.network.Network;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.traveldiary.android.Constans.ROOT_URL;
-
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements CallBackInterface {
 
     private TravelDiaryService travelDiaryService;
     private EditText mEditEmail;
@@ -52,6 +40,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private String TOKEN;
     public static StringBuilder TOKEN_TO_SEND;
+
+    private Network network;
     //private SharedPreferences mLoginSetting;
     //public static final String SAVED_TOKEN = "saved_token";
     //public static final String APP_PREFERENCES = "mLoginSetting";
@@ -70,6 +60,8 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton = (Button) findViewById(R.id.loginButton);
         mLoginButton.setOnClickListener( buttonClickListener() );
 
+        network = new Network(this);
+
         makeRegistrationLink();
     }
 
@@ -85,51 +77,8 @@ public class LoginActivity extends AppCompatActivity {
                 String password = String.valueOf(mEditLoginPassword.getText());
 
                 if (isLoginValuesValid(email, password) && isNetworkValid()) {
-
                     Log.d("LOG and PASS are", "VALID");
-
-                    travelDiaryService = Api.getTravelDiaryService();
-
-                    travelDiaryService.getToken(email, password).enqueue(new Callback<RegistrationResponse>() {
-                        @Override
-                        public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
-
-                            if (response.body() != null) {
-                                RegistrationResponse registrationResponse = response.body();
-
-                                TOKEN = registrationResponse.getToken();
-                                TOKEN_TO_SEND = new StringBuilder("Bearer ");
-                                TOKEN_TO_SEND.append(TOKEN);
-
-                                //SharedPreferences.Editor editor = mLoginSetting.edit();
-                                //editor.putString(SAVED_TOKEN, TOKEN);
-                                //editor.apply();
-
-                                Log.d("Token", " OK");
-
-                                mProgressBar.setVisibility(View.GONE);
-
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-
-                            } else {
-                                Log.d("Token", " BAD");
-                                mProgressBar.setVisibility(View.GONE);
-                                mLoginButton.setClickable(true);
-                                badLogOrPass();
-                            }
-                        }
-
-
-                        @Override
-                        public void onFailure(Call<RegistrationResponse> call, Throwable t) {
-
-                            mProgressBar.setVisibility(View.GONE);
-                            mLoginButton.setClickable(true);
-                            Log.d("Token", t.getMessage());
-
-                        }
-                    });
+                    network.signIn(email, password);
 
                 } else {
                     mProgressBar.setVisibility(View.GONE);
@@ -174,5 +123,89 @@ public class LoginActivity extends AppCompatActivity {
         TextView registerPromptView = (TextView) findViewById( R.id.registerPromptText );
         registerPromptView.setText( registrationPrompt );
         registerPromptView.setMovementMethod( LinkMovementMethod.getInstance() );
+    }
+
+
+    @Override
+    public void signIn(Response<RegistrationResponse> response) {
+        if (response.body() != null) {
+            RegistrationResponse registrationResponse = response.body();
+
+            TOKEN = registrationResponse.getToken();
+            TOKEN_TO_SEND = new StringBuilder("Bearer ");
+            TOKEN_TO_SEND.append(TOKEN);
+
+            //SharedPreferences.Editor editor = mLoginSetting.edit();
+            //editor.putString(SAVED_TOKEN, TOKEN);
+            //editor.apply();
+
+            Log.d("Token", " OK");
+
+            mProgressBar.setVisibility(View.GONE);
+
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+
+        } else {
+            Log.d("Token", " BAD");
+            mProgressBar.setVisibility(View.GONE);
+            mLoginButton.setClickable(true);
+            badLogOrPass();
+        }
+    }
+
+    @Override
+    public void registration(Response<RegistrationResponse> response) {
+
+    }
+
+    @Override
+    public void uploadPlace(Response<ResponseBody> response) {
+
+    }
+
+    @Override
+    public void getAllCities(List<City> allCities) {
+
+    }
+
+    @Override
+    public void getAllPlaces(List<Place> allPlaces) {
+
+    }
+
+    @Override
+    public void getMyPlaces(List<Place> myPlaces) {
+
+    }
+
+    @Override
+    public void getPlacesByTrip(List<Place> placesByTrip) {
+
+    }
+
+    @Override
+    public void getPlacesByCity(List<Place> placesByCity) {
+
+    }
+
+    @Override
+    public void getAllTrips(List<Trip> allTrips) {
+
+    }
+
+    @Override
+    public void getMyTrips(List<Trip> myTrips) {
+
+    }
+
+    @Override
+    public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void createTrip(String info) {
+
     }
 }
