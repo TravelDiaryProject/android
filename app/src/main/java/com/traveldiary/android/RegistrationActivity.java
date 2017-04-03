@@ -21,13 +21,13 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.network;
+
 public class RegistrationActivity extends AppCompatActivity implements CallBackInterface{
 
     private EditText mEditEmail;
     private EditText mEditPassword;
     private Button mRegistrationButton;
-
-    private Network network;
 
     private String TOKEN;
     public static StringBuilder TOKEN_TO_SEND = new StringBuilder("Bearer ");
@@ -43,7 +43,7 @@ public class RegistrationActivity extends AppCompatActivity implements CallBackI
         mRegistrationButton = (Button) findViewById(R.id.registerButton);
         mRegistrationButton.setOnClickListener(registerBtnClickListener());
 
-        network = new Network(this);
+        network.setCallBackInterface(this);
 
     }
 
@@ -137,6 +137,11 @@ public class RegistrationActivity extends AppCompatActivity implements CallBackI
 
     @Override
     public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
 
     }
 

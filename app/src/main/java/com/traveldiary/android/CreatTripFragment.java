@@ -22,6 +22,8 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.network;
+
 
 public class CreatTripFragment extends Fragment implements CallBackInterface {
 
@@ -44,8 +46,8 @@ public class CreatTripFragment extends Fragment implements CallBackInterface {
         createTripButton = (Button) rootView.findViewById(R.id.createTripButton);
         editTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
 
-        final Network network = new Network(this);
-
+        //final Network network = new Network(this);
+        network.setCallBackInterface(this);
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,6 +135,11 @@ public class CreatTripFragment extends Fragment implements CallBackInterface {
 
     @Override
     public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
 
     }
 }

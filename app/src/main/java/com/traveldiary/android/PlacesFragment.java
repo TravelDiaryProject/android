@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.ToggleButton;
 
 import com.traveldiary.android.network.CallBackInterface;
 import com.traveldiary.android.adapter.RecyclerAdapter;
@@ -31,6 +32,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
@@ -114,7 +116,24 @@ public class PlacesFragment extends Fragment implements CallBackInterface {
 
         mPlacesList = new ArrayList<>();
 
-        recyclerAdapter = new RecyclerAdapter(getActivity(), null, new View.OnClickListener() {
+        recyclerAdapter = new RecyclerAdapter(getActivity(), null, new RecyclerAdapter.ItemClickListener(){
+
+            @Override
+            public void onItemClick(View view, int possition) {
+                System.out.println("Click = " + view.getId() + " pos = " + possition);
+                System.out.println("click place id = " + mPlacesList.get(possition).getId());
+
+
+
+
+                /*switch (view.getId()){
+                    *//*case R.id.placeLikeButton:
+                        System.out.println("Add to my trips by id = " + mPlacesList.get(possition).getId());
+                        view.setBackgroundResource(R.drawable.common_google_signin_btn_icon_dark);
+                        break;*//*
+                }*/
+            }
+        } /*{
             @Override
             public void onClick(View view) {
                 System.out.println("Click on place ");
@@ -125,30 +144,32 @@ public class PlacesFragment extends Fragment implements CallBackInterface {
                 if (!place.getLatitude().isEmpty() && !place.getLongitude().isEmpty()) {
 
 
-                   /* String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
+                   *//* String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(intent);*/
+                    startActivity(intent);*//*
 
-                    Intent intent = new Intent(getActivity(), MapsActivity.class);
+                   *//* Intent intent = new Intent(getActivity(), MapsActivity.class);
                     intent.putExtra("Latitude", place.getLatitude());
                     intent.putExtra("Longitude", place.getLongitude());
-                    startActivity(intent);
+                    startActivity(intent);*//*
 
-                   /* Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra("Id", place.getId());
                     intent.putExtra("Photo", place.getPhoto());
-                    startActivity(intent);*/
+                    startActivity(intent);
                 }
 
             }
-        }, mPlacesList);
-        mLayoutManager = new GridLayoutManager(getActivity(), 2);
+        }*/, mPlacesList);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        //mLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
 
-        Network network = new Network(this);
+        //Network network = new Network(this);
+        network.setCallBackInterface(this);
 
         // временный ужас!!!!!!
         if (placesFor == null){
@@ -232,6 +253,11 @@ public class PlacesFragment extends Fragment implements CallBackInterface {
 
     @Override
     public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
 
     }
 

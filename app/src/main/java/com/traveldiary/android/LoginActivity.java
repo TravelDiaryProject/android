@@ -29,6 +29,8 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.network;
+
 public class LoginActivity extends AppCompatActivity implements CallBackInterface {
 
     private TravelDiaryService travelDiaryService;
@@ -41,7 +43,6 @@ public class LoginActivity extends AppCompatActivity implements CallBackInterfac
     private String TOKEN;
     public static StringBuilder TOKEN_TO_SEND;
 
-    private Network network;
     //private SharedPreferences mLoginSetting;
     //public static final String SAVED_TOKEN = "saved_token";
     //public static final String APP_PREFERENCES = "mLoginSetting";
@@ -60,7 +61,8 @@ public class LoginActivity extends AppCompatActivity implements CallBackInterfac
         mLoginButton = (Button) findViewById(R.id.loginButton);
         mLoginButton.setOnClickListener( buttonClickListener() );
 
-        network = new Network(this);
+        //network = new Network(this);
+        network.setCallBackInterface(this);
 
         makeRegistrationLink();
     }
@@ -201,6 +203,11 @@ public class LoginActivity extends AppCompatActivity implements CallBackInterfac
 
     @Override
     public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
 
     }
 

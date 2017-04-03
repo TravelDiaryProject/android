@@ -23,6 +23,7 @@ public interface CallBackInterface {
     void getAllTrips(List<Trip> allTrips);
     void getMyTrips(List<Trip> myTrips);
     void getTripsByCity(List<Trip> tripsByCity);
+    void getTripById(Trip trip);
 
     void createTrip(String info);
     void signIn(Response<RegistrationResponse> response);

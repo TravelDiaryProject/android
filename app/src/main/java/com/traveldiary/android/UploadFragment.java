@@ -30,6 +30,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
+import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
 
 public class UploadFragment extends Fragment implements CallBackInterface{
@@ -38,14 +39,13 @@ public class UploadFragment extends Fragment implements CallBackInterface{
     private int mTripId;
     private static int RESULT_LOAD_IMAGE = 1;
 
-    private Network network;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTripId = getArguments().getInt(ID_STRING);
 
-        network = new Network(this);
+        network.setCallBackInterface(this);
     }
 
     @Override
@@ -163,6 +163,11 @@ public class UploadFragment extends Fragment implements CallBackInterface{
 
     @Override
     public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
 
     }
 

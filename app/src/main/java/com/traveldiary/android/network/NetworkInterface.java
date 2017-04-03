@@ -17,6 +17,7 @@ public interface NetworkInterface {
     void getAllTrips();
     void getMyTrips(String token);
     void getTripsByCity(int cityId);
+    void getTripById(int tripId);
 
     void createTrip(String token, String tripTitle);
     void signIn(String email, String password);

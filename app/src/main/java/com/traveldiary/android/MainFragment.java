@@ -26,6 +26,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 
 
@@ -37,7 +38,6 @@ public class MainFragment extends Fragment implements CallBackInterface{
     private List<String> mCities;
     private SearchView searchView;
 
-    private Network network;
 
     private SimpleCursorAdapter simpleCursorAdapter;
 
@@ -49,7 +49,7 @@ public class MainFragment extends Fragment implements CallBackInterface{
         View rootView = inflater.inflate(R.layout.fragment_main,
                 container, false);
 
-        network = new Network(this);
+        network.setCallBackInterface(this);
 
         mCityList = new ArrayList<>();
         mCities = new ArrayList<>();
@@ -178,6 +178,11 @@ public class MainFragment extends Fragment implements CallBackInterface{
 
     @Override
     public void getTripsByCity(List<Trip> tripsByCity) {
+
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
 
     }
 

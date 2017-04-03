@@ -1,6 +1,7 @@
 package com.traveldiary.android;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -26,12 +27,13 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
-public class TripsFragment extends Fragment implements View.OnClickListener, CallBackInterface {
+public class TripsFragment extends Fragment implements View.OnClickListener, CallBackInterface, RecyclerAdapter.ItemClickListener {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
@@ -75,7 +77,8 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Cal
         recyclerView.setAdapter(recyclerAdapter);
 
 
-        Network network = new Network(this);
+        //Network network = new Network(this);
+        network.setCallBackInterface(this);
 
         if (tripsFor == null){
             System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -99,28 +102,23 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Cal
         }
     }
 
+
+    @Override
+    public void onItemClick(View view, int possition) {
+        int itemPossition = recyclerView.getChildLayoutPosition(view);
+        Trip trip = mTripList.get(itemPossition);
+
+        Intent intent = new Intent(getActivity(), DetailActivity.class);
+        intent.putExtra(ID_STRING, trip.getId());
+        startActivity(intent);
+    }
+
+
     @Override
     public void onClick(View v){
-
         if (v.getId()==R.id.add_trip_button){
-            System.out.println("float");
 
             Fragment fragment = new CreatTripFragment();
-            mChangeFragmentInterface.trans(fragment);
-        }
-
-        else if (v.getParent()instanceof RecyclerView){
-            System.out.println("id click trip = " + v.getId());
-
-            int itemPossition = recyclerView.getChildLayoutPosition(v);
-            Trip trip = mTripList.get(itemPossition);
-
-            Fragment fragment = new PlacesFragment();
-
-            Bundle args = new Bundle();
-            args.putInt(ID_STRING, trip.getId());
-            fragment.setArguments(args);//передаем в новый фрагмент ид трипа чтобы подтянуть имг этого трипа
-
             mChangeFragmentInterface.trans(fragment);
         }
     }
@@ -153,6 +151,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Cal
         mProgressBar.setVisibility(View.GONE);
 
         recyclerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void getTripById(Trip trip) {
+
     }
 
     @Override
@@ -199,5 +202,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Cal
     public void getPlacesByCity(List<Place> placesByCity) {
 
     }
+
 
 }

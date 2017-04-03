@@ -15,10 +15,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- * Created by Cyborg on 3/30/2017.
- */
-
 public class Network implements NetworkInterface{
 
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
@@ -36,13 +32,21 @@ public class Network implements NetworkInterface{
 
     private CallBackInterface callBackInterface;
 
-    public Network(CallBackInterface callBackInterface) {
-        this.callBackInterface = callBackInterface;
+
+    // TODO: 4/3/2017 refrash list after adding new trip or place!!!!
+
+
+
+    public Network() {
     }
 
     /*
             PLACES
      */
+
+    public void setCallBackInterface(CallBackInterface callBackInterface){
+        this.callBackInterface = callBackInterface;
+    }
 
     @Override
     public void getAllPlaces() {
@@ -103,6 +107,11 @@ public class Network implements NetworkInterface{
     @Override
     public void getTripsByCity(int cityId) {
         downloadTripsByCityId(cityId);
+    }
+
+    @Override
+    public void getTripById(int tripId) {
+        getTripByTripId(tripId);
     }
 
     /*
@@ -375,4 +384,21 @@ public class Network implements NetworkInterface{
         });
     }
 
+    private void getTripByTripId(int tripId){
+
+        // TODO: 4/3/2017 get Trip by ID from one of trip lists (ALL, MY, TOP)
+
+        if (allTrips!=null){
+            Trip trip = null;
+            for (int i = 0; i < allTrips.size(); i++){
+                if (tripId == allTrips.get(i).getId()){
+                    trip = allTrips.get(i);
+                    break;
+                }
+            }
+            callBackInterface.getTripById(trip);
+        }else if (allTrips==null){
+            getAllTrips();
+        }
+    }
 }

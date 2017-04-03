@@ -7,6 +7,9 @@ public class Place {
     private String latitude;
     private String longitude;
 
+    public boolean selectedLike = false;// state buttonLike in recyclerView
+    public boolean selectedAddTrip = false;// state buttonAddTrip in recyclerView
+
     public Place(int id, String photo, String latitude, String longitude) {
         this.id = id;
         this.photo = photo;
