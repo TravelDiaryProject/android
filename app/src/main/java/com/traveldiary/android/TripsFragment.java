@@ -13,19 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.traveldiary.android.network.CallBackInterface;
+import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
-import com.traveldiary.android.model.City;
-import com.traveldiary.android.model.Place;
-import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ALL;
@@ -33,7 +26,7 @@ import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
-public class TripsFragment extends Fragment implements View.OnClickListener, CallBackInterface, RecyclerAdapter.ItemClickListener {
+public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
@@ -76,16 +69,32 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Cal
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-
-        //Network network = new Network(this);
-        network.setCallBackInterface(this);
-
         if (tripsFor == null){
             System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
         }else if (tripsFor.equals(MY)) {
-            network.getMyTrips(LoginActivity.TOKEN_TO_SEND.toString());
+            network.getMyTrips(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    manipulateWithResponse(o);
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+
+                }
+            });
         }else if (tripsFor.equals(ALL)){
-            network.getAllTrips();
+            network.getAllTrips(new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    manipulateWithResponse(o);
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+
+                }
+            });
         }
 
         return rootView;
@@ -123,85 +132,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Cal
         }
     }
 
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
+    public void manipulateWithResponse(Object o){
+        List<Trip> tripsList = (List<Trip>) o;
 
-        mTripList.addAll(allTrips);
-
+        mTripList.addAll(tripsList);
         mProgressBar.setVisibility(View.GONE);
-
         recyclerAdapter.notifyDataSetChanged();
     }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-        mTripList.addAll(myTrips);
-
-        mProgressBar.setVisibility(View.GONE);
-
-        recyclerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-        mTripList.addAll(tripsByCity);
-
-        mProgressBar.setVisibility(View.GONE);
-
-        recyclerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
-    }
-
-    @Override
-    public void createTrip(String info) {
-
-    }
-
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-
-    }
-
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-    }
-
-
 }

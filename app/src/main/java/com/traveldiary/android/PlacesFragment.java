@@ -3,12 +3,10 @@ package com.traveldiary.android;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,15 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.ToggleButton;
 
-import com.traveldiary.android.network.CallBackInterface;
+import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +36,7 @@ import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 
 
-public class PlacesFragment extends Fragment implements CallBackInterface {
+public class PlacesFragment extends Fragment {
     private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
@@ -167,24 +163,60 @@ public class PlacesFragment extends Fragment implements CallBackInterface {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-
-        //Network network = new Network(this);
-        network.setCallBackInterface(this);
-
         // временный ужас!!!!!!
         if (placesFor == null){
             System.out.println("null places for");
 
             if (cityId != 0){
-                network.getPlacesByCity(cityId);
+                network.getPlacesByCity(cityId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+
+                    }
+                });
             }else{
-                network.getPlacesByTrip(tripId);
+                network.getPlacesByTrip(tripId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+
+                    }
+                });
             }
 
         }else if (placesFor.equals(MY)){
-            network.getMyPlaces(LoginActivity.TOKEN_TO_SEND.toString());
+            network.getMyPlaces(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    manipulationWithResponse(o);
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+
+                }
+            });
         }else if (placesFor.equals(ALL)) {
-            network.getAllPlaces();
+            network.getAllPlaces(new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    manipulationWithResponse(o);
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+
+                }
+            });
         }
 
         return rootView;
@@ -200,89 +232,11 @@ public class PlacesFragment extends Fragment implements CallBackInterface {
         }
     }
 
+    public void manipulationWithResponse(Object o){
+        List<Place> placesList = (List<Place>) o;
 
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-        mPlacesList.addAll(allPlaces);
-
+        mPlacesList.addAll(placesList);
         recyclerAdapter.notifyDataSetChanged();
-
         mProgressBar.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-        mPlacesList.addAll(myPlaces);
-
-        mProgressBar.setVisibility(View.GONE);
-
-        recyclerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-        mPlacesList.addAll(placesByTrip);
-
-        mProgressBar.setVisibility(View.GONE);
-
-        recyclerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-        mPlacesList.addAll(placesByCity);
-
-        mProgressBar.setVisibility(View.GONE);
-
-        recyclerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
-
-    }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
-    }
-
-    @Override
-    public void createTrip(String info) {
-
-    }
-
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-
     }
 }

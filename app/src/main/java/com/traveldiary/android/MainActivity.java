@@ -120,8 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 trans(fragment);
                 break;
             case R.id.menu_search:
-                fragment = new MainFragmentWithHeader();
-                trans(fragment);
+
                 break;
             case R.id.menu_tripsandplaces:
                 fragment = new FragmentTabs();

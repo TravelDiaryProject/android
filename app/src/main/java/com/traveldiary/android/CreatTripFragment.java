@@ -10,22 +10,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.traveldiary.android.network.CallBackInterface;
-import com.traveldiary.android.model.City;
-import com.traveldiary.android.model.Place;
-import com.traveldiary.android.model.RegistrationResponse;
-import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
-
-import java.util.List;
-
-import okhttp3.ResponseBody;
-import retrofit2.Response;
+import com.traveldiary.android.network.CallBack;
 
 import static com.traveldiary.android.App.network;
 
 
-public class CreatTripFragment extends Fragment implements CallBackInterface {
+public class CreatTripFragment extends Fragment {
 
     private Button createTripButton;
     private EditText editTripTitle;
@@ -46,15 +36,30 @@ public class CreatTripFragment extends Fragment implements CallBackInterface {
         createTripButton = (Button) rootView.findViewById(R.id.createTripButton);
         editTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
 
-        //final Network network = new Network(this);
-        network.setCallBackInterface(this);
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (editTripTitle != null){
                     String tripTitle = editTripTitle.getText().toString();
 
-                    network.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle);
+                    network.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle, new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            Toast toast = Toast.makeText(getActivity(),
+                                    "Trip created!!!", Toast.LENGTH_SHORT);
+                            toast.show();
+
+                            Fragment fragment = new TripsFragment();
+                            mChangeFragmentInterface.trans(fragment);
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            Toast toast = Toast.makeText(getActivity(),
+                                    "FAIL!!!", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    });
                 }
             }
         });
@@ -71,75 +76,5 @@ public class CreatTripFragment extends Fragment implements CallBackInterface {
         }catch (ClassCastException e){
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void createTrip(String info) {
-        Toast toast = Toast.makeText(getActivity(),
-                "Trip created!!! + response = " + info, Toast.LENGTH_SHORT);
-        toast.show();
-
-        Fragment fragment = new TripsFragment();
-        mChangeFragmentInterface.trans(fragment);
-    }
-
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-
-    }
-
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-    }
-
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
-
-    }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
     }
 }

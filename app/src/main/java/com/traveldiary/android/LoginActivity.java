@@ -16,13 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.traveldiary.android.network.CallBackInterface;
+import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.network.TravelDiaryService;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
 
-public class LoginActivity extends AppCompatActivity implements CallBackInterface {
+public class LoginActivity extends AppCompatActivity {
 
     private TravelDiaryService travelDiaryService;
     private EditText mEditEmail;
@@ -61,9 +60,6 @@ public class LoginActivity extends AppCompatActivity implements CallBackInterfac
         mLoginButton = (Button) findViewById(R.id.loginButton);
         mLoginButton.setOnClickListener( buttonClickListener() );
 
-        //network = new Network(this);
-        network.setCallBackInterface(this);
-
         makeRegistrationLink();
     }
 
@@ -80,7 +76,9 @@ public class LoginActivity extends AppCompatActivity implements CallBackInterfac
 
                 if (isLoginValuesValid(email, password) && isNetworkValid()) {
                     Log.d("LOG and PASS are", "VALID");
-                    network.signIn(email, password);
+
+                    sign(email, password);
+
 
                 } else {
                     mProgressBar.setVisibility(View.GONE);
@@ -128,91 +126,38 @@ public class LoginActivity extends AppCompatActivity implements CallBackInterfac
     }
 
 
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-        if (response.body() != null) {
-            RegistrationResponse registrationResponse = response.body();
+    public void sign(String email, String password){
 
-            TOKEN = registrationResponse.getToken();
-            TOKEN_TO_SEND = new StringBuilder("Bearer ");
-            TOKEN_TO_SEND.append(TOKEN);
+        network.signIn(email, password, new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
+                RegistrationResponse registrationResponse = response.body();
 
-            //SharedPreferences.Editor editor = mLoginSetting.edit();
-            //editor.putString(SAVED_TOKEN, TOKEN);
-            //editor.apply();
+                TOKEN = registrationResponse.getToken();
+                TOKEN_TO_SEND = new StringBuilder("Bearer ");
+                TOKEN_TO_SEND.append(TOKEN);
 
-            Log.d("Token", " OK");
+                //SharedPreferences.Editor editor = mLoginSetting.edit();
+                //editor.putString(SAVED_TOKEN, TOKEN);
+                //editor.apply();
 
-            mProgressBar.setVisibility(View.GONE);
+                Log.d("Token", " OK");
 
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+                mProgressBar.setVisibility(View.GONE);
 
-        } else {
-            Log.d("Token", " BAD");
-            mProgressBar.setVisibility(View.GONE);
-            mLoginButton.setClickable(true);
-            badLogOrPass();
-        }
-    }
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
 
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-
-    }
-
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-    }
-
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
-
-    }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
-    }
-
-    @Override
-    public void createTrip(String info) {
+            @Override
+            public void failNetwork(Throwable t) {
+                Log.d("Token", " BAD");
+                mProgressBar.setVisibility(View.GONE);
+                mLoginButton.setClickable(true);
+                badLogOrPass();
+            }
+        });
 
     }
 }

@@ -9,21 +9,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.traveldiary.android.network.CallBackInterface;
-import com.traveldiary.android.model.City;
-import com.traveldiary.android.model.Place;
+import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.RegistrationResponse;
-import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
 
-import java.util.List;
-
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
 
-public class RegistrationActivity extends AppCompatActivity implements CallBackInterface{
+public class RegistrationActivity extends AppCompatActivity {
 
     private EditText mEditEmail;
     private EditText mEditPassword;
@@ -43,8 +36,6 @@ public class RegistrationActivity extends AppCompatActivity implements CallBackI
         mRegistrationButton = (Button) findViewById(R.id.registerButton);
         mRegistrationButton.setOnClickListener(registerBtnClickListener());
 
-        network.setCallBackInterface(this);
-
     }
 
     public View.OnClickListener registerBtnClickListener(){
@@ -57,8 +48,28 @@ public class RegistrationActivity extends AppCompatActivity implements CallBackI
 
                 if( isRegistrationValuesValid(email, password)) {
 
-                    network.registration(email, password);
 
+                    network.registration(email, password, new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
+                            RegistrationResponse registrationResponse = response.body();
+
+                            TOKEN = registrationResponse.getToken();
+                            TOKEN_TO_SEND.append(TOKEN);
+
+                            Log.d("Token", " OK");
+
+                            Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            Log.d("Token", " BAD");
+                            badLogOrPass();
+                        }
+                    });
                 }
             }
         };
@@ -72,86 +83,5 @@ public class RegistrationActivity extends AppCompatActivity implements CallBackI
     {
         return Validator.isEmailValid( this, email )
                 && Validator.isPasswordValid( this, password );
-    }
-
-
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-        if (response.body() != null) {
-            RegistrationResponse registrationResponse = response.body();
-
-            TOKEN = registrationResponse.getToken();
-            TOKEN_TO_SEND.append(TOKEN);
-
-            Log.d("Token", " OK");
-
-            Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
-            startActivity(intent);
-
-        } else {
-            Log.d("Token", " BAD");
-            badLogOrPass();
-        }
-    }
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-
-    }
-
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-    }
-
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
-
-    }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
-    }
-
-    @Override
-    public void createTrip(String info) {
-
-    }
-
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-
     }
 }

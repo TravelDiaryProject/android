@@ -30,12 +30,8 @@ public class Network implements NetworkInterface{
 
     private List<City> allCities;
 
-    private CallBackInterface callBackInterface;
-
-
+    // TODO: 4/4/2017 change Network/ not implement all calback method
     // TODO: 4/3/2017 refrash list after adding new trip or place!!!!
-
-
 
     public Network() {
     }
@@ -43,230 +39,203 @@ public class Network implements NetworkInterface{
     /*
             PLACES
      */
-
-    public void setCallBackInterface(CallBackInterface callBackInterface){
-        this.callBackInterface = callBackInterface;
-    }
-
     @Override
-    public void getAllPlaces() {
-
-        if (allPlaces==null) {
-            downloadAllPlaces();
+    public void getAllPlaces(CallBack callBack) {
+        if (allPlaces==null){
+            downloadAllPlaces(callBack);
         }else {
-            callBackInterface.getAllPlaces(allPlaces);
+            callBack.responseNetwork(allPlaces);
         }
-
     }
 
     @Override
-    public void getMyPlaces(String token) {
+    public void getMyPlaces(String token, CallBack callBack) {
         if (myPlaces==null){
-            downloadMyPlaces(token);
+            downloadMyPlaces(token, callBack);
         }else {
-            callBackInterface.getMyPlaces(myPlaces);
+            callBack.responseNetwork(myPlaces);
         }
     }
 
     @Override
-    public void getPlacesByTrip(int tripId) {
-
-        downloadPlacesByTripId(tripId);
-
+    public void getPlacesByTrip(int tripId, CallBack callBack) {
+        downloadPlacesByTripId(tripId, callBack);
     }
 
     @Override
-    public void getPlacesByCity(int cityId) {
-
-        downloadPlacesByCityId(cityId);
-
+    public void getPlacesByCity(int cityId, CallBack callBack) {
+        downloadPlacesByCityId(cityId, callBack);
     }
 
     /*
-            TRIPS
-     */
+                           TRIPS
+    */
     @Override
-    public void getAllTrips() {
+    public void getAllTrips(CallBack callBack) {
         if (allTrips==null){
-            downloadAllTrips();
+            downloadAllTrips(callBack);
         }else {
-            callBackInterface.getAllTrips(allTrips);
+            callBack.responseNetwork(allTrips);
         }
     }
 
     @Override
-    public void getMyTrips(String token) {
-        if (myTrips==null){
-            downloadMyTrips(token);
-        }else {
-            callBackInterface.getMyTrips(myTrips);
-        }
-
+    public void getMyTrips(String token, CallBack callBack) {
+        if (myTrips==null)
+            downloadMyTrips(token, callBack);
+        else
+            callBack.responseNetwork(myTrips);
     }
 
     @Override
-    public void getTripsByCity(int cityId) {
-        downloadTripsByCityId(cityId);
+    public void getTripsByCity(int cityId, CallBack callBack) {
+        downloadTripsByCityId(cityId, callBack);
     }
 
     @Override
-    public void getTripById(int tripId) {
-        getTripByTripId(tripId);
+    public void getTripById(int tripId, CallBack callBack) {
+        getTripByTripId(tripId, callBack);
     }
 
     /*
                Different
      */
     @Override
-    public void createTrip(String token, String tripTitle) {
-        uploadNewTrip(token, tripTitle);
+    public void createTrip(String token, String tripTitle, CallBack callBack) {
+        uploadNewTrip(token, tripTitle, callBack);
     }
 
     @Override
-    public void signIn(String email, String password) {
-        login(email, password);
+    public void signIn(String email, String password, CallBack callBack) {
+        login(email, password, callBack);
     }
 
     @Override
-    public void registration(String email, String password) {
-        reg(email, password);
+    public void registration(String email, String password, CallBack callBack) {
+        reg(email, password, callBack);
     }
 
     @Override
-    public void uploadPlace(String token, MultipartBody.Part body, RequestBody tripIdRequest) {
-        uploadImage(token, body, tripIdRequest);
+    public void uploadPlace(String token, MultipartBody.Part body, RequestBody tripIdRequest, CallBack callBack) {
+        uploadImage(token, body, tripIdRequest, callBack);
     }
 
     @Override
-    public void getAllCities() {
-        if (allCities==null){
-            downloadAllCities();
-        }else {
-            callBackInterface.getAllCities(allCities);
-        }
-
+    public void getAllCities(CallBack callBack) {
+        if (allCities==null)
+            downloadAllCities(callBack);
+        else
+            callBack.responseNetwork(allCities);
     }
 
 
-    private void downloadAllPlaces() {
+    /*
+                    Realization
+     */
+    private void downloadAllPlaces(final CallBack callBack) {
 
         allPlaces = new ArrayList<>();
 
         travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
-
                 allPlaces.addAll(response.body());
-
-                callBackInterface.getAllPlaces(allPlaces);
-
+                callBack.responseNetwork(allPlaces);
             }
 
             @Override
             public void onFailure(Call<List<Place>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
 
-    private void downloadMyPlaces(String token) {
+    private void downloadMyPlaces(String token, final CallBack callBack) {
 
         myPlaces = new ArrayList<>();
 
         travelDiaryService.listMyPlaces(token).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-
                 myPlaces.addAll(response.body());
-
-                callBackInterface.getMyPlaces(myPlaces);
+                callBack.responseNetwork(myPlaces);
             }
 
             @Override
             public void onFailure(Call<List<Place>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
 
-    private void downloadPlacesByTripId(int tripId) {
+    private void downloadPlacesByTripId(int tripId, final CallBack callBack) {
 
         placesByTrip = new ArrayList<>();
 
         travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-
                 placesByTrip.addAll(response.body());
-
-                callBackInterface.getPlacesByTrip(placesByTrip);
+                callBack.responseNetwork(placesByTrip);
             }
 
             @Override
             public void onFailure(Call<List<Place>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
 
-    private void downloadPlacesByCityId(int cityId) {
+    private void downloadPlacesByCityId(int cityId, final CallBack callBack) {
 
         placesByCity = new ArrayList<>();
 
         travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-
                 placesByCity.addAll(response.body());
-
-
-                callBackInterface.getPlacesByCity(placesByCity);
+                callBack.responseNetwork(placesByCity);
             }
 
             @Override
             public void onFailure(Call<List<Place>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
 
-    private void downloadAllTrips() {
+    private void downloadAllTrips(final CallBack callBack) {
 
         allTrips = new ArrayList<>();
 
         travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
                 allTrips.addAll(response.body());
-
-                callBackInterface.getAllTrips(allTrips);
+                callBack.responseNetwork(allTrips);
             }
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
 
-    private void downloadMyTrips(String token) {
+    private void downloadMyTrips(String token, final CallBack callBack) {
 
         myTrips = new ArrayList<>();
 
         travelDiaryService.listMyTrips(token).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
                 myTrips.addAll(response.body());
-
-                callBackInterface.getMyTrips(myTrips);
-
+                callBack.responseNetwork(myTrips);
             }
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
@@ -274,119 +243,27 @@ public class Network implements NetworkInterface{
     /*
                 Не проверенно!!!!!!
      */
-    private void downloadTripsByCityId(int cityId) {
+    private void downloadTripsByCityId(int cityId, final CallBack callBack) {
 
         tripsByCity = new ArrayList<>();
 
         travelDiaryService.listTripsByCity(cityId).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-
                 tripsByCity.addAll(response.body());
-
-                callBackInterface.getPlacesByCity(placesByCity);
+                callBack.responseNetwork(tripsByCity);
             }
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-
+                callBack.failNetwork(t);
             }
         });
     }
 
-    private void uploadNewTrip(String token, String tripTitle){
+    private void getTripByTripId(int tripId, CallBack callBack){
 
-        travelDiaryService.createTrip(token, tripTitle).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                callBackInterface.createTrip(response.body().toString());
-
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-                callBackInterface.createTrip(t.toString());
-
-            }
-        });
-
-    }
-
-    private void login(String email, String password){
-
-        travelDiaryService.getToken(email, password).enqueue(new Callback<RegistrationResponse>() {
-            @Override
-            public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
-
-                callBackInterface.signIn(response);
-
-            }
-
-            @Override
-            public void onFailure(Call<RegistrationResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void reg(String email, String password){
-        travelDiaryService.registration(email, password).enqueue(new Callback<RegistrationResponse>() {
-            @Override
-            public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
-
-                callBackInterface.registration(response);
-
-            }
-
-            @Override
-            public void onFailure(Call<RegistrationResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void uploadImage(String token, MultipartBody.Part body, RequestBody tripIdRequest){
-        travelDiaryService.postImage(token, body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-                callBackInterface.uploadPlace(response);
-
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void downloadAllCities(){
-
-        allCities = new ArrayList<>();
-
-        travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
-            @Override
-            public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {
-
-                allCities.addAll(response.body());
-
-                callBackInterface.getAllCities(allCities);
-
-            }
-
-            @Override
-            public void onFailure(Call<List<City>> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void getTripByTripId(int tripId){
-
-        // TODO: 4/3/2017 get Trip by ID from one of trip lists (ALL, MY, TOP)
+        /*// TODO: 4/3/2017 get Trip by ID from one of trip lists (ALL, MY, TOP)
 
         if (allTrips!=null){
             Trip trip = null;
@@ -396,9 +273,89 @@ public class Network implements NetworkInterface{
                     break;
                 }
             }
-            callBackInterface.getTripById(trip);
+            callBack.getTripById(trip);
         }else if (allTrips==null){
             getAllTrips();
-        }
+        }*/
     }
+
+
+    private void uploadNewTrip(String token, String tripTitle, final CallBack callBack){
+
+        travelDiaryService.createTrip(token, tripTitle).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                callBack.responseNetwork(response);
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+
+    }
+
+    private void login(String email, String password, final CallBack callBack){
+
+        travelDiaryService.getToken(email, password).enqueue(new Callback<RegistrationResponse>() {
+            @Override
+            public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
+                callBack.responseNetwork(response);
+            }
+
+            @Override
+            public void onFailure(Call<RegistrationResponse> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
+    private void reg(String email, String password, final CallBack callBack){
+        travelDiaryService.registration(email, password).enqueue(new Callback<RegistrationResponse>() {
+            @Override
+            public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
+                callBack.responseNetwork(response);
+            }
+
+            @Override
+            public void onFailure(Call<RegistrationResponse> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
+    private void uploadImage(String token, MultipartBody.Part body, RequestBody tripIdRequest, final CallBack callBack){
+        travelDiaryService.postImage(token, body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                callBack.responseNetwork(response);
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
+    private void downloadAllCities(final CallBack callBack){
+
+        allCities = new ArrayList<>();
+
+        travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
+            @Override
+            public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {
+                allCities.addAll(response.body());
+                callBack.responseNetwork(allCities);
+            }
+
+            @Override
+            public void onFailure(Call<List<City>> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
+
 }

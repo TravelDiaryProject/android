@@ -13,12 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.traveldiary.android.network.CallBackInterface;
+import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 
 
-public class MainFragment extends Fragment implements CallBackInterface{
+public class MainFragment extends Fragment {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
 
@@ -49,12 +48,26 @@ public class MainFragment extends Fragment implements CallBackInterface{
         View rootView = inflater.inflate(R.layout.fragment_main,
                 container, false);
 
-        network.setCallBackInterface(this);
-
         mCityList = new ArrayList<>();
         mCities = new ArrayList<>();
 
-        network.getAllCities();
+        network.getAllCities(new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                List<City> allCities = (List<City>) o;
+
+                mCityList.addAll(allCities);
+
+                for (int i = 0; i < mCityList.size(); i++){
+                    mCities.add(mCityList.get(i).getName());
+                }
+            }
+
+            @Override
+            public void failNetwork(Throwable t) {
+
+            }
+        });
 
         final String[] from = new String[] {"cityName"};
         final int[] to = new int[] {android.R.id.text1};
@@ -135,74 +148,5 @@ public class MainFragment extends Fragment implements CallBackInterface{
                 }
             }
         }
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-        mCityList.addAll(allCities);
-
-        for (int i = 0; i < mCityList.size(); i++){
-            mCities.add(mCityList.get(i).getName());
-        }
-    }
-
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-    }
-
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
-
-    }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
-    }
-
-    @Override
-    public void createTrip(String info) {
-
-    }
-
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-
     }
 }

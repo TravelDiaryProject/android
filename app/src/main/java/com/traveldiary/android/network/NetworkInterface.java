@@ -4,27 +4,24 @@ package com.traveldiary.android.network;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-/**
- * Created by Cyborg on 3/30/2017.
- */
 
 public interface NetworkInterface {
-    void getAllPlaces();
-    void getMyPlaces(String token);//передавать токен
-    void getPlacesByTrip(int tripId);//передавать ИД трипа
-    void getPlacesByCity(int cityId);//передавать ИД города
+    void getAllPlaces(CallBack callBack);
+    void getMyPlaces(String token, CallBack callBack);//передавать токен
+    void getPlacesByTrip(int tripId, CallBack callBack);//передавать ИД трипа
+    void getPlacesByCity(int cityId, CallBack callBack);//передавать ИД города
 
-    void getAllTrips();
-    void getMyTrips(String token);
-    void getTripsByCity(int cityId);
-    void getTripById(int tripId);
+    void getAllTrips(CallBack callBack);
+    void getMyTrips(String token, CallBack callBack);
+    void getTripsByCity(int cityId, CallBack callBack);
+    void getTripById(int tripId, CallBack callBack);
 
-    void createTrip(String token, String tripTitle);
-    void signIn(String email, String password);
-    void registration(String email, String password);
+    void createTrip(String token, String tripTitle, CallBack callBack);
+    void signIn(String email, String password, CallBack callBack);
+    void registration(String email, String password, CallBack callBack);
 
-    void uploadPlace(String token, MultipartBody.Part body, RequestBody tripIdRequest);
+    void uploadPlace(String token, MultipartBody.Part body, RequestBody tripIdRequest, CallBack callBack);
 
-    void getAllCities();
+    void getAllCities(CallBack callBack);
 
 }

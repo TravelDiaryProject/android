@@ -12,12 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.traveldiary.android.network.CallBackInterface;
+import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.Network;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +32,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
 
-public class UploadFragment extends Fragment implements CallBackInterface{
+public class UploadFragment extends Fragment {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
     private int mTripId;
@@ -44,8 +43,6 @@ public class UploadFragment extends Fragment implements CallBackInterface{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTripId = getArguments().getInt(ID_STRING);
-
-        network.setCallBackInterface(this);
     }
 
     @Override
@@ -84,8 +81,23 @@ public class UploadFragment extends Fragment implements CallBackInterface{
 
             MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-            network.uploadPlace(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest);
+            network.uploadPlace(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest, new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    Response<ResponseBody> response = (Response<ResponseBody>) o;
+                    try {
+                        System.out.println("onResponse = " + response.body().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    inform();
+                }
 
+                @Override
+                public void failNetwork(Throwable t) {
+
+                }
+            });
         }
     }
 
@@ -114,76 +126,4 @@ public class UploadFragment extends Fragment implements CallBackInterface{
             e.printStackTrace();
         }
     }
-
-
-    @Override
-    public void uploadPlace(Response<ResponseBody> response) {
-        try {
-            System.out.println("onResponse = " + response.body().string());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        inform();
-    }
-
-    @Override
-    public void getAllCities(List<City> allCities) {
-
-    }
-
-    @Override
-    public void getAllPlaces(List<Place> allPlaces) {
-
-    }
-
-    @Override
-    public void getMyPlaces(List<Place> myPlaces) {
-
-    }
-
-    @Override
-    public void getPlacesByTrip(List<Place> placesByTrip) {
-
-    }
-
-    @Override
-    public void getPlacesByCity(List<Place> placesByCity) {
-
-    }
-
-    @Override
-    public void getAllTrips(List<Trip> allTrips) {
-
-    }
-
-    @Override
-    public void getMyTrips(List<Trip> myTrips) {
-
-    }
-
-    @Override
-    public void getTripsByCity(List<Trip> tripsByCity) {
-
-    }
-
-    @Override
-    public void getTripById(Trip trip) {
-
-    }
-
-    @Override
-    public void createTrip(String info) {
-
-    }
-
-    @Override
-    public void signIn(Response<RegistrationResponse> response) {
-
-    }
-
-    @Override
-    public void registration(Response<RegistrationResponse> response) {
-
-    }
-
 }
