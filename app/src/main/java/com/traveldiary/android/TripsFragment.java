@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ALL;
+import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
@@ -95,6 +97,19 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
                 }
             });
+        }else if (tripsFor.equals(FUTURE)){
+            network.getFutureTrips(LoginActivity.TOKEN_TO_SEND.toString() ,new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+
+                    manipulateWithResponse(o);
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+                    System.out.println("B");
+                }
+            });
         }
 
         return rootView;
@@ -114,9 +129,8 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
     @Override
     public void onItemClick(View view, int possition) {
-        int itemPossition = recyclerView.getChildLayoutPosition(view);
-        Trip trip = mTripList.get(itemPossition);
 
+        Trip trip = mTripList.get(possition);
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(ID_STRING, trip.getId());
         startActivity(intent);
@@ -134,6 +148,10 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
     public void manipulateWithResponse(Object o){
         List<Trip> tripsList = (List<Trip>) o;
+
+        if (tripsList.size()==0){
+            Toast.makeText(getActivity(), "No Trips", Toast.LENGTH_LONG).show();
+        }
 
         mTripList.addAll(tripsList);
         mProgressBar.setVisibility(View.GONE);

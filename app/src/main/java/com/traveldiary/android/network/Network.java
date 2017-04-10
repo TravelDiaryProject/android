@@ -19,6 +19,7 @@ public class Network implements NetworkInterface{
 
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
 
+    private List<Place> topPlaces;
     private List<Place> allPlaces;
     private List<Place> myPlaces;
     private List<Place> placesByTrip;
@@ -26,25 +27,28 @@ public class Network implements NetworkInterface{
 
     private List<Trip> allTrips;
     private List<Trip> myTrips;
+    private List<Trip> futureTrips;
     private List<Trip> tripsByCity;
 
     private List<City> allCities;
 
-    // TODO: 4/4/2017 change Network/ not implement all calback method
-    // TODO: 4/3/2017 refrash list after adding new trip or place!!!!
+    // TODO: 4/3/2017 refresh list after adding new trip or place!!!!
 
     public Network() {
     }
 
+
+
     /*
-            PLACES
-     */
+                PLACES
+         */
+
     @Override
-    public void getAllPlaces(CallBack callBack) {
-        if (allPlaces==null){
-            downloadAllPlaces(callBack);
+    public void getTopPlaces(CallBack callBack) {
+        if (topPlaces==null){
+            downloadTopPlaces(callBack);
         }else {
-            callBack.responseNetwork(allPlaces);
+            callBack.responseNetwork(topPlaces);
         }
     }
 
@@ -97,6 +101,30 @@ public class Network implements NetworkInterface{
         getTripByTripId(tripId, callBack);
     }
 
+    @Override
+    public void getFutureTrips(String token, CallBack callBack) {
+        /*if (futureTrips==null || futureTrips.size()==0){
+            downloadFutureTrips(token, callBack);
+        }else {
+            callBack.responseNetwork(futureTrips);
+        }*/
+        downloadFutureTrips(token, callBack);
+    }
+
+    @Override
+    public void addToFutureTrips(String token, int placeId, CallBack callBack) {
+
+        // TODO: 4/10/2017 если ответ с сервера положителен - изменить состояние place
+
+        addToFuture(token, placeId, callBack);
+        downloadFutureTrips(token, null);
+    }
+
+    @Override
+    public void likePlace(String token, int placeId, CallBack callBack) {
+        uploadLike(token, placeId, callBack);
+    }
+
     /*
                Different
      */
@@ -132,15 +160,16 @@ public class Network implements NetworkInterface{
     /*
                     Realization
      */
-    private void downloadAllPlaces(final CallBack callBack) {
 
-        allPlaces = new ArrayList<>();
+    private void downloadTopPlaces(final CallBack callBack){
 
-        travelDiaryService.listAllPlaces().enqueue(new Callback<List<Place>>() {
+        topPlaces = new ArrayList<>();
+
+        travelDiaryService.listTopPlaces().enqueue(new Callback<List<Place>>() {
             @Override
-            public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
-                allPlaces.addAll(response.body());
-                callBack.responseNetwork(allPlaces);
+            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+                topPlaces.addAll(response.body());
+                callBack.responseNetwork(topPlaces);
             }
 
             @Override
@@ -148,6 +177,7 @@ public class Network implements NetworkInterface{
                 callBack.failNetwork(t);
             }
         });
+
     }
 
     private void downloadMyPlaces(String token, final CallBack callBack) {
@@ -212,6 +242,7 @@ public class Network implements NetworkInterface{
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
                 allTrips.addAll(response.body());
+
                 callBack.responseNetwork(allTrips);
             }
 
@@ -240,6 +271,34 @@ public class Network implements NetworkInterface{
         });
     }
 
+    private void downloadFutureTrips(String token, final CallBack callBack) {
+
+        futureTrips = new ArrayList<>();
+
+        travelDiaryService.listMyFutureTrips(token).enqueue(new Callback<List<Trip>>() {
+            @Override
+            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
+                if (response.body()!=null) {
+                    futureTrips.addAll(response.body());
+                    if (callBack!=null) {
+                        callBack.responseNetwork(futureTrips);
+                    }
+                }else {
+                    if (callBack!=null) {
+                        callBack.responseNetwork(futureTrips);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Trip>> call, Throwable t) {
+                if (callBack!=null) {
+                    callBack.failNetwork(t);
+                }
+            }
+        });
+    }
+
     /*
                 Не проверенно!!!!!!
      */
@@ -261,6 +320,25 @@ public class Network implements NetworkInterface{
         });
     }
 
+
+    private void addToFuture(String token, int placeId, final CallBack callBack){
+
+        travelDiaryService.addToFutureTrips(token, placeId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                callBack.responseNetwork(response);
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+
+    }
+
+
+
     private void getTripByTripId(int tripId, CallBack callBack){
 
         /*// TODO: 4/3/2017 get Trip by ID from one of trip lists (ALL, MY, TOP)
@@ -277,6 +355,23 @@ public class Network implements NetworkInterface{
         }else if (allTrips==null){
             getAllTrips();
         }*/
+    }
+
+
+    private void uploadLike(String token, int placeId, final CallBack callBack){
+
+        travelDiaryService.likePlace(token, placeId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                callBack.responseNetwork(response);
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+
     }
 
 

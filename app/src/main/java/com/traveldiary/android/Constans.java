@@ -1,8 +1,5 @@
 package com.traveldiary.android;
 
-/**
- * Created by Cyborg on 2/15/2017.
- */
 
 public class Constans {
 
@@ -12,7 +9,9 @@ public class Constans {
     public static final String TRIPS_FOR = "tripsFor";
     public static final String PLACES_FOR = "placesFor";
     public static final String MY = "My";
+    public static final String FUTURE = "Future";
     public static final String ALL = "All";
+    public static final String TOP = "Top";
     public static final String LOAD_TO = "LOAD_TO";
     public static final String  PLACES_BY_CITY = "LOAD_TO";
 

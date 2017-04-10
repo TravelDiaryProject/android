@@ -6,7 +6,8 @@ import okhttp3.RequestBody;
 
 
 public interface NetworkInterface {
-    void getAllPlaces(CallBack callBack);
+
+    void getTopPlaces(CallBack callBack);
     void getMyPlaces(String token, CallBack callBack);//передавать токен
     void getPlacesByTrip(int tripId, CallBack callBack);//передавать ИД трипа
     void getPlacesByCity(int cityId, CallBack callBack);//передавать ИД города
@@ -15,6 +16,10 @@ public interface NetworkInterface {
     void getMyTrips(String token, CallBack callBack);
     void getTripsByCity(int cityId, CallBack callBack);
     void getTripById(int tripId, CallBack callBack);
+    void getFutureTrips(String token, CallBack callBack);
+
+    void addToFutureTrips(String token, int placeId, CallBack callBack);
+    void likePlace(String token, int placeId, CallBack callBack);
 
     void createTrip(String token, String tripTitle, CallBack callBack);
     void signIn(String email, String password, CallBack callBack);

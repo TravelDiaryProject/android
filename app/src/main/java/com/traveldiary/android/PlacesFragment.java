@@ -3,6 +3,7 @@ package com.traveldiary.android;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
@@ -14,13 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
-import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.model.RegistrationResponse;
-import com.traveldiary.android.model.Trip;
+import com.traveldiary.android.network.InternetStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +29,14 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
-import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.TOP;
 
 
-public class PlacesFragment extends Fragment {
+public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener {
     private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
@@ -112,24 +112,7 @@ public class PlacesFragment extends Fragment {
 
         mPlacesList = new ArrayList<>();
 
-        recyclerAdapter = new RecyclerAdapter(getActivity(), null, new RecyclerAdapter.ItemClickListener(){
-
-            @Override
-            public void onItemClick(View view, int possition) {
-                System.out.println("Click = " + view.getId() + " pos = " + possition);
-                System.out.println("click place id = " + mPlacesList.get(possition).getId());
-
-
-
-
-                /*switch (view.getId()){
-                    *//*case R.id.placeLikeButton:
-                        System.out.println("Add to my trips by id = " + mPlacesList.get(possition).getId());
-                        view.setBackgroundResource(R.drawable.common_google_signin_btn_icon_dark);
-                        break;*//*
-                }*/
-            }
-        } /*{
+        recyclerAdapter = new RecyclerAdapter(getActivity(), null, this /*{
             @Override
             public void onClick(View view) {
                 System.out.println("Click on place ");
@@ -193,8 +176,8 @@ public class PlacesFragment extends Fragment {
                 });
             }
 
-        }else if (placesFor.equals(MY)){
-            network.getMyPlaces(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
+        }else if (placesFor.equals(TOP)){
+            network.getTopPlaces(new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     manipulationWithResponse(o);
@@ -205,8 +188,8 @@ public class PlacesFragment extends Fragment {
 
                 }
             });
-        }else if (placesFor.equals(ALL)) {
-            network.getAllPlaces(new CallBack() {
+        }else if (placesFor.equals(MY)){
+            network.getMyPlaces(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     manipulationWithResponse(o);
@@ -238,5 +221,102 @@ public class PlacesFragment extends Fragment {
         mPlacesList.addAll(placesList);
         recyclerAdapter.notifyDataSetChanged();
         mProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onItemClick(final View view, final int possition) {
+
+        if (view.getId()!=R.id.placeShowInMapButton){
+            // проверка подключения к инету
+            InternetStatus inetStatus = new InternetStatus();
+            inetStatus.check(getActivity(), new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    // проверка авторизации
+                    if (LoginActivity.TOKEN_TO_SEND != null){
+                        addToFuture(view, possition);
+                    }else {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public void addToFuture(final View view, final int possition){
+
+        final Place place = mPlacesList.get(possition);
+
+        switch (view.getId()){
+            case R.id.placeImageView:
+                if (placesFor.equals(TOP)) {
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    intent.putExtra(ID_STRING, place.getTripId());
+                    startActivity(intent);
+                }
+
+                // TODO: 4/10/2017 логика нажатия на плейс не из списка топов
+
+                break;
+
+            case R.id.placeAddToFutureButton:
+                network.addToFutureTrips(LoginActivity.TOKEN_TO_SEND.toString(), place.getId(), new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        Response<ResponseBody> response = (Response<ResponseBody>) o;
+                        if (response.code()==201) {
+                            Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
+
+                            place.isFuture = true;
+                            recyclerAdapter.notifyItemChanged(possition);
+                        }else {
+                            Toast.makeText(getActivity(), "Проблема с сервером ", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+
+                    }
+                });
+                break;
+
+            case R.id.placeLikeButton:
+                network.likePlace(LoginActivity.TOKEN_TO_SEND.toString(), place.getId(), new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        Response<ResponseBody> response = (Response<ResponseBody>) o;
+                        if (response.code()==201) {
+                            Toast.makeText(getActivity(), "places Liked ", Toast.LENGTH_LONG).show();
+
+                            place.isLike = true;
+                            recyclerAdapter.notifyItemChanged(possition);
+                        }else {
+                            Toast.makeText(getActivity(), "Проблема с сервером ", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+
+                    }
+                });
+                break;
+        }
     }
 }

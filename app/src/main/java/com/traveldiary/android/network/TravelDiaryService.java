@@ -21,23 +21,23 @@ import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-/**
- * Created by Cyborg on 2/3/2017.
- */
 
 public interface TravelDiaryService {
 
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listTopPlaces();
+
     @GET("/api/v1/trips")
     Call<List<Trip>> listAllTrips();
-
-    @GET("/api/v1/places")
-    Call<List<Place>> listAllPlaces();
 
     @GET("/api/v1/cities")
     Call<List<City>> listAllCities();
 
     @GET("/api/v1/my/trips")
     Call<List<Trip>> listMyTrips(@Header("Authorization") String token);
+
+    @GET("/api/v1/my/future-trips")
+    Call<List<Trip>> listMyFutureTrips(@Header("Authorization") String token);
 
     @GET("/api/v1/my/places")
     Call<List<Place>> listMyPlaces(@Header("Authorization") String token);
@@ -76,7 +76,13 @@ public interface TravelDiaryService {
     @POST("/api/v1/my/trip")
     Call<ResponseBody> createTrip(@Header("Authorization") String token, @Field("title") String tripTitle);
 
+    @FormUrlEncoded
+    @POST("/api/v1/my/add-place-to-future-trips")
+    Call<ResponseBody> addToFutureTrips(@Header("Authorization") String token, @Field("placeId") int placeId);
 
+    @FormUrlEncoded
+    @POST("/api/v1/my/like")
+    Call<ResponseBody> likePlace(@Header("Authorization") String token, @Field("placeId") int placeId);
 
     @FormUrlEncoded
     @POST("/api/v1/login_check")

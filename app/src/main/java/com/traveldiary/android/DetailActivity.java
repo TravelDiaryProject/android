@@ -136,14 +136,14 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
     public void onItemClick(View view, int possition) {
         System.out.println("Click = " + view.getId() + " pos = " + possition);
         System.out.println("click place id = " + mPlacesList.get(possition).getId());
-                switch (view.getId()){
+               /* switch (view.getId()){
                     case R.id.placeLikeButton:
                         System.out.println("Add to my trips by id = " + mPlacesList.get(possition).getId());
-                        /*ImageView imageView = (ImageView) view;
-                        imageView.setVisibility(View.GONE);*/
+                        *//*ImageView imageView = (ImageView) view;
+                        imageView.setVisibility(View.GONE);*//*
                         //view.setVisibility(View.GONE);
                         //recyclerAdapter.notifyItemChanged(possition);
                         break;
-                }
+                }*/
     }
 }

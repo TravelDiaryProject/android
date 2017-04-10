@@ -57,7 +57,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return new PlaceHolder(itemView);
             case TYPE_TRIP:
                 View itemView2 = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trip_card, parent, false);
+                        .inflate(R.layout.second_test_trip, parent, false);
                 return new MyViewHolder(itemView2);
         }
 
@@ -73,28 +73,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         }else if (holder instanceof MyViewHolder){
             MyViewHolder myViewHolder = (MyViewHolder) holder;
-            mProgressBar.setVisibility(View.VISIBLE);
-
-            Trip trip = mTripsList.get(position);
-
-            myViewHolder.title.setText(trip.getTitle());
-            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            mProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .thumbnail(0.1f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(myViewHolder.imageView);
+            myViewHolder.bindData(mTripsList.get(position), position);
 
         }
     }
@@ -120,21 +99,105 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
+        private Trip trip;
+
         private TextView title;
-        private ImageView imageView;
+        private ImageView imageView1;
+        private ImageView imageView2;
+        private ImageView imageView3;
+        private ImageView imageView4;
 
         public MyViewHolder(View view) {
             super(view);
             view.setOnClickListener(this);
             title = (TextView) view.findViewById(R.id.tripTitleView);
-            imageView = (ImageView) view.findViewById(R.id.tripImageView);
             mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
 
+            imageView1 = (ImageView) view.findViewById(R.id.tripImageView1);
+            imageView2 = (ImageView) view.findViewById(R.id.tripImageView2);
+            imageView3 = (ImageView) view.findViewById(R.id.tripImageView3);
+            imageView4 = (ImageView) view.findViewById(R.id.tripImageView4);
+
             //title.setOnClickListener(this);
-            //imageView.setOnClickListener(this);
+            //titleImageView.setOnClickListener(this);
         }
 
-        public void bindData(){
+        public void bindData(Trip trip, int possition){
+
+            this.trip = trip;
+
+            mProgressBar.setVisibility(View.VISIBLE);
+
+            /*Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .thumbnail(0.1f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageView1);
+            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .thumbnail(0.1f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageView2);
+            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .thumbnail(0.1f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageView3);*/
+            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .thumbnail(0.1f)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageView4);
+
+            title.setText(trip.getTitle());
 
         }
 
@@ -150,7 +213,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class PlaceHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private ImageView imageView;
+        private ImageView titleImageView;
         private ImageView placeLikeButton;
         private ImageView placeAddToFutureButton;
         private ImageView placeShowInMapButton;
@@ -160,14 +223,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public PlaceHolder(View view) {
             super(view);
-            imageView = (ImageView) view.findViewById(R.id.placeImageView);
+            titleImageView = (ImageView) view.findViewById(R.id.placeImageView);
             placeLikeButton = (ImageView) view.findViewById(R.id.placeLikeButton);
             placeAddToFutureButton = (ImageView) view.findViewById(R.id.placeAddToFutureButton);
             placeShowInMapButton = (ImageView) view.findViewById(R.id.placeShowInMapButton);
 
             mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
 
-            imageView.setOnClickListener(this);
+            titleImageView.setOnClickListener(this);
             placeLikeButton.setOnClickListener(this);
             placeAddToFutureButton.setOnClickListener(this);
             placeShowInMapButton.setOnClickListener(this);
@@ -186,6 +249,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            mProgressBar.setVisibility(View.GONE);
+                            //Toast.makeText(mContext, "exception = " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             return false;
                         }
 
@@ -198,15 +263,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .thumbnail(0.5f)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imageView);
+                    .into(titleImageView);
 
-            if (place.selectedLike){
+            if (place.isLike){
                 placeLikeButton.setImageResource(R.drawable.ic_plus_one_black_24dp);
             }else {
                 placeLikeButton.setImageResource(R.drawable.ic_plus_one_red_24dp);
             }
 
-            if (place.selectedAddTrip){
+            if (place.isFuture){
                 placeAddToFutureButton.setImageResource(R.drawable.ic_add_circle_outline_black_24dp);
             }else {
                 placeAddToFutureButton.setImageResource(R.drawable.ic_add_circle_outline_red_24dp);
@@ -221,29 +286,24 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             switch (v.getId()) {
                 case R.id.placeLikeButton:
-                    if (place.selectedLike){
-                        place.selectedLike = false;
-                        placeLikeButton.setImageResource(R.drawable.ic_plus_one_red_24dp);
+                    if (place.isLike){
+                        // delete like
                     }else {
-                        place.selectedLike = true;
-                        placeLikeButton.setImageResource(R.drawable.ic_plus_one_black_24dp);
+                        itemClickListener.onItemClick(v, this.getLayoutPosition());
                     }
-                    //notifyItemChanged(possition);
                     break;
 
                 case R.id.placeAddToFutureButton:
-                    if (place.selectedAddTrip){
-                        place.selectedAddTrip = false;
-                        placeAddToFutureButton.setImageResource(R.drawable.ic_add_circle_outline_red_24dp);
+                    if (place.isFuture){
+                        // now we can only add to future, we can not delete place from future trip
+                        // delete from future
                     }else {
-                        place.selectedAddTrip = true;
-                        placeAddToFutureButton.setImageResource(R.drawable.ic_add_circle_outline_black_24dp);
+                        itemClickListener.onItemClick(v, this.getLayoutPosition());
                     }
-                    //notifyItemChanged(possition);
                     break;
 
                 case R.id.placeImageView:
-                    // TODO: 4/4/2017 Open fullScreen Activity
+                    itemClickListener.onItemClick(v, this.getLayoutPosition());
                     break;
 
                 case R.id.placeShowInMapButton:
@@ -252,9 +312,5 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             }
         }
-    }
-
-    public interface PlaceClickListener {
-        void onItemClick(View view, int possition);
     }
 }

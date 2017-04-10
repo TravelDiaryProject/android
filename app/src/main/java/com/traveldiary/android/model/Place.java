@@ -6,15 +6,19 @@ public class Place {
     private String photo;
     private String latitude;
     private String longitude;
+    private int tripId;
+    private int likes;
 
-    public boolean selectedLike = false;// state buttonLike in recyclerView
-    public boolean selectedAddTrip = false;// state buttonAddTrip in recyclerView
+    public boolean isLike = false;// state buttonLike in recyclerView
+    public boolean isFuture = false;// state buttonAddTrip in recyclerView
 
-    public Place(int id, String photo, String latitude, String longitude) {
+    public Place(int id, String photo, String latitude, String longitude, int tripId, int likes) {
         this.id = id;
         this.photo = photo;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.tripId = tripId;
+        this.likes = likes;
     }
 
     public int getId() {
@@ -49,6 +53,22 @@ public class Place {
         this.longitude = longitude;
     }
 
+    public int getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
@@ -56,6 +76,8 @@ public class Place {
                 ", photo='" + photo + '\'' +
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
+                ", tripId=" + tripId +
+                ", likes=" + likes +
                 '}';
     }
 }

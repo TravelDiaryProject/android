@@ -16,9 +16,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import static com.traveldiary.android.Constans.ALL;
+import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.LOAD_TO;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.TOP;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
@@ -94,6 +96,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     startActivity(new Intent(this, LoginActivity.class));
                 }
                 break;
+            case R.id.menu_future_trips:
+                if (LoginActivity.TOKEN_TO_SEND != null) {
+                    fragment = new TripsFragment();
+                    args = new Bundle();
+                    args.putString(TRIPS_FOR, FUTURE);
+                    fragment.setArguments(args);
+                    trans(fragment);
+                }else {
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+                break;
             case R.id.menu_my_trips_and_places:
                 if (LoginActivity.TOKEN_TO_SEND != null) {
                     fragment = new FragmentTabs();
@@ -112,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment.setArguments(args);
                 trans(fragment);
                 break;
-            case R.id.menu_all_places:
+            case R.id.menu_top_places:
                 fragment = new PlacesFragment();
                 args = new Bundle();
-                args.putString(PLACES_FOR, ALL);
+                args.putString(PLACES_FOR, TOP);
                 fragment.setArguments(args);
                 trans(fragment);
                 break;
