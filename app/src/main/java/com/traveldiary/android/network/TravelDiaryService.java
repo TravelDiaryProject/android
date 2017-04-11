@@ -27,9 +27,6 @@ public interface TravelDiaryService {
     @GET("/api/v1/top_places")
     Call<List<Place>> listTopPlaces();
 
-    @GET("/api/v1/trips")
-    Call<List<Trip>> listAllTrips();
-
     @GET("/api/v1/cities")
     Call<List<City>> listAllCities();
 

@@ -12,7 +12,6 @@ public interface NetworkInterface {
     void getPlacesByTrip(int tripId, CallBack callBack);//передавать ИД трипа
     void getPlacesByCity(int cityId, CallBack callBack);//передавать ИД города
 
-    void getAllTrips(CallBack callBack);
     void getMyTrips(String token, CallBack callBack);
     void getTripsByCity(int cityId, CallBack callBack);
     void getTripById(int tripId, CallBack callBack);

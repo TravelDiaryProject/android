@@ -20,12 +20,10 @@ public class Network implements NetworkInterface{
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
 
     private List<Place> topPlaces;
-    private List<Place> allPlaces;
     private List<Place> myPlaces;
     private List<Place> placesByTrip;
     private List<Place> placesByCity;
 
-    private List<Trip> allTrips;
     private List<Trip> myTrips;
     private List<Trip> futureTrips;
     private List<Trip> tripsByCity;
@@ -74,14 +72,6 @@ public class Network implements NetworkInterface{
     /*
                            TRIPS
     */
-    @Override
-    public void getAllTrips(CallBack callBack) {
-        if (allTrips==null){
-            downloadAllTrips(callBack);
-        }else {
-            callBack.responseNetwork(allTrips);
-        }
-    }
 
     @Override
     public void getMyTrips(String token, CallBack callBack) {
@@ -229,25 +219,6 @@ public class Network implements NetworkInterface{
 
             @Override
             public void onFailure(Call<List<Place>> call, Throwable t) {
-                callBack.failNetwork(t);
-            }
-        });
-    }
-
-    private void downloadAllTrips(final CallBack callBack) {
-
-        allTrips = new ArrayList<>();
-
-        travelDiaryService.listAllTrips().enqueue(new Callback<List<Trip>>() {
-            @Override
-            public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-                allTrips.addAll(response.body());
-
-                callBack.responseNetwork(allTrips);
-            }
-
-            @Override
-            public void onFailure(Call<List<Trip>> call, Throwable t) {
                 callBack.failNetwork(t);
             }
         });

@@ -1,6 +1,8 @@
 package com.traveldiary.android;
 
 import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,14 +41,10 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
     private String photo;
 
-    private RecyclerView recyclerView;
-
     private Dialog mDialog;
     private Button uploadFromGalleryBut;
     private Button uploadFromCameraBut;
-    private RecyclerAdapter recyclerAdapter;
     private List<Place> mPlacesList;
-    private LinearLayoutManager mLayoutManager;
 
     private ImageView collapseImage;
 
@@ -75,40 +73,18 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
         tripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
 
-        //network.getTripById(tripId);
-
         mDialog = new Dialog(this);
         mDialog.setContentView(R.layout.dialog_view);
         uploadFromGalleryBut = (Button) mDialog.findViewById(R.id.uploadFromGalleryBut);
         uploadFromCameraBut = (Button) mDialog.findViewById(R.id.uploadFromCameraBut);
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.detail_activity_places_recycler_view);
+        PlacesFragment placesFragment = new PlacesFragment();
+        Bundle args = new Bundle();
+        args.putInt(ID_STRING, tripId);
+        placesFragment.setArguments(args);
+        trans(placesFragment);
 
-        mPlacesList = new ArrayList<>();
-
-        recyclerAdapter = new RecyclerAdapter(this, null, this, mPlacesList);
-        mLayoutManager = new LinearLayoutManager(this);
-        //mLayoutManager = new GridLayoutManager(getActivity(), 2);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(recyclerAdapter);
-
-
-        network.getPlacesByTrip(tripId, new CallBack() {
-            @Override
-            public void responseNetwork(Object o) {
-                List<Place> response = (List<Place>) o;
-
-                mPlacesList.addAll(response);
-                recyclerAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void failNetwork(Throwable t) {
-
-            }
-        });
     }
 
     public void setCollapseInfo(String tripPhoto){
@@ -146,4 +122,13 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
                         break;
                 }*/
     }
+
+    public void trans(Fragment fragment) {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_detail, fragment);
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+    }
+
 }

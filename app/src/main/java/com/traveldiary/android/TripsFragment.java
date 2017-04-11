@@ -3,7 +3,7 @@ package com.traveldiary.android;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -75,18 +75,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
         }else if (tripsFor.equals(MY)) {
             network.getMyTrips(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
-                @Override
-                public void responseNetwork(Object o) {
-                    manipulateWithResponse(o);
-                }
-
-                @Override
-                public void failNetwork(Throwable t) {
-
-                }
-            });
-        }else if (tripsFor.equals(ALL)){
-            network.getAllTrips(new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     manipulateWithResponse(o);

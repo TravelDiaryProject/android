@@ -1,8 +1,7 @@
 package com.traveldiary.android;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-//import android.app.FragmentTransaction;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -15,16 +14,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.FUTURE;
-import static com.traveldiary.android.Constans.LOAD_TO;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.TOP;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ChangeFragmentInterface {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
 
@@ -46,8 +43,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        MainFragment mainFragment = new MainFragment();
-        trans(mainFragment);
+        PlacesFragment placesFragment = new PlacesFragment();
+        Bundle args = new Bundle();
+        args.putString(PLACES_FOR, TOP);
+        placesFragment.setArguments(args);
+        trans(placesFragment);
 
     }
 
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Bundle args;
 
         switch (item.getItemId()){
-            case R.id.menu_my_trips:
+            case R.id.menu_good_memories:
                 if (LoginActivity.TOKEN_TO_SEND != null) {
                     fragment = new TripsFragment();
                     args = new Bundle();
@@ -85,17 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     startActivity(new Intent(this, LoginActivity.class));
                 }
                 break;
-            case R.id.menu_my_places:
-                if (LoginActivity.TOKEN_TO_SEND != null) {
-                    fragment = new PlacesFragment();
-                    args = new Bundle();
-                    args.putString(PLACES_FOR, MY);
-                    fragment.setArguments(args);
-                    trans(fragment);
-                }else {
-                    startActivity(new Intent(this, LoginActivity.class));
-                }
-                break;
+
             case R.id.menu_future_trips:
                 if (LoginActivity.TOKEN_TO_SEND != null) {
                     fragment = new TripsFragment();
@@ -107,24 +97,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     startActivity(new Intent(this, LoginActivity.class));
                 }
                 break;
-            case R.id.menu_my_trips_and_places:
-                if (LoginActivity.TOKEN_TO_SEND != null) {
-                    fragment = new FragmentTabs();
-                    args = new Bundle();
-                    args.putString(LOAD_TO, MY);
-                    fragment.setArguments(args);
-                    trans(fragment);
-                }else {
-                    startActivity(new Intent(this, LoginActivity.class));
-                }
-                break;
-            case R.id.menu_all_trips:
-                fragment = new TripsFragment();
-                args = new Bundle();
-                args.putString(TRIPS_FOR, ALL);
-                fragment.setArguments(args);
+
+            case R.id.menu_find_place:
+                fragment = new FindPlaceFragment();
                 trans(fragment);
                 break;
+
             case R.id.menu_top_places:
                 fragment = new PlacesFragment();
                 args = new Bundle();
@@ -132,16 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment.setArguments(args);
                 trans(fragment);
                 break;
-            case R.id.menu_search:
 
-                break;
-            case R.id.menu_tripsandplaces:
-                fragment = new FragmentTabs();
-                args = new Bundle();
-                args.putString(LOAD_TO, ALL);
-                fragment.setArguments(args);
-                trans(fragment);
-                break;
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return false;
@@ -155,9 +124,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.commit();
     }*/
 
-    @Override
-    public void trans(android.support.v4.app.Fragment fragment) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    //@Override
+    public void trans(Fragment fragment) {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
         ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

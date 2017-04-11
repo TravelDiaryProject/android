@@ -5,7 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,7 +33,9 @@ import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.PLACE_ID;
 import static com.traveldiary.android.Constans.TOP;
+import static com.traveldiary.android.Constans.TRIP_ID;
 
 
 public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener {
@@ -103,7 +105,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 });
 
                 /*Intent uploadActivity = new Intent(getActivity(), UploadActivity.class);
-                uploadActivity.putExtra(TRIP_ID_STRING, tripId);
+                uploadActivity.putExtra(TRIP_ID, tripId);
                 startActivity(uploadActivity);*/
             }
         });
@@ -258,15 +260,21 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         }
     }
 
+    // TODO: 4/11/2017 rename this method
     public void addToFuture(final View view, final int possition){
 
         final Place place = mPlacesList.get(possition);
 
         switch (view.getId()){
             case R.id.placeImageView:
-                if (placesFor.equals(TOP)) {
+                if (placesFor!=null && placesFor.equals(TOP)) {
                     Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra(ID_STRING, place.getTripId());
+                    startActivity(intent);
+                }else {
+                    Intent intent = new Intent(getActivity(), ShowPLaceWithMap.class);
+                    intent.putExtra(TRIP_ID, place.getTripId());
+                    intent.putExtra(PLACE_ID, place.getId());
                     startActivity(intent);
                 }
 

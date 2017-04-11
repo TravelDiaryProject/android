@@ -1,11 +1,12 @@
 package com.traveldiary.android;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.SearchView;
@@ -15,21 +16,15 @@ import android.view.ViewGroup;
 
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
-import com.traveldiary.android.model.Place;
-import com.traveldiary.android.model.RegistrationResponse;
-import com.traveldiary.android.model.Trip;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 
 
-public class MainFragment extends Fragment {
+public class FindPlaceFragment extends Fragment {
 
     private ChangeFragmentInterface mChangeFragmentInterface;
 
@@ -45,7 +40,7 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_main,
+        View rootView = inflater.inflate(R.layout.fragment_find_place,
                 container, false);
 
         mCityList = new ArrayList<>();
@@ -139,11 +134,17 @@ public class MainFragment extends Fragment {
                 System.out.println("selected2");
                 if (mCityList.get(i).getName().equals(city)) {
                     System.out.println("selected3 id = " + mCityList.get(i).getName() + " " + mCityList.get(i).getId());
+
                     PlacesFragment placesFragment = new PlacesFragment();
                     Bundle args = new Bundle();
                     args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
                     placesFragment.setArguments(args);
-                    mChangeFragmentInterface.trans(placesFragment);
+
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.content_main, placesFragment);
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
                     break;
                 }
             }
