@@ -3,6 +3,7 @@ package com.traveldiary.android;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -30,10 +31,13 @@ import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.KEY_FOR_MAIN;
+import static com.traveldiary.android.Constans.MAP;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACE_ID;
+import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TOP;
 import static com.traveldiary.android.Constans.TRIP_ID;
 
@@ -114,36 +118,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
         mPlacesList = new ArrayList<>();
 
-        recyclerAdapter = new RecyclerAdapter(getActivity(), null, this /*{
-            @Override
-            public void onClick(View view) {
-                System.out.println("Click on place ");
-
-                int itemPossition = recyclerView.getChildLayoutPosition(view);
-                Place place = mPlacesList.get(itemPossition);
-
-                if (!place.getLatitude().isEmpty() && !place.getLongitude().isEmpty()) {
-
-
-                   *//* String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(intent);*//*
-
-                   *//* Intent intent = new Intent(getActivity(), MapsActivity.class);
-                    intent.putExtra("Latitude", place.getLatitude());
-                    intent.putExtra("Longitude", place.getLongitude());
-                    startActivity(intent);*//*
-
-                    Intent intent = new Intent(getActivity(), DetailActivity.class);
-                    intent.putExtra("Id", place.getId());
-                    intent.putExtra("Photo", place.getPhoto());
-                    startActivity(intent);
-                }
-
-            }
-        }*/, mPlacesList);
+        recyclerAdapter = new RecyclerAdapter(getActivity(), null, this, mPlacesList);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        //mLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
@@ -191,7 +167,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 }
             });
         }else if (placesFor.equals(MY)){
-            network.getMyPlaces(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
+            network.getMyPlaces(TOKEN_CONST.toString(), new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     manipulationWithResponse(o);
@@ -235,8 +211,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 @Override
                 public void responseNetwork(Object o) {
                     // проверка авторизации
-                    if (LoginActivity.TOKEN_TO_SEND != null){
-                        addToFuture(view, possition);
+                    if (TOKEN_CONST != null){
+                        clickLogic(view, possition);
                     }else {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -257,11 +233,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     });
                 }
             });
+        }else {
+            clickLogic(view, possition);
         }
     }
 
-    // TODO: 4/11/2017 rename this method
-    public void addToFuture(final View view, final int possition){
+    public void clickLogic(final View view, final int possition){
 
         final Place place = mPlacesList.get(possition);
 
@@ -277,13 +254,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     intent.putExtra(PLACE_ID, place.getId());
                     startActivity(intent);
                 }
-
-                // TODO: 4/10/2017 логика нажатия на плейс не из списка топов
-
                 break;
 
             case R.id.placeAddToFutureButton:
-                network.addToFutureTrips(LoginActivity.TOKEN_TO_SEND.toString(), place.getId(), new CallBack() {
+                network.addToFutureTrips(TOKEN_CONST, place.getId(), new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         Response<ResponseBody> response = (Response<ResponseBody>) o;
@@ -305,7 +279,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeLikeButton:
-                network.likePlace(LoginActivity.TOKEN_TO_SEND.toString(), place.getId(), new CallBack() {
+                network.likePlace(TOKEN_CONST, place.getId(), new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         Response<ResponseBody> response = (Response<ResponseBody>) o;
@@ -324,6 +298,29 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                     }
                 });
+                break;
+            case R.id.placeShowInMapButton:
+
+                if (placesFor!=null && placesFor.equals(TOP)) {
+                    MapsFragment mapsFragment = new MapsFragment();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+                    Bundle args = new Bundle();
+                    args.putInt(ID_STRING, place.getTripId());
+                    args.putInt(PLACE_ID, place.getId());
+                    mapsFragment.setArguments(args);
+
+                    ft.replace(R.id.content_main, mapsFragment);
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
+                }else {
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    intent.putExtra(KEY_FOR_MAIN, MAP);
+                    intent.putExtra(ID_STRING, place.getTripId());
+                    intent.putExtra(PLACE_ID, place.getId());
+                    startActivity(intent);
+                }
                 break;
         }
     }

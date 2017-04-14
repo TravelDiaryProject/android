@@ -1,6 +1,7 @@
 package com.traveldiary.android;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -26,11 +27,11 @@ import static com.traveldiary.android.Constans.ALL;
 import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
+import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener {
 
-    private ChangeFragmentInterface mChangeFragmentInterface;
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
     private List<Trip> mTripList;
@@ -74,7 +75,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         if (tripsFor == null){
             System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
         }else if (tripsFor.equals(MY)) {
-            network.getMyTrips(LoginActivity.TOKEN_TO_SEND.toString(), new CallBack() {
+            network.getMyTrips(TOKEN_CONST, new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     manipulateWithResponse(o);
@@ -86,7 +87,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 }
             });
         }else if (tripsFor.equals(FUTURE)){
-            network.getFutureTrips(LoginActivity.TOKEN_TO_SEND.toString() ,new CallBack() {
+            network.getFutureTrips(TOKEN_CONST ,new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
 
@@ -104,18 +105,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mChangeFragmentInterface = (ChangeFragmentInterface) activity;
-        }catch (ClassCastException e){
-            e.printStackTrace();
-        }
-    }
-
-
-    @Override
     public void onItemClick(View view, int possition) {
 
         Trip trip = mTripList.get(possition);
@@ -129,8 +118,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     public void onClick(View v){
         if (v.getId()==R.id.add_trip_button){
 
-            Fragment fragment = new CreatTripFragment();
-            mChangeFragmentInterface.trans(fragment);
+            CreatTripFragment creatTripFragment = new CreatTripFragment();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.content_main, creatTripFragment);
+            ft.addToBackStack(null);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
         }
     }
 

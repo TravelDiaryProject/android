@@ -1,6 +1,8 @@
 package com.traveldiary.android;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -17,34 +19,26 @@ import android.widget.Toast;
 
 
 import com.traveldiary.android.network.CallBack;
-import com.traveldiary.android.network.TravelDiaryService;
-import com.traveldiary.android.model.City;
-import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
-import com.traveldiary.android.model.Trip;
 
-import java.util.List;
-
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
+import static com.traveldiary.android.Constans.APP_PREFERENCES;
+import static com.traveldiary.android.Constans.APP_PREFERENCES_TOKEN;
+import static com.traveldiary.android.Constans.TOKEN_CONST;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private TravelDiaryService travelDiaryService;
     private EditText mEditEmail;
     private EditText mEditLoginPassword;
     private Button mLoginButton;
 
     private ProgressBar mProgressBar;
 
-    private String TOKEN;
-    public static StringBuilder TOKEN_TO_SEND;
+    private StringBuilder tokenBuilder;
 
-    //private SharedPreferences mLoginSetting;
-    //public static final String SAVED_TOKEN = "saved_token";
-    //public static final String APP_PREFERENCES = "mLoginSetting";
+    private SharedPreferences mSharedPreferences;
 
 
     @Override
@@ -134,20 +128,23 @@ public class LoginActivity extends AppCompatActivity {
                 Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
                 RegistrationResponse registrationResponse = response.body();
 
-                TOKEN = registrationResponse.getToken();
-                TOKEN_TO_SEND = new StringBuilder("Bearer ");
-                TOKEN_TO_SEND.append(TOKEN);
+                tokenBuilder = new StringBuilder("Bearer ");
+                tokenBuilder.append(registrationResponse.getToken());
 
-                //SharedPreferences.Editor editor = mLoginSetting.edit();
-                //editor.putString(SAVED_TOKEN, TOKEN);
-                //editor.apply();
+                TOKEN_CONST = tokenBuilder.toString();
+
+                mSharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putString(APP_PREFERENCES_TOKEN, TOKEN_CONST);
+                editor.apply();
 
                 Log.d("Token", " OK");
 
                 mProgressBar.setVisibility(View.GONE);
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
+               /* Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);*/
+               onBackPressed();
             }
 
             @Override
@@ -159,5 +156,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

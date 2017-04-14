@@ -14,7 +14,6 @@ public interface NetworkInterface {
 
     void getMyTrips(String token, CallBack callBack);
     void getTripsByCity(int cityId, CallBack callBack);
-    void getTripById(int tripId, CallBack callBack);
     void getFutureTrips(String token, CallBack callBack);
 
     void addToFutureTrips(String token, int placeId, CallBack callBack);

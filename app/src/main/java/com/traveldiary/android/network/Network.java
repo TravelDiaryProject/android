@@ -15,6 +15,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.traveldiary.android.Constans.TOKEN_CONST;
+
 public class Network implements NetworkInterface{
 
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
@@ -84,11 +86,6 @@ public class Network implements NetworkInterface{
     @Override
     public void getTripsByCity(int cityId, CallBack callBack) {
         downloadTripsByCityId(cityId, callBack);
-    }
-
-    @Override
-    public void getTripById(int tripId, CallBack callBack) {
-        getTripByTripId(tripId, callBack);
     }
 
     @Override
@@ -231,6 +228,10 @@ public class Network implements NetworkInterface{
         travelDiaryService.listMyTrips(token).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
+
+                System.out.println("token = " + TOKEN_CONST);
+                System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA = " + response.code() + response.message());
+
                 myTrips.addAll(response.body());
                 callBack.responseNetwork(myTrips);
             }
@@ -307,27 +308,6 @@ public class Network implements NetworkInterface{
         });
 
     }
-
-
-
-    private void getTripByTripId(int tripId, CallBack callBack){
-
-        /*// TODO: 4/3/2017 get Trip by ID from one of trip lists (ALL, MY, TOP)
-
-        if (allTrips!=null){
-            Trip trip = null;
-            for (int i = 0; i < allTrips.size(); i++){
-                if (tripId == allTrips.get(i).getId()){
-                    trip = allTrips.get(i);
-                    break;
-                }
-            }
-            callBack.getTripById(trip);
-        }else if (allTrips==null){
-            getAllTrips();
-        }*/
-    }
-
 
     private void uploadLike(String token, int placeId, final CallBack callBack){
 

@@ -307,7 +307,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     break;
 
                 case R.id.placeShowInMapButton:
-                    // TODO: 4/4/2017 Open MapActivity
+                    itemClickListener.onItemClick(v, this.getLayoutPosition());
                     break;
 
             }

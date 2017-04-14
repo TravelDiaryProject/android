@@ -2,8 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
+        android:checkableBehavior="single"
         android:id="@+id/menu_top"
-        android:checkableBehavior="single">
+        >
 
         <item
             android:id="@+id/menu_good_memories"
@@ -11,8 +12,9 @@
 
     </group>
     <group
+        android:checkableBehavior="single"
         android:id="@+id/menu_future"
-        android:checkableBehavior="single">
+        >
 
         <item
             android:id="@+id/menu_future_trips"

@@ -4,6 +4,7 @@ package com.traveldiary.android;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,9 +40,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         if (getArguments()!=null){
             tripId = getArguments().getInt(ID_STRING);
             focusPlaceId = getArguments().getInt(PLACE_ID);
+
+            Log.d("MYLOG", "tripId = " + tripId + " focusPLaceId = " + focusPlaceId);
+
         }
 
-        network.getPlacesByTrip(tripId, new CallBack() {
+        /*network.getPlacesByTrip(tripId, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
                 List<Place> placesList = (List<Place>) o;
@@ -52,7 +56,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             public void failNetwork(Throwable t) {
 
             }
-        });
+        });*/
 
 
     }
@@ -72,22 +76,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
 
-        for (int i = 0; i < mPlacesList.size(); i++){
-            if (mPlacesList.get(i).getLatitude()!=null && mPlacesList.get(i).getLongitude()!=null
-                    && !mPlacesList.get(i).getLatitude().equals("")) {
-                googleMap.addMarker(markerInit(mPlacesList.get(i)));
-
-                if (mPlacesList.get(i).getId() == focusPlaceId){
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(Double.parseDouble(mPlacesList.get(i).getLatitude()), Double.parseDouble(mPlacesList.get(i).getLongitude()))));
-
-                }
-
-                System.out.println("place lat = " + mPlacesList.get(i).getLatitude() + " long = " + mPlacesList.get(i).getLongitude());
+        network.getPlacesByTrip(tripId, new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                List<Place> placesList = (List<Place>) o;
+                mPlacesList.addAll(placesList);
+                smth(googleMap);
             }
 
-        }
+            @Override
+            public void failNetwork(Throwable t) {
+
+            }
+        });
+
+
+
+
+
 
     }
 
@@ -98,6 +106,28 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         markerOptions.title("Title");
 
         return markerOptions;
+    }
+
+    private void smth(GoogleMap googleMap){
+
+        Log.d("MYLOG", "WTF list size = " + mPlacesList.size());
+
+        for (int i = 0; i < mPlacesList.size(); i++){
+            if (mPlacesList.get(i).getLatitude()!=null && mPlacesList.get(i).getLongitude()!=null
+                    && !mPlacesList.get(i).getLatitude().equals("")) {
+                googleMap.addMarker(markerInit(mPlacesList.get(i)));
+
+                if (mPlacesList.get(i).getId() == focusPlaceId){
+
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                            new LatLng(Double.parseDouble(mPlacesList.get(i).getLatitude()),
+                                    Double.parseDouble(mPlacesList.get(i).getLongitude())), 10));
+                }
+
+                System.out.println("place lat = " + mPlacesList.get(i).getLatitude() + " long = " + mPlacesList.get(i).getLongitude());
+            }
+
+        }
     }
 
 }

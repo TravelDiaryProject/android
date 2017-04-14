@@ -11,6 +11,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -21,19 +23,9 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.adapter.RecyclerAdapter;
-import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.model.RegistrationResponse;
-import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.CallBack;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.ResponseBody;
-import retrofit2.Response;
-
-import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.ROOT_URL;
 
@@ -57,6 +49,9 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         collapseImage = (ImageView) findViewById(R.id.detailImageView);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -72,6 +67,8 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         //photo = getIntent().getStringExtra("Photo");
 
         tripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
+        Log.d("MYLOG", " tripID from Intent = " + tripId);
+
 
         mDialog = new Dialog(this);
         mDialog.setContentView(R.layout.dialog_view);
@@ -126,9 +123,22 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
     public void trans(Fragment fragment) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_detail, fragment);
-        ft.addToBackStack(null);
+        //ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return true;
+        //return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

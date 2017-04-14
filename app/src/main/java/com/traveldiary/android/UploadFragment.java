@@ -31,6 +31,7 @@ import retrofit2.Response;
 import static android.app.Activity.RESULT_OK;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.TOKEN_CONST;
 
 public class UploadFragment extends Fragment {
 
@@ -81,7 +82,7 @@ public class UploadFragment extends Fragment {
 
             MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-            network.uploadPlace(LoginActivity.TOKEN_TO_SEND.toString(), body, tripIdRequest, new CallBack() {
+            network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     Response<ResponseBody> response = (Response<ResponseBody>) o;

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.traveldiary.android.network.CallBack;
 
 import static com.traveldiary.android.App.network;
+import static com.traveldiary.android.Constans.TOKEN_CONST;
 
 
 public class CreatTripFragment extends Fragment {
@@ -42,7 +43,7 @@ public class CreatTripFragment extends Fragment {
                 if (editTripTitle != null){
                     String tripTitle = editTripTitle.getText().toString();
 
-                    network.createTrip(LoginActivity.TOKEN_TO_SEND.toString(), tripTitle, new CallBack() {
+                    network.createTrip(TOKEN_CONST, tripTitle, new CallBack() {
                         @Override
                         public void responseNetwork(Object o) {
                             Toast toast = Toast.makeText(getActivity(),
