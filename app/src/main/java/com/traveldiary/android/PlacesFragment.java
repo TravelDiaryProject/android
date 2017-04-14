@@ -23,6 +23,7 @@ import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.network.InternetStatus;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -249,10 +250,18 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     intent.putExtra(ID_STRING, place.getTripId());
                     startActivity(intent);
                 }else {
-                    Intent intent = new Intent(getActivity(), ShowPLaceWithMap.class);
+
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    SlideShowDialogFragment newFragment = new SlideShowDialogFragment();
+                    Bundle args = new Bundle();
+                    args.putSerializable("placeList", (Serializable) mPlacesList);
+                    args.putInt("selectedPosition", possition);
+                    newFragment.setArguments(args);
+                    newFragment.show(ft, "slideshow");
+                    /*Intent intent = new Intent(getActivity(), ShowPLaceWithMap.class);
                     intent.putExtra(TRIP_ID, place.getTripId());
                     intent.putExtra(PLACE_ID, place.getId());
-                    startActivity(intent);
+                    startActivity(intent);*/
                 }
                 break;
 

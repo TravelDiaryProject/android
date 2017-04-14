@@ -266,18 +266,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .into(titleImageView);
 
             if (place.isLike){
-                placeLikeButton.setImageResource(R.drawable.ic_plus_one_black_24dp);
+                placeLikeButton.setImageResource(R.drawable.ic_liked);
             }else {
-                placeLikeButton.setImageResource(R.drawable.ic_plus_one_red_24dp);
+                placeLikeButton.setImageResource(R.drawable.ic_like);
             }
 
             if (place.isFuture){
-                placeAddToFutureButton.setImageResource(R.drawable.ic_add_circle_outline_black_24dp);
+                placeAddToFutureButton.setImageResource(R.drawable.ic_added);
             }else {
-                placeAddToFutureButton.setImageResource(R.drawable.ic_add_circle_outline_red_24dp);
+                placeAddToFutureButton.setImageResource(R.drawable.ic_add);
             }
 
-            placeShowInMapButton.setImageResource(R.drawable.ic_location_on_red_24dp);
+            placeShowInMapButton.setImageResource(R.drawable.ic_location);
 
         }
 

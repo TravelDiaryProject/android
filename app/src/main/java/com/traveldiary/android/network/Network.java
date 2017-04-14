@@ -1,5 +1,7 @@
 package com.traveldiary.android.network;
 
+import android.content.SharedPreferences;
+
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
@@ -402,6 +404,4 @@ public class Network implements NetworkInterface{
             }
         });
     }
-
-
 }

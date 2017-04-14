@@ -1,7 +1,9 @@
 package com.traveldiary.android.model;
 
 
-public class Place {
+import java.io.Serializable;
+
+public class Place implements Serializable {
     private int id;
     private String photo;
     private String latitude;
