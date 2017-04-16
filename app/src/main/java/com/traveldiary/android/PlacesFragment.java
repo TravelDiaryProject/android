@@ -31,6 +31,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
+import static com.traveldiary.android.Constans.CAMERA;
+import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.KEY_FOR_MAIN;
 import static com.traveldiary.android.Constans.MAP;
@@ -41,6 +43,7 @@ import static com.traveldiary.android.Constans.PLACE_ID;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TOP;
 import static com.traveldiary.android.Constans.TRIP_ID;
+import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
 
 public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener {
@@ -99,13 +102,35 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         mDialog.dismiss();
 
                         Fragment fragment = new UploadFragment();
-
                         Bundle args = new Bundle();
                         args.putInt(ID_STRING, tripId);
-                        fragment.setArguments(args);//передаем в новый фрагмент ид трипа чтобы подтянуть имг этого трипа
+                        args.putString(UPLOAD_FROM, GALLERY);
+                        fragment.setArguments(args);
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.content_detail, fragment);
+                        //ft.addToBackStack(null);
+                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                        ft.commit();
 
-                        mChangeFragmentInterface.trans(fragment);
                         //startActivity(new Intent(TestActivity.this, MainActivity.class));
+                    }
+                });
+
+                uploadFromCameraBut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mDialog.dismiss();
+
+                        Fragment fragment = new UploadFragment();
+                        Bundle args = new Bundle();
+                        args.putInt(ID_STRING, tripId);
+                        args.putString(UPLOAD_FROM, CAMERA);
+                        fragment.setArguments(args);
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        ft.replace(R.id.content_detail, fragment);
+                        //ft.addToBackStack(null);
+                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                        ft.commit();
                     }
                 });
 
@@ -273,7 +298,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         if (response.code()==201) {
                             Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
 
-                            place.isFuture = true;
+                            place.setIsInFutureTrips(1);
                             recyclerAdapter.notifyItemChanged(possition);
                         }else {
                             Toast.makeText(getActivity(), "Проблема с сервером ", Toast.LENGTH_LONG).show();
@@ -295,7 +320,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         if (response.code()==201) {
                             Toast.makeText(getActivity(), "places Liked ", Toast.LENGTH_LONG).show();
 
-                            place.isLike = true;
+                            place.setIsLiked(1);
                             recyclerAdapter.notifyItemChanged(possition);
                         }else {
                             Toast.makeText(getActivity(), "Проблема с сервером ", Toast.LENGTH_LONG).show();
@@ -324,11 +349,25 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                     ft.commit();
                 }else {
-                    Intent intent = new Intent(getActivity(), MainActivity.class);
+
+                    MapsFragment mapsFragment = new MapsFragment();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+                    Bundle args = new Bundle();
+                    args.putInt(ID_STRING, place.getTripId());
+                    args.putInt(PLACE_ID, place.getId());
+                    mapsFragment.setArguments(args);
+
+                    ft.replace(R.id.content_detail, mapsFragment);
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
+
+                   /* Intent intent = new Intent(getActivity(), MainActivity.class);
                     intent.putExtra(KEY_FOR_MAIN, MAP);
                     intent.putExtra(ID_STRING, place.getTripId());
                     intent.putExtra(PLACE_ID, place.getId());
-                    startActivity(intent);
+                    startActivity(intent);*/
                 }
                 break;
         }

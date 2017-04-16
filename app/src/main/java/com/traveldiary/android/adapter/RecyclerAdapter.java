@@ -265,15 +265,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(titleImageView);
 
-            if (place.isLike){
+            if (place.getIsLiked()==1){
                 placeLikeButton.setImageResource(R.drawable.ic_liked);
-            }else {
+            }else if (place.getIsLiked()==0){
                 placeLikeButton.setImageResource(R.drawable.ic_like);
             }
 
-            if (place.isFuture){
+            if (place.getIsInFutureTrips()==1){
                 placeAddToFutureButton.setImageResource(R.drawable.ic_added);
-            }else {
+            }else if (place.getIsInFutureTrips()==0){
                 placeAddToFutureButton.setImageResource(R.drawable.ic_add);
             }
 
@@ -286,18 +286,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             switch (v.getId()) {
                 case R.id.placeLikeButton:
-                    if (place.isLike){
+                    if (place.getIsLiked()==1){
                         // delete like
-                    }else {
+                    }else if (place.getIsLiked()==0){
                         itemClickListener.onItemClick(v, this.getLayoutPosition());
                     }
                     break;
 
                 case R.id.placeAddToFutureButton:
-                    if (place.isFuture){
+                    if (place.getIsInFutureTrips()==1){
                         // now we can only add to future, we can not delete place from future trip
                         // delete from future
-                    }else {
+                    }else if (place.getIsInFutureTrips()==0){
                         itemClickListener.onItemClick(v, this.getLayoutPosition());
                     }
                     break;

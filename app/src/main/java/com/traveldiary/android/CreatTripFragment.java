@@ -1,6 +1,7 @@
 package com.traveldiary.android;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -13,7 +14,9 @@ import android.widget.Toast;
 import com.traveldiary.android.network.CallBack;
 
 import static com.traveldiary.android.App.network;
+import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
+import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
 public class CreatTripFragment extends Fragment {
@@ -51,7 +54,17 @@ public class CreatTripFragment extends Fragment {
                             toast.show();
 
                             Fragment fragment = new TripsFragment();
-                            mChangeFragmentInterface.trans(fragment);
+                            Bundle args = new Bundle();
+                            args.putString(TRIPS_FOR, MY);
+                            fragment.setArguments(args);
+                            FragmentTransaction ft = getFragmentManager().beginTransaction();
+                            ft.replace(R.id.content_main, fragment);
+                            //ft.addToBackStack(null);
+                            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                            ft.commit();
+
+
+                            //mChangeFragmentInterface.trans(fragment);
                         }
 
                         @Override

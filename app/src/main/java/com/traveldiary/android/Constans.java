@@ -20,6 +20,10 @@ public class Constans {
     public static final String LOAD_TO = "LOAD_TO";
     public static final String PLACES_BY_CITY = "LOAD_TO";
 
+    public static final String UPLOAD_FROM = "uploadFrom";
+    public static final String GALLERY = "gellery";
+    public static final String CAMERA = "camera";
+
     public static final String APP_PREFERENCES = "mysettings";
     public static final String APP_PREFERENCES_TOKEN = "Nickname";
 

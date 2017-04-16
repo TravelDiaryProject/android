@@ -8,19 +8,24 @@ public class Place implements Serializable {
     private String photo;
     private String latitude;
     private String longitude;
+    private int cityId;
+    private int countryId;
     private int tripId;
     private int likes;
+    private int isLiked;
+    private int isInFutureTrips;
 
-    public boolean isLike = false;// state buttonLike in recyclerView
-    public boolean isFuture = false;// state buttonAddTrip in recyclerView
-
-    public Place(int id, String photo, String latitude, String longitude, int tripId, int likes) {
+    public Place(int id, String photo, String latitude, String longitude, int cityId, int countryId, int tripId, int likes, int isLiked, int isInFutureTrips) {
         this.id = id;
         this.photo = photo;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.cityId = cityId;
+        this.countryId = countryId;
         this.tripId = tripId;
         this.likes = likes;
+        this.isLiked = isLiked;
+        this.isInFutureTrips = isInFutureTrips;
     }
 
     public int getId() {
@@ -71,6 +76,39 @@ public class Place implements Serializable {
         this.likes = likes;
     }
 
+    public int getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(int cityId) {
+        this.cityId = cityId;
+    }
+
+    public int getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
+    }
+
+    public int getIsLiked() {
+        return isLiked;
+    }
+
+    public void setIsLiked(int isLiked) {
+        this.isLiked = isLiked;
+    }
+
+    public int getIsInFutureTrips() {
+        return isInFutureTrips;
+    }
+
+    public void setIsInFutureTrips(int isInFutureTrips) {
+        this.isInFutureTrips = isInFutureTrips;
+    }
+
+
     @Override
     public String toString() {
         return "Place{" +
@@ -78,8 +116,12 @@ public class Place implements Serializable {
                 ", photo='" + photo + '\'' +
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
+                ", cityId=" + cityId +
+                ", countryId=" + countryId +
                 ", tripId=" + tripId +
                 ", likes=" + likes +
+                ", isLiked=" + isLiked +
+                ", isInFutureTrips=" + isInFutureTrips +
                 '}';
     }
 }

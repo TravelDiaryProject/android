@@ -1,6 +1,7 @@
 package com.traveldiary.android.network;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Place;
@@ -231,16 +232,21 @@ public class Network implements NetworkInterface{
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
 
-                System.out.println("token = " + TOKEN_CONST);
-                System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA = " + response.code() + response.message());
+                Log.d("NETWORK", " downloadMyTrips response = " + response.code());
 
-                myTrips.addAll(response.body());
-                callBack.responseNetwork(myTrips);
+                if (response.code()==200){
+                    myTrips.addAll(response.body());
+                }
+                if (callBack!=null) {
+                    callBack.responseNetwork(myTrips);
+                }
             }
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-                callBack.failNetwork(t);
+                if (callBack!=null) {
+                    callBack.failNetwork(t);
+                }
             }
         });
     }
@@ -328,12 +334,25 @@ public class Network implements NetworkInterface{
     }
 
 
-    private void uploadNewTrip(String token, String tripTitle, final CallBack callBack){
+    private void uploadNewTrip(final String token, String tripTitle, final CallBack callBack){
 
         travelDiaryService.createTrip(token, tripTitle).enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                callBack.responseNetwork(response);
+            public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
+                if (response!=null && response.code()==201){
+                    downloadMyTrips(token, new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            callBack.responseNetwork(response);
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+
+                        }
+                    });
+
+                }
             }
 
             @Override
