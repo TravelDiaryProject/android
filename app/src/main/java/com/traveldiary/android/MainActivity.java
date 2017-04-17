@@ -34,9 +34,6 @@ import static com.traveldiary.android.Constans.TRIPS_FOR;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
-    private String open = null;
-    private int openTripId;
-    private int focusPlaceId;
 
     private MenuItem itemEnabled = null;
 
@@ -55,12 +52,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         checkAuthorizasion();
 
-        if (getIntent().getExtras()!=null){
-            open = getIntent().getExtras().getString(KEY_FOR_MAIN);
-            openTripId = getIntent().getIntExtra(ID_STRING, 0);   // можно будет передавать только ид плейса.....
-            focusPlaceId = getIntent().getIntExtra(PLACE_ID, 0);
-        }
-
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -72,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        if (open==null) {
             PlacesFragment placesFragment = new PlacesFragment();
             Bundle args = new Bundle();
             args.putString(PLACES_FOR, TOP);
@@ -82,24 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
 
-
-        }else if (open.equals(MAP)){
-            MapsFragment mapsFragment = new MapsFragment();
-            Bundle args = new Bundle();
-            args.putInt(ID_STRING, openTripId);
-            args.putInt(PLACE_ID, focusPlaceId);
-            mapsFragment.setArguments(args);
-            //trans(mapsFragment);
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.content_main, mapsFragment);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-        }
-
     }
-
-
-
        /* @Override
         public void onBackPressed(){
 
@@ -195,10 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //ft.addToBackStack(null);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.commit();
-
-
                 break;
-
         }
 
         if (itemEnabled == null){
@@ -230,5 +200,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
-
 }

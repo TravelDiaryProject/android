@@ -1,8 +1,7 @@
 package com.traveldiary.android;
 
-
-import android.app.Activity;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,7 +46,7 @@ import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
 
 public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener {
-    private ChangeFragmentInterface mChangeFragmentInterface;
+
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
     private List<Place> mPlacesList;
@@ -94,49 +93,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         addPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDialog.show();
-                //mDialogBackButton();
-                uploadFromGalleryBut.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mDialog.dismiss();
-
-                        Fragment fragment = new UploadFragment();
-                        Bundle args = new Bundle();
-                        args.putInt(ID_STRING, tripId);
-                        args.putString(UPLOAD_FROM, GALLERY);
-                        fragment.setArguments(args);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.replace(R.id.content_detail, fragment);
-                        //ft.addToBackStack(null);
-                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                        ft.commit();
-
-                        //startActivity(new Intent(TestActivity.this, MainActivity.class));
-                    }
-                });
-
-                uploadFromCameraBut.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mDialog.dismiss();
-
-                        Fragment fragment = new UploadFragment();
-                        Bundle args = new Bundle();
-                        args.putInt(ID_STRING, tripId);
-                        args.putString(UPLOAD_FROM, CAMERA);
-                        fragment.setArguments(args);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.replace(R.id.content_detail, fragment);
-                        //ft.addToBackStack(null);
-                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                        ft.commit();
-                    }
-                });
-
-                /*Intent uploadActivity = new Intent(getActivity(), UploadActivity.class);
-                uploadActivity.putExtra(TRIP_ID, tripId);
-                startActivity(uploadActivity);*/
+                DialogFragment uploadDialog = new UploadDialog();
+                Bundle args = new Bundle();
+                args.putInt(ID_STRING, tripId);
+                args.putString(UPLOAD_FROM, GALLERY);
+                uploadDialog.setArguments(args);
+                uploadDialog.show(getFragmentManager(), "dialo");
             }
         });
 
@@ -193,7 +155,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 }
             });
         }else if (placesFor.equals(MY)){
-            network.getMyPlaces(TOKEN_CONST.toString(), new CallBack() {
+            network.getMyPlaces(TOKEN_CONST, new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
                     manipulationWithResponse(o);
@@ -207,16 +169,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         }
 
         return rootView;
-    }
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mChangeFragmentInterface = (ChangeFragmentInterface) activity;
-        }catch (ClassCastException e){
-            e.printStackTrace();
-        }
     }
 
     public void manipulationWithResponse(Object o){
@@ -362,12 +314,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     ft.addToBackStack(null);
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                     ft.commit();
-
-                   /* Intent intent = new Intent(getActivity(), MainActivity.class);
-                    intent.putExtra(KEY_FOR_MAIN, MAP);
-                    intent.putExtra(ID_STRING, place.getTripId());
-                    intent.putExtra(PLACE_ID, place.getId());
-                    startActivity(intent);*/
                 }
                 break;
         }
