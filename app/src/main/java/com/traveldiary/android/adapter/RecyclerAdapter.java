@@ -277,6 +277,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 placeAddToFutureButton.setImageResource(R.drawable.ic_add);
             }
 
+            if (place.getIsMine() ==1){
+                placeLikeButton.setVisibility(View.GONE);
+                placeAddToFutureButton.setVisibility(View.GONE);
+            }
+
             placeShowInMapButton.setImageResource(R.drawable.ic_location);
 
         }

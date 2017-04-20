@@ -14,8 +14,9 @@ public class Place implements Serializable {
     private int likes;
     private int isLiked;
     private int isInFutureTrips;
+    private int isMine;
 
-    public Place(int id, String photo, String latitude, String longitude, int cityId, int countryId, int tripId, int likes, int isLiked, int isInFutureTrips) {
+    public Place(int id, String photo, String latitude, String longitude, int cityId, int countryId, int tripId, int likes, int isLiked, int isInFutureTrips, int isMine) {
         this.id = id;
         this.photo = photo;
         this.latitude = latitude;
@@ -26,6 +27,11 @@ public class Place implements Serializable {
         this.likes = likes;
         this.isLiked = isLiked;
         this.isInFutureTrips = isInFutureTrips;
+        this.isMine = isMine;
+    }
+
+    public int getIsMine() {
+        return isMine;
     }
 
     public int getId() {

@@ -15,9 +15,12 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
+import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_TOKEN;
 import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.ID_STRING;
@@ -32,6 +35,9 @@ import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private String userName;
+    private TextView navUserName;
 
     private DrawerLayout drawerLayout;
 
@@ -52,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         checkAuthorizasion();
 
-
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -60,17 +65,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        if (userName!=null) {
+            View headerView = navigationView.getHeaderView(0);
+            navUserName = (TextView) headerView.findViewById(R.id.navHeaderUserEmail);
+            navUserName.setText(userName);
+        }
         navigationView.setNavigationItemSelectedListener(this);
 
-
-            PlacesFragment placesFragment = new PlacesFragment();
-            Bundle args = new Bundle();
-            args.putString(PLACES_FOR, TOP);
-            placesFragment.setArguments(args);
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.content_main, placesFragment);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+        PlacesFragment placesFragment = new PlacesFragment();
+        Bundle args = new Bundle();
+        args.putString(PLACES_FOR, TOP);
+        placesFragment.setArguments(args);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_main, placesFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
 
     }
        /* @Override
@@ -197,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mSharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
             if (mSharedPreferences.contains(APP_PREFERENCES_TOKEN)) {
                 TOKEN_CONST = mSharedPreferences.getString(APP_PREFERENCES_TOKEN, "");
+                userName = mSharedPreferences.getString(APP_PREFERENCES_EMAIL, "");
             }
         }
     }

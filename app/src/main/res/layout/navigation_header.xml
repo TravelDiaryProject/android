@@ -12,7 +12,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/navHeaderImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -20,13 +20,13 @@
         android:src="@android:drawable/sym_def_app_icon" />
 
     <TextView
+        android:id="@+id/navHeaderUserEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="Android Studio"
+        android:text="@string/not_authorized"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="@color/black" />
-
 
 </LinearLayout>

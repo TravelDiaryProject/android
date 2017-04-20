@@ -25,6 +25,7 @@ import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
+import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_TOKEN;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 
@@ -120,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    public void sign(String email, String password){
+    public void sign(final String email, String password){
 
         network.signIn(email, password, new CallBack() {
             @Override
@@ -136,6 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                 mSharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putString(APP_PREFERENCES_TOKEN, TOKEN_CONST);
+                editor.putString(APP_PREFERENCES_EMAIL, email);
                 editor.apply();
 
                 Log.d("Token", " OK");

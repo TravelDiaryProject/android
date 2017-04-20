@@ -11,6 +11,7 @@ public interface NetworkInterface {
     void getMyPlaces(String token, CallBack callBack);//передавать токен
     void getPlacesByTrip(int tripId, CallBack callBack);//передавать ИД трипа
     void getPlacesByCity(int cityId, CallBack callBack);//передавать ИД города
+    void getPlacesByCountry(int countryId, CallBack callBack);
 
     void getMyTrips(String token, CallBack callBack);
     void getTripsByCity(int cityId, CallBack callBack);
@@ -26,5 +27,6 @@ public interface NetworkInterface {
     void uploadPlace(String token, MultipartBody.Part body, RequestBody tripIdRequest, CallBack callBack);
 
     void getAllCities(CallBack callBack);
+    void getAllCountries(CallBack callBack);
 
 }

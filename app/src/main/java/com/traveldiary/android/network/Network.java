@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
@@ -28,12 +29,14 @@ public class Network implements NetworkInterface{
     private List<Place> myPlaces;
     private List<Place> placesByTrip;
     private List<Place> placesByCity;
+    private List<Place> placesByCountry;
 
     private List<Trip> myTrips;
     private List<Trip> futureTrips;
     private List<Trip> tripsByCity;
 
     private List<City> allCities;
+    private List<Country> allCounties;
 
     // TODO: 4/3/2017 refresh list after adding new trip or place!!!!
 
@@ -72,6 +75,11 @@ public class Network implements NetworkInterface{
     @Override
     public void getPlacesByCity(int cityId, CallBack callBack) {
         downloadPlacesByCityId(cityId, callBack);
+    }
+
+    @Override
+    public void getPlacesByCountry(int countryId, CallBack callBack) {
+        downloadPlacesByCountryId(countryId, callBack);
     }
 
     /*
@@ -146,6 +154,14 @@ public class Network implements NetworkInterface{
             callBack.responseNetwork(allCities);
     }
 
+    @Override
+    public void getAllCountries(CallBack callBack) {
+        if (allCounties==null)
+            downloadAllCountries(callBack);
+        else
+            callBack.responseNetwork(allCounties);
+    }
+
 
     /*
                     Realization
@@ -155,18 +171,37 @@ public class Network implements NetworkInterface{
 
         topPlaces = new ArrayList<>();
 
-        travelDiaryService.listTopPlaces().enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-                topPlaces.addAll(response.body());
-                callBack.responseNetwork(topPlaces);
-            }
+        if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
+            travelDiaryService.listTopPlaces().enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+                    if (response.code() == 200) {
+                        topPlaces.addAll(response.body());
+                    }
+                    callBack.responseNetwork(topPlaces);
+                }
 
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-                callBack.failNetwork(t);
-            }
-        });
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }else {
+            travelDiaryService.listTopPlaces(TOKEN_CONST).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
+                    if (response.code() == 200) {
+                        topPlaces.addAll(response.body());
+                    }
+                    callBack.responseNetwork(topPlaces);
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }
 
     }
 
@@ -179,6 +214,7 @@ public class Network implements NetworkInterface{
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
                 myPlaces.addAll(response.body());
                 callBack.responseNetwork(myPlaces);
+
             }
 
             @Override
@@ -192,18 +228,35 @@ public class Network implements NetworkInterface{
 
         placesByTrip = new ArrayList<>();
 
-        travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-                placesByTrip.addAll(response.body());
-                callBack.responseNetwork(placesByTrip);
-            }
+        if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
+            travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+                    placesByTrip.addAll(response.body());
+                    callBack.responseNetwork(placesByTrip);
 
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-                callBack.failNetwork(t);
-            }
-        });
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }else {
+            travelDiaryService.listPlacesByTrip(TOKEN_CONST, tripId).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
+                    placesByTrip.addAll(response.body());
+                    callBack.responseNetwork(placesByTrip);
+
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }
     }
 
     private void downloadPlacesByCityId(int cityId, final CallBack callBack) {
@@ -213,8 +266,32 @@ public class Network implements NetworkInterface{
         travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
             @Override
             public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-                placesByCity.addAll(response.body());
-                callBack.responseNetwork(placesByCity);
+                if (response.code()==200) {
+                    placesByCity.addAll(response.body());
+                    callBack.responseNetwork(placesByCity);
+                }else
+                    callBack.failNetwork(new Throwable("Response = " + response.code()));
+            }
+
+            @Override
+            public void onFailure(Call<List<Place>> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
+    private void downloadPlacesByCountryId(int countryId, final CallBack callBack) {
+
+        placesByCountry = new ArrayList<>();
+
+        travelDiaryService.listPlacesByCountry(countryId).enqueue(new Callback<List<Place>>() {
+            @Override
+            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+                if (response.code()==200) {
+                    placesByCountry.addAll(response.body());
+                    callBack.responseNetwork(placesByCountry);
+                }else
+                    callBack.failNetwork(new Throwable("Response = " + response.code()));
             }
 
             @Override
@@ -413,12 +490,34 @@ public class Network implements NetworkInterface{
         travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
             @Override
             public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {
-                allCities.addAll(response.body());
+                if (response.code()==200) {
+                    allCities.addAll(response.body());
+                }
                 callBack.responseNetwork(allCities);
             }
 
             @Override
             public void onFailure(Call<List<City>> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
+    private void downloadAllCountries(final CallBack callBack){
+
+        allCounties = new ArrayList<>();
+
+        travelDiaryService.listAllCountries().enqueue(new Callback<List<Country>>() {
+            @Override
+            public void onResponse(Call<List<Country>> call, retrofit2.Response<List<Country>> response) {
+                if (response.code()==200) {
+                    allCounties.addAll(response.body());
+                }
+                callBack.responseNetwork(allCounties);
+            }
+
+            @Override
+            public void onFailure(Call<List<Country>> call, Throwable t) {
                 callBack.failNetwork(t);
             }
         });

@@ -1,6 +1,7 @@
 package com.traveldiary.android.network;
 
 import com.traveldiary.android.model.City;
+import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
@@ -27,8 +28,14 @@ public interface TravelDiaryService {
     @GET("/api/v1/top_places")
     Call<List<Place>> listTopPlaces();
 
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listTopPlaces(@Header("Authorization") String token);
+
     @GET("/api/v1/cities")
     Call<List<City>> listAllCities();
+
+    @GET("/api/v1/countries")
+    Call<List<Country>> listAllCountries();
 
     @GET("/api/v1/my/trips")
     Call<List<Trip>> listMyTrips(@Header("Authorization") String token);
@@ -42,11 +49,17 @@ public interface TravelDiaryService {
     @GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
 
+    @GET("/api/v1/trip/{id}/places")
+    Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);
+
     /*@GET("/api/v1/places?city_id={id}")
     Call<List<Place>> listPlacesByCity(@Path("id") int cityId);*/
 
-    @GET("/api/v1/places")
+    @GET("/api/v1/top_places")
     Call<List<Place>> listPlacesByCity(@Query("city_id") int cityId);
+
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listPlacesByCountry(@Query("country_id") int countryId);
 
     @GET("/api/v1/trips")
     Call<List<Trip>> listTripsByCity(@Query("city_id") int cityId);

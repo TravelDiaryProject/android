@@ -37,6 +37,7 @@ import static com.traveldiary.android.Constans.KEY_FOR_MAIN;
 import static com.traveldiary.android.Constans.MAP;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
+import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACE_ID;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
@@ -57,6 +58,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
     private int tripId;
     private int cityId;
+    private int countryId;
 
     private Dialog mDialog;
     private Button uploadFromGalleryBut;
@@ -72,6 +74,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             placesFor = getArguments().getString(PLACES_FOR);
             tripId = getArguments().getInt(ID_STRING);
             cityId = getArguments().getInt(PLACES_BY_CITY);
+            countryId = getArguments().getInt(PLACES_BY_COUNTRY);
         }
     }
 
@@ -125,9 +128,25 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                     @Override
                     public void failNetwork(Throwable t) {
-
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+            }else if (countryId !=0){
+
+                network.getPlacesByCountry(countryId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
             }else{
                 network.getPlacesByTrip(tripId, new CallBack() {
                     @Override
@@ -182,7 +201,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     @Override
     public void onItemClick(final View view, final int possition) {
 
-        if (view.getId()!=R.id.placeShowInMapButton){
+        if (view.getId()!=R.id.placeShowInMapButton && view.getId()!=R.id.placeImageView){
             // проверка подключения к инету
             InternetStatus inetStatus = new InternetStatus();
             inetStatus.check(getActivity(), new CallBack() {

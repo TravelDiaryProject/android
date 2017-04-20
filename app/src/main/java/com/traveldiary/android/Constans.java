@@ -18,7 +18,8 @@ public class Constans {
     public static final String ALL = "All";
     public static final String TOP = "Top";
     public static final String LOAD_TO = "LOAD_TO";
-    public static final String PLACES_BY_CITY = "LOAD_TO";
+    public static final String PLACES_BY_CITY = "Places_by_city";
+    public static final String PLACES_BY_COUNTRY = "Places_by_country";
 
     public static final String UPLOAD_FROM = "uploadFrom";
     public static final String GALLERY = "gellery";
@@ -26,8 +27,8 @@ public class Constans {
 
     public static final String APP_PREFERENCES = "mysettings";
     public static final String APP_PREFERENCES_TOKEN = "Nickname";
+    public static final String APP_PREFERENCES_EMAIL = "Email";
 
     public static String TOKEN_CONST;
-
 
 }
