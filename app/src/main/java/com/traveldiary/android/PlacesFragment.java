@@ -227,7 +227,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     intent.putExtra(ID_STRING, place.getTripId());
                     startActivity(intent);
                 }else {
-
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     SlideShowDialogFragment newFragment = new SlideShowDialogFragment();
                     Bundle args = new Bundle();
@@ -235,10 +234,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     args.putInt("selectedPosition", possition);
                     newFragment.setArguments(args);
                     newFragment.show(ft, "slideshow");
-                    /*Intent intent = new Intent(getActivity(), ShowPLaceWithMap.class);
-                    intent.putExtra(TRIP_ID, place.getTripId());
-                    intent.putExtra(PLACE_ID, place.getId());
-                    startActivity(intent);*/
                 }
                 break;
 
@@ -285,8 +280,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     }
                 });
                 break;
-            case R.id.placeShowInMapButton:
 
+            case R.id.placeShowInMapButton:
                 if (placesFor!=null && placesFor.equals(TOP)) {
                     MapsFragment mapsFragment = new MapsFragment();
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -301,7 +296,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                     ft.commit();
                 }else {
-
                     MapsFragment mapsFragment = new MapsFragment();
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
 

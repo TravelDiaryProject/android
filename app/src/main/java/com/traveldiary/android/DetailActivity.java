@@ -52,7 +52,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        collapseImage = (ImageView) findViewById(R.id.detailImageView);
+        //collapseImage = (ImageView) findViewById(R.id.detailImageView);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

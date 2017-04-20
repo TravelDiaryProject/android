@@ -44,13 +44,13 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
     private static final String TAG = "UploadDialog";
 
-    private static int RESULT_LOAD_IMAGE = 1;
+    private static final int LOAD_IMAGE_GALLERY = 1;
+    private static final int LOAD_IMAGE_CAMERA = 2;
+
     private String photoFromCameraPath;
     private File directory;
 
     private int mTripId;
-
-    private String uploadFrom = null;
 
 
     @Override
@@ -63,9 +63,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        getDialog().setTitle("Title");
+        getDialog().setTitle(R.string.photo);
 
-        View view = inflater.inflate(R.layout.fragment_upload_dialog, null);
+        View view = inflater.inflate(R.layout.fragment_upload_dialog, container, false);
         view.findViewById(R.id.buttonCamera).setOnClickListener(this);
         view.findViewById(R.id.buttonGallery).setOnClickListener(this);
 
@@ -77,11 +77,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
         switch (v.getId()){
             case R.id.buttonCamera:
-                uploadFrom = CAMERA;
                 fromCamera();
                 break;
             case R.id.buttonGallery:
-                uploadFrom = GALLERY;
                 fromGallery();
                 break;
         }
@@ -107,26 +105,25 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         if (manager.isProviderEnabled( LocationManager.GPS_PROVIDER)) {
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             i.putExtra(MediaStore.EXTRA_OUTPUT, generateFileUri());
-            startActivityForResult(i, RESULT_LOAD_IMAGE);
+            startActivityForResult(i, LOAD_IMAGE_CAMERA);
         }
     }
 
     public void fromGallery(){
         Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, RESULT_LOAD_IMAGE);
+        startActivityForResult(i, LOAD_IMAGE_GALLERY);
     }
-
 
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+        builder.setMessage(R.string.gps_disabled)
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
 
@@ -150,88 +147,70 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (uploadFrom.equals(GALLERY)) {
+        switch (requestCode){
 
-            if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            case LOAD_IMAGE_GALLERY:
 
-                ///get path to image
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-                cursor.close();
-                ///
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    ///get path to image
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String picturePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    ///
 
-                if (checkLocationInImage(picturePath)) { // picture must have location
+                    if (checkLocationInImage(picturePath)) { // picture must have location
+                        File file = new File(picturePath); // picture path like in phone
+                        RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                        RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
+                        MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-                    File file = new File(picturePath); // picture path like in phone
-
-                    RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-
-                    RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
-
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
-
-                    network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
-                        @Override
-                        public void responseNetwork(Object o) {
-                            Response<ResponseBody> response = (Response<ResponseBody>) o;
-                            try {
-                                System.out.println("onResponse = " + response.body().string());
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                        network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
+                            @Override
+                            public void responseNetwork(Object o) {
+                                inform();
                             }
-                            inform();
-                        }
 
-                        @Override
-                        public void failNetwork(Throwable t) {
+                            @Override
+                            public void failNetwork(Throwable t) {
 
-                        }
-                    });
-                }
-            }
-        } else if (uploadFrom.equals(CAMERA)){
-
-            if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && data != null) {
-
-                if (checkLocationInImage(photoFromCameraPath)) { // picture must have location
-
-                    File file = new File(photoFromCameraPath); // picture path like in phone
-
-                    RequestBody reqFile = RequestBody.create(MediaType.parse("image"), file);
-
-                    RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
-
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
-
-                    network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
-                        @Override
-                        public void responseNetwork(Object o) {
-                            Response<ResponseBody> response = (Response<ResponseBody>) o;
-                            try {
-                                System.out.println("onResponse = " + response.body().string());
-                            } catch (IOException e) {
-                                e.printStackTrace();
                             }
-                            inform();
-                        }
-
-                        @Override
-                        public void failNetwork(Throwable t) {
-
-                        }
-                    });
+                        });
+                    }
                 }
-            }
+                break;
+
+            case LOAD_IMAGE_CAMERA:
+
+                if (resultCode == RESULT_OK ) {
+                    if (checkLocationInImage(photoFromCameraPath)) { // picture must have location
+                        File file = new File(photoFromCameraPath); // picture path like in phone
+                        RequestBody reqFile = RequestBody.create(MediaType.parse("image"), file);
+                        RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
+                        MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
+
+                        network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
+                            @Override
+                            public void responseNetwork(Object o) {
+                                inform();
+                            }
+
+                            @Override
+                            public void failNetwork(Throwable t) {
+
+                            }
+                        });
+                    }
+                }
+                break;
         }
     }
 
     public void inform(){
-        Toast toast = Toast.makeText(getActivity(),
-                "Place has been created!!!", Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getActivity(),R.string.place_created, Toast.LENGTH_SHORT);
         toast.show();
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
@@ -256,16 +235,15 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)==null || exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)==null) {
 
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Image must have location! Turn on location in your camera! Or choice another image!")
+            builder.setMessage(R.string.picture_must_have_gps)
                     .setCancelable(false)
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             dialog.cancel();
                         }
                     });
             final AlertDialog alert = builder.create();
             alert.show();
-
 
             return false;
         }
