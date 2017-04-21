@@ -21,6 +21,9 @@ import java.util.List;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
+import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.PLACES_FOR_CITY;
+import static com.traveldiary.android.Constans.PLACES_FOR_COUNTRY;
 
 
 public class FindPlaceFragment extends Fragment {
@@ -114,6 +117,7 @@ public class FindPlaceFragment extends Fragment {
 
                 PlacesFragment placesFragment = new PlacesFragment();
                 Bundle args = new Bundle();
+                args.putString(PLACES_FOR, PLACES_FOR_CITY);
                 args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
                 placesFragment.setArguments(args);
 
@@ -132,6 +136,7 @@ public class FindPlaceFragment extends Fragment {
 
                 PlacesFragment placesFragment = new PlacesFragment();
                 Bundle args = new Bundle();
+                args.putString(PLACES_FOR, PLACES_FOR_COUNTRY);
                 args.putInt(PLACES_BY_COUNTRY, mCountryList.get(i).getId());
                 placesFragment.setArguments(args);
 

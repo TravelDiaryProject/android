@@ -78,6 +78,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    public void updateAdapter(List<Place> updateList){
+        if (updateList!=null){
+            mPlaceList.clear();
+            mPlaceList.addAll(updateList);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void updateAdapterTrip(List<Trip> updateList){
+        if (updateList!=null){
+            mTripsList.clear();
+            mTripsList.addAll(updateList);
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         int size = 0;
@@ -280,6 +296,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (place.getIsMine() ==1){
                 placeLikeButton.setVisibility(View.GONE);
                 placeAddToFutureButton.setVisibility(View.GONE);
+            }else if (place.getIsMine() ==0){
+                placeLikeButton.setVisibility(View.VISIBLE);
+                placeAddToFutureButton.setVisibility(View.VISIBLE);
             }
 
             placeShowInMapButton.setImageResource(R.drawable.ic_location);

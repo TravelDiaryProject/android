@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,10 +31,12 @@ import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
-public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener {
+public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     private List<Trip> mTripList;
     private LinearLayoutManager mLayoutManager;
     private FloatingActionButton addTripButton;
@@ -64,6 +67,9 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         addTripButton = (FloatingActionButton) rootView.findViewById(R.id.add_trip_button);
         addTripButton.setOnClickListener(this);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.trips_swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         recyclerView = (RecyclerView) rootView.findViewById(R.id.trips_recycler_view);
         mTripList = new ArrayList<>();
         recyclerAdapter = new RecyclerAdapter(getActivity(), mTripList, this, null);
@@ -72,37 +78,63 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-        if (tripsFor == null){
-            System.out.println("TRIPSFOR == NULL!!!!!!!!!!!!!!!!!!!!!!!!!");
-        }else if (tripsFor.equals(MY)) {
-            network.getMyTrips(TOKEN_CONST, new CallBack() {
-                @Override
-                public void responseNetwork(Object o) {
-                    manipulateWithResponse(o);
-                }
-
-                @Override
-                public void failNetwork(Throwable t) {
-
-                }
-            });
-        }else if (tripsFor.equals(FUTURE)){
-            network.getFutureTrips(TOKEN_CONST ,new CallBack() {
-                @Override
-                public void responseNetwork(Object o) {
-
-                    manipulateWithResponse(o);
-                }
-
-                @Override
-                public void failNetwork(Throwable t) {
-                    System.out.println("B");
-                }
-            });
-        }
+        listTripsByForType(false);
 
         return rootView;
     }
+
+    private void listTripsByForType(final boolean isThisRefresh){
+        switch (tripsFor){
+            case MY:
+                network.getMyTrips(TOKEN_CONST, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulateWithResponse(o, isThisRefresh);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+                break;
+
+            case FUTURE:
+                network.getFutureTrips(TOKEN_CONST ,new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+
+                        manipulateWithResponse(o, isThisRefresh);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+                break;
+        }
+    }
+
+    public void manipulateWithResponse(Object o, boolean isThisRefresh){
+        List<Trip> tripsList = (List<Trip>) o;
+
+        if (tripsList.size()==0){
+            Toast.makeText(getActivity(), "No Trips", Toast.LENGTH_LONG).show();
+        }
+
+        if (!isThisRefresh) {
+            mTripList.addAll(tripsList);
+            recyclerAdapter.notifyDataSetChanged();
+            mProgressBar.setVisibility(View.GONE);
+        }else {
+            recyclerAdapter.updateAdapterTrip(tripsList);
+            swipeRefreshLayout.setRefreshing(false);
+        }
+
+    }
+
+
 
     @Override
     public void onItemClick(View view, int possition) {
@@ -127,15 +159,10 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         }
     }
 
-    public void manipulateWithResponse(Object o){
-        List<Trip> tripsList = (List<Trip>) o;
+    @Override
+    public void onRefresh() {
+        swipeRefreshLayout.setRefreshing(true);
 
-        if (tripsList.size()==0){
-            Toast.makeText(getActivity(), "No Trips", Toast.LENGTH_LONG).show();
-        }
-
-        mTripList.addAll(tripsList);
-        mProgressBar.setVisibility(View.GONE);
-        recyclerAdapter.notifyDataSetChanged();
+        listTripsByForType(true);
     }
 }

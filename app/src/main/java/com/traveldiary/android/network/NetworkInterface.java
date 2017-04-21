@@ -8,7 +8,6 @@ import okhttp3.RequestBody;
 public interface NetworkInterface {
 
     void getTopPlaces(CallBack callBack);
-    void getMyPlaces(String token, CallBack callBack);//передавать токен
     void getPlacesByTrip(int tripId, CallBack callBack);//передавать ИД трипа
     void getPlacesByCity(int cityId, CallBack callBack);//передавать ИД города
     void getPlacesByCountry(int countryId, CallBack callBack);

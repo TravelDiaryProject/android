@@ -17,20 +17,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_TOKEN;
 import static com.traveldiary.android.Constans.FUTURE;
-import static com.traveldiary.android.Constans.ID_STRING;
-import static com.traveldiary.android.Constans.KEY_FOR_MAIN;
-import static com.traveldiary.android.Constans.MAP;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
-import static com.traveldiary.android.Constans.PLACE_ID;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
-import static com.traveldiary.android.Constans.TOP;
+import static com.traveldiary.android.Constans.PLACES_FOR_TOP;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
@@ -74,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
-        args.putString(PLACES_FOR, TOP);
+        args.putString(PLACES_FOR, PLACES_FOR_TOP);
         placesFragment.setArguments(args);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, placesFragment);
@@ -168,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_top_places:
                 fragment = new PlacesFragment();
                 args = new Bundle();
-                args.putString(PLACES_FOR, TOP);
+                args.putString(PLACES_FOR, PLACES_FOR_TOP);
                 fragment.setArguments(args);
                 //trans(fragment);
 

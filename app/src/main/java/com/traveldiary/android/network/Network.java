@@ -26,7 +26,6 @@ public class Network implements NetworkInterface{
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
 
     private List<Place> topPlaces;
-    private List<Place> myPlaces;
     private List<Place> placesByTrip;
     private List<Place> placesByCity;
     private List<Place> placesByCountry;
@@ -51,20 +50,7 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getTopPlaces(CallBack callBack) {
-        if (topPlaces==null){
             downloadTopPlaces(callBack);
-        }else {
-            callBack.responseNetwork(topPlaces);
-        }
-    }
-
-    @Override
-    public void getMyPlaces(String token, CallBack callBack) {
-        if (myPlaces==null){
-            downloadMyPlaces(token, callBack);
-        }else {
-            callBack.responseNetwork(myPlaces);
-        }
     }
 
     @Override
@@ -88,10 +74,7 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getMyTrips(String token, CallBack callBack) {
-        if (myTrips==null)
-            downloadMyTrips(token, callBack);
-        else
-            callBack.responseNetwork(myTrips);
+        downloadMyTrips(token, callBack);
     }
 
     @Override
@@ -101,11 +84,6 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getFutureTrips(String token, CallBack callBack) {
-        /*if (futureTrips==null || futureTrips.size()==0){
-            downloadFutureTrips(token, callBack);
-        }else {
-            callBack.responseNetwork(futureTrips);
-        }*/
         downloadFutureTrips(token, callBack);
     }
 
@@ -205,25 +183,6 @@ public class Network implements NetworkInterface{
 
     }
 
-    private void downloadMyPlaces(String token, final CallBack callBack) {
-
-        myPlaces = new ArrayList<>();
-
-        travelDiaryService.listMyPlaces(token).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-                myPlaces.addAll(response.body());
-                callBack.responseNetwork(myPlaces);
-
-            }
-
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-                callBack.failNetwork(t);
-            }
-        });
-    }
-
     private void downloadPlacesByTripId(int tripId, final CallBack callBack) {
 
         placesByTrip = new ArrayList<>();
@@ -263,42 +222,80 @@ public class Network implements NetworkInterface{
 
         placesByCity = new ArrayList<>();
 
-        travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-                if (response.code()==200) {
-                    placesByCity.addAll(response.body());
-                    callBack.responseNetwork(placesByCity);
-                }else
-                    callBack.failNetwork(new Throwable("Response = " + response.code()));
-            }
+        if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
 
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-                callBack.failNetwork(t);
-            }
-        });
+            travelDiaryService.listPlacesByCity(cityId).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+                    if (response.code() == 200) {
+                        placesByCity.addAll(response.body());
+                        callBack.responseNetwork(placesByCity);
+                    } else
+                        callBack.failNetwork(new Throwable("Response = " + response.code()));
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        } else {
+            travelDiaryService.listPlacesByCity(TOKEN_CONST, cityId).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
+                    if (response.code() == 200) {
+                        placesByCity.addAll(response.body());
+                        callBack.responseNetwork(placesByCity);
+                    } else
+                        callBack.failNetwork(new Throwable("Response = " + response.code()));
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }
     }
 
     private void downloadPlacesByCountryId(int countryId, final CallBack callBack) {
 
         placesByCountry = new ArrayList<>();
 
-        travelDiaryService.listPlacesByCountry(countryId).enqueue(new Callback<List<Place>>() {
-            @Override
-            public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
-                if (response.code()==200) {
-                    placesByCountry.addAll(response.body());
-                    callBack.responseNetwork(placesByCountry);
-                }else
-                    callBack.failNetwork(new Throwable("Response = " + response.code()));
-            }
+        if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
 
-            @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
-                callBack.failNetwork(t);
-            }
-        });
+            travelDiaryService.listPlacesByCountry(countryId).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
+                    if (response.code() == 200) {
+                        placesByCountry.addAll(response.body());
+                        callBack.responseNetwork(placesByCountry);
+                    } else
+                        callBack.failNetwork(new Throwable("Response = " + response.code()));
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        } else {
+            travelDiaryService.listPlacesByCountry(TOKEN_CONST, countryId).enqueue(new Callback<List<Place>>() {
+                @Override
+                public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
+                    if (response.code() == 200) {
+                        placesByCountry.addAll(response.body());
+                        callBack.responseNetwork(placesByCountry);
+                    } else
+                        callBack.failNetwork(new Throwable("Response = " + response.code()));
+                }
+
+                @Override
+                public void onFailure(Call<List<Place>> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }
     }
 
     private void downloadMyTrips(String token, final CallBack callBack) {

@@ -27,9 +27,24 @@ public interface TravelDiaryService {
 
     @GET("/api/v1/top_places")
     Call<List<Place>> listTopPlaces();
-
     @GET("/api/v1/top_places")
     Call<List<Place>> listTopPlaces(@Header("Authorization") String token);
+
+    @GET("/api/v1/trip/{id}/places")
+    Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
+    @GET("/api/v1/trip/{id}/places")
+    Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);
+
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listPlacesByCity(@Query("city_id") int cityId);
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listPlacesByCity(@Header("Authorization") String token, @Query("city_id") int cityId);
+
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listPlacesByCountry(@Query("country_id") int countryId);
+    @GET("/api/v1/top_places")
+    Call<List<Place>> listPlacesByCountry(@Header("Authorization") String token, @Query("country_id") int countryId);
+
 
     @GET("/api/v1/cities")
     Call<List<City>> listAllCities();
@@ -43,23 +58,14 @@ public interface TravelDiaryService {
     @GET("/api/v1/my/future-trips")
     Call<List<Trip>> listMyFutureTrips(@Header("Authorization") String token);
 
-    @GET("/api/v1/my/places")
-    Call<List<Place>> listMyPlaces(@Header("Authorization") String token);
 
-    @GET("/api/v1/trip/{id}/places")
-    Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);
-
-    @GET("/api/v1/trip/{id}/places")
-    Call<List<Place>> listPlacesByTrip(@Header("Authorization") String token, @Path("id") int groupId);
 
     /*@GET("/api/v1/places?city_id={id}")
     Call<List<Place>> listPlacesByCity(@Path("id") int cityId);*/
 
-    @GET("/api/v1/top_places")
-    Call<List<Place>> listPlacesByCity(@Query("city_id") int cityId);
 
-    @GET("/api/v1/top_places")
-    Call<List<Place>> listPlacesByCountry(@Query("country_id") int countryId);
+
+
 
     @GET("/api/v1/trips")
     Call<List<Trip>> listTripsByCity(@Query("city_id") int cityId);

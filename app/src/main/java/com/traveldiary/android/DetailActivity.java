@@ -27,6 +27,8 @@ import com.traveldiary.android.model.Place;
 import java.util.List;
 
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class DetailActivity extends AppCompatActivity implements RecyclerAdapter.ItemClickListener{
@@ -78,6 +80,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
+        args.putString(PLACES_FOR, PLACES_FOR_TRIP);
         args.putInt(ID_STRING, tripId);
         placesFragment.setArguments(args);
         trans(placesFragment);

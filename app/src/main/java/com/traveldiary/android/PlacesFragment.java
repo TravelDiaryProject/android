@@ -6,7 +6,10 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,27 +33,30 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import static com.traveldiary.android.App.network;
-import static com.traveldiary.android.Constans.CAMERA;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
-import static com.traveldiary.android.Constans.KEY_FOR_MAIN;
-import static com.traveldiary.android.Constans.MAP;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.PLACES_FOR_CITY;
+import static com.traveldiary.android.Constans.PLACES_FOR_COUNTRY;
+import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.PLACE_ID;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
-import static com.traveldiary.android.Constans.TOP;
-import static com.traveldiary.android.Constans.TRIP_ID;
+import static com.traveldiary.android.Constans.PLACES_FOR_TOP;
 import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
 
-public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener {
+public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView recyclerView;
     private RecyclerAdapter recyclerAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     private List<Place> mPlacesList;
+    private List<Place> mRefreshingList;
+
     private LinearLayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
 
@@ -105,6 +111,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             }
         });
 
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.places_swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         recyclerView = (RecyclerView) rootView.findViewById(R.id.places_recycler_view);
 
         mPlacesList = new ArrayList<>();
@@ -115,65 +124,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(recyclerAdapter);
 
-        // временный ужас!!!!!!
-        if (placesFor == null){
-            System.out.println("null places for");
+        listPLacesByForType(false);
 
-            if (cityId != 0){
-                network.getPlacesByCity(cityId, new CallBack() {
-                    @Override
-                    public void responseNetwork(Object o) {
-                        manipulationWithResponse(o);
-                    }
-
-                    @Override
-                    public void failNetwork(Throwable t) {
-                        mProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }else if (countryId !=0){
-
-                network.getPlacesByCountry(countryId, new CallBack() {
-                    @Override
-                    public void responseNetwork(Object o) {
-                        manipulationWithResponse(o);
-                    }
-
-                    @Override
-                    public void failNetwork(Throwable t) {
-                        mProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-            }else{
-                network.getPlacesByTrip(tripId, new CallBack() {
-                    @Override
-                    public void responseNetwork(Object o) {
-                        manipulationWithResponse(o);
-                    }
-
-                    @Override
-                    public void failNetwork(Throwable t) {
-
-                    }
-                });
-            }
-
-        }else if (placesFor.equals(TOP)){
-            network.getTopPlaces(new CallBack() {
-                @Override
-                public void responseNetwork(Object o) {
-                    manipulationWithResponse(o);
-                }
-
-                @Override
-                public void failNetwork(Throwable t) {
-
-                }
-            });
-        }else if (placesFor.equals(MY)){
+       /* if (placesFor.equals(MY)){
             network.getMyPlaces(TOKEN_CONST, new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
@@ -185,17 +138,98 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 }
             });
-        }
+        }*/
 
         return rootView;
     }
 
-    public void manipulationWithResponse(Object o){
+    private void listPLacesByForType(final boolean isThisRefresh){
+        switch (placesFor){
+            case PLACES_FOR_TOP:
+                network.getTopPlaces(new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o, isThisRefresh);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+                break;
+
+            case PLACES_FOR_CITY:
+                if (cityId != 0){
+                    network.getPlacesByCity(cityId, new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            manipulationWithResponse(o, isThisRefresh);
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            mProgressBar.setVisibility(View.GONE);
+                            swipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                break;
+
+            case PLACES_FOR_COUNTRY:
+                if (countryId !=0){
+
+                    network.getPlacesByCountry(countryId, new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            manipulationWithResponse(o, isThisRefresh);
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            mProgressBar.setVisibility(View.GONE);
+                            swipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+                break;
+
+            case PLACES_FOR_TRIP:
+                network.getPlacesByTrip(tripId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o, isThisRefresh);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+                break;
+        }
+    }
+
+    public void manipulationWithResponse(Object o, boolean isThisRefresh){
         List<Place> placesList = (List<Place>) o;
 
-        mPlacesList.addAll(placesList);
-        recyclerAdapter.notifyDataSetChanged();
-        mProgressBar.setVisibility(View.GONE);
+        if (placesList.size()==0){
+            Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
+        }
+
+        //if its refresh not update adapter
+        if (!isThisRefresh) {
+            mPlacesList.addAll(placesList);
+            recyclerAdapter.notifyDataSetChanged();
+            mProgressBar.setVisibility(View.GONE);
+        }else {
+            recyclerAdapter.updateAdapter(placesList);
+            swipeRefreshLayout.setRefreshing(false);
+        }
+
     }
 
     @Override
@@ -241,7 +275,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
         switch (view.getId()){
             case R.id.placeImageView:
-                if (placesFor!=null && placesFor.equals(TOP)) {
+                if (placesFor!=null && placesFor.equals(PLACES_FOR_TOP)) {
                     Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra(ID_STRING, place.getTripId());
                     startActivity(intent);
@@ -301,7 +335,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeShowInMapButton:
-                if (placesFor!=null && placesFor.equals(TOP)) {
+                if (placesFor!=null && placesFor.equals(PLACES_FOR_TOP)) {
                     MapsFragment mapsFragment = new MapsFragment();
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
 
@@ -330,5 +364,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onRefresh() {
+
+        swipeRefreshLayout.setRefreshing(true);
+
+        listPLacesByForType(true);
+
+
     }
 }
