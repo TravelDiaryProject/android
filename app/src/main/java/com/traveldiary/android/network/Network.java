@@ -1,6 +1,5 @@
 package com.traveldiary.android.network;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.traveldiary.android.model.City;
@@ -10,6 +9,7 @@ import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.MultipartBody;
@@ -74,6 +74,12 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getMyTrips(String token, CallBack callBack) {
+        Log.d("NETWORK", " getMyTrips");
+        if (myTrips!=null) {
+            Log.d("NETWORK", " myTrips != null - callback(myTrips)");
+            callBack.responseNetwork(myTrips);
+        }
+        Log.d("NETWORK", " download MyTrips");
         downloadMyTrips(token, callBack);
     }
 
@@ -84,6 +90,10 @@ public class Network implements NetworkInterface{
 
     @Override
     public void getFutureTrips(String token, CallBack callBack) {
+
+        if (futureTrips!=null){
+            callBack.responseNetwork(futureTrips);
+        }
         downloadFutureTrips(token, callBack);
     }
 
@@ -300,7 +310,10 @@ public class Network implements NetworkInterface{
 
     private void downloadMyTrips(String token, final CallBack callBack) {
 
-        myTrips = new ArrayList<>();
+        if (myTrips==null) {
+            Log.d("NETWORK", " myTrips == null creaate new ArrrayList");
+            myTrips = new ArrayList<>();
+        }
 
         travelDiaryService.listMyTrips(token).enqueue(new Callback<List<Trip>>() {
             @Override
@@ -309,10 +322,17 @@ public class Network implements NetworkInterface{
                 Log.d("NETWORK", " downloadMyTrips response = " + response.code());
 
                 if (response.code()==200){
-                    myTrips.addAll(response.body());
-                }
-                if (callBack!=null) {
-                    callBack.responseNetwork(myTrips);
+                    if (response.body().size()!=myTrips.size()) {
+                        myTrips.clear();
+                        myTrips.addAll(response.body());
+                        Collections.reverse(myTrips);
+                        if (callBack!=null) {
+                            Log.d("NETWORK", " callback with new myTrips");
+                            callBack.responseNetwork(myTrips);
+                        }
+                    }
+                }else {
+                    callBack.failNetwork(new Throwable("Response = " + response.code()));
                 }
             }
 
@@ -327,20 +347,25 @@ public class Network implements NetworkInterface{
 
     private void downloadFutureTrips(String token, final CallBack callBack) {
 
-        futureTrips = new ArrayList<>();
+        if (futureTrips==null) {
+            futureTrips = new ArrayList<>();
+        }
 
         travelDiaryService.listMyFutureTrips(token).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-                if (response.body()!=null) {
-                    futureTrips.addAll(response.body());
-                    if (callBack!=null) {
-                        callBack.responseNetwork(futureTrips);
+
+                if (response.code()==200){
+                    if (response.body().size()!=futureTrips.size()){
+                        futureTrips.clear();
+                        futureTrips.addAll(response.body());
+                        Collections.reverse(futureTrips);
+                        if (callBack!=null) {
+                            callBack.responseNetwork(futureTrips);
+                        }
                     }
                 }else {
-                    if (callBack!=null) {
-                        callBack.responseNetwork(futureTrips);
-                    }
+                    callBack.failNetwork(new Throwable("Response = " + response.code()));
                 }
             }
 

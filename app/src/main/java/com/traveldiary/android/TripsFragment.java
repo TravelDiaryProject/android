@@ -21,6 +21,7 @@ import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Trip;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.traveldiary.android.App.network;
@@ -124,8 +125,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         }
 
         if (!isThisRefresh) {
-            mTripList.addAll(tripsList);
-            recyclerAdapter.notifyDataSetChanged();
+            //Collections.reverse(tripsList);
+            //mTripList.addAll(tripsList);
+            //recyclerAdapter.notifyDataSetChanged();
+            recyclerAdapter.updateAdapterTrip(tripsList);
+            //swipeRefreshLayout.setRefreshing(false);
             mProgressBar.setVisibility(View.GONE);
         }else {
             recyclerAdapter.updateAdapterTrip(tripsList);
