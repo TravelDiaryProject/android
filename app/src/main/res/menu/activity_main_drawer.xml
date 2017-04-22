@@ -8,6 +8,7 @@
 
         <item
             android:id="@+id/menu_good_memories"
+            android:icon="@drawable/ic_menu_good_memories"
             android:title="Good Memories" />
 
     </group>
@@ -18,6 +19,8 @@
 
         <item
             android:id="@+id/menu_future_trips"
+            android:icon="@drawable/ic_menu_future_trips"
+
             android:title="Future Trips" />
 
     </group>
@@ -28,6 +31,7 @@
 
         <item
             android:id="@+id/menu_find_place"
+            android:icon="@drawable/ic_menu_find_place"
             android:title="Find Place" />
 
     </group>
@@ -39,7 +43,10 @@
 
         <item
             android:id="@+id/menu_top_places"
-            android:title="Top Places" />
+            android:icon="@drawable/ic_like"
+            android:title="Top Places"
+
+            />
 
     </group>
 

@@ -6,8 +6,6 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -35,7 +33,6 @@ import retrofit2.Response;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
-import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
@@ -55,7 +52,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private List<Place> mPlacesList;
-    private List<Place> mRefreshingList;
 
     private LinearLayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
@@ -75,6 +71,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setRetainInstance(true);
 
         if (getArguments() != null){
             placesFor = getArguments().getString(PLACES_FOR);
@@ -125,20 +122,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         recyclerView.setAdapter(recyclerAdapter);
 
         listPLacesByForType(false);
-
-       /* if (placesFor.equals(MY)){
-            network.getMyPlaces(TOKEN_CONST, new CallBack() {
-                @Override
-                public void responseNetwork(Object o) {
-                    manipulationWithResponse(o);
-                }
-
-                @Override
-                public void failNetwork(Throwable t) {
-
-                }
-            });
-        }*/
 
         return rootView;
     }
@@ -225,6 +208,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             mPlacesList.addAll(placesList);
             recyclerAdapter.notifyDataSetChanged();
             mProgressBar.setVisibility(View.GONE);
+
+
         }else {
             recyclerAdapter.updateAdapter(placesList);
             swipeRefreshLayout.setRefreshing(false);
