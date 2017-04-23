@@ -28,4 +28,6 @@ public interface NetworkInterface {
     void getAllCities(CallBack callBack);
     void getAllCountries(CallBack callBack);
 
+    void removePlace(String token, int placeId, CallBack callBack);
+
 }

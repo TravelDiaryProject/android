@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -76,6 +77,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             myViewHolder.bindData(mTripsList.get(position), position);
 
         }
+    }
+
+    public void removePlace(Place placeRemove){
+        if (mPlaceList!=null && placeRemove!=null){
+            mPlaceList.remove(placeRemove);
+        }
+        notifyDataSetChanged();
     }
 
     public void updateAdapter(List<Place> updateList){
@@ -213,6 +221,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageView4);
 
+
             title.setText(trip.getTitle());
 
         }
@@ -229,6 +238,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class PlaceHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
+        private TextView placeTitleText;
+        private ImageView placeRemoveButton;
         private ImageView titleImageView;
         private ImageView placeLikeButton;
         private ImageView placeAddToFutureButton;
@@ -239,6 +250,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public PlaceHolder(View view) {
             super(view);
+
+            placeTitleText = (TextView) view.findViewById(R.id.placeTitleText);
+            placeRemoveButton = (ImageView) view.findViewById(R.id.placeRemoveButton);
             titleImageView = (ImageView) view.findViewById(R.id.placeImageView);
             placeLikeButton = (ImageView) view.findViewById(R.id.placeLikeButton);
             placeAddToFutureButton = (ImageView) view.findViewById(R.id.placeAddToFutureButton);
@@ -246,6 +260,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
 
+            placeRemoveButton.setOnClickListener(this);
             titleImageView.setOnClickListener(this);
             placeLikeButton.setOnClickListener(this);
             placeAddToFutureButton.setOnClickListener(this);
@@ -261,12 +276,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mProgressBar.setVisibility(View.VISIBLE);
             //Place place = mPlaceList.get(position);
 
-            Glide.with(mContext).load(ROOT_URL + place.getPhoto())
+            placeTitleText.setText(place.getTitle());
+
+            Glide.with(mContext).load(ROOT_URL + place.getThumbnail())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                             mProgressBar.setVisibility(View.GONE);
-                            //Toast.makeText(mContext, "exception = " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, "exception = ", Toast.LENGTH_SHORT).show();
                             return false;
                         }
 
@@ -294,9 +311,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
 
             if (place.getIsMine() ==1){
+                placeRemoveButton.setImageResource(R.drawable.ic_delete_24dp);
+                placeRemoveButton.setVisibility(View.VISIBLE);
                 placeLikeButton.setVisibility(View.GONE);
                 placeAddToFutureButton.setVisibility(View.GONE);
             }else if (place.getIsMine() ==0){
+                placeRemoveButton.setVisibility(View.GONE);
                 placeLikeButton.setVisibility(View.VISIBLE);
                 placeAddToFutureButton.setVisibility(View.VISIBLE);
             }
@@ -309,6 +329,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void onClick(View v) {
 
             switch (v.getId()) {
+
+                case R.id.placeRemoveButton:
+                    itemClickListener.onItemClick(v, this.getLayoutPosition());
+                    break;
+
                 case R.id.placeLikeButton:
                     if (place.getIsLiked()==1){
                         // delete like

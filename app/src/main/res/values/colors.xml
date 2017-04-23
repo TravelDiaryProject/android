@@ -7,7 +7,9 @@
 
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="greydark">#c4c4c4</color>
     <color name="grey">#d2d2d2</color>
+    <color name="greylight">#e7e6e6</color>
 
     <color name="yellow">#efdd00</color>
 

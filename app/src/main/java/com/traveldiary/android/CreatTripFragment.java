@@ -1,6 +1,5 @@
 package com.traveldiary.android;
 
-import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -23,8 +22,6 @@ public class CreatTripFragment extends Fragment {
 
     private Button createTripButton;
     private EditText editTripTitle;
-
-    private ChangeFragmentInterface mChangeFragmentInterface;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,9 +59,6 @@ public class CreatTripFragment extends Fragment {
                             //ft.addToBackStack(null);
                             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                             ft.commit();
-
-
-                            //mChangeFragmentInterface.trans(fragment);
                         }
 
                         @Override
@@ -77,18 +71,6 @@ public class CreatTripFragment extends Fragment {
                 }
             }
         });
-
         return rootView;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            mChangeFragmentInterface = (ChangeFragmentInterface) activity;
-        }catch (ClassCastException e){
-            e.printStackTrace();
-        }
     }
 }

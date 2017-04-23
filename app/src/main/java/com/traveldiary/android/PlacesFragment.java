@@ -1,8 +1,10 @@
 package com.traveldiary.android;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -259,7 +261,48 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         final Place place = mPlacesList.get(possition);
 
         switch (view.getId()){
+
+            case R.id.placeRemoveButton:
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setMessage("Точно удалить?")
+                                .setCancelable(true)
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
+                                        network.removePlace(TOKEN_CONST, place.getId(), new CallBack() {
+                                            @Override
+                                            public void responseNetwork(Object o) {
+                                                Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
+                                                recyclerAdapter.removePlace(place);
+                                                dialog.cancel();
+                                            }
+
+                                            @Override
+                                            public void failNetwork(Throwable t) {
+                                                Toast.makeText(getActivity(), "ошибка", Toast.LENGTH_SHORT).show();
+                                                dialog.cancel();
+                                            }
+                                        });
+                                        // remove!!!
+                                    }
+                                })
+                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                                        dialog.cancel();
+
+                                    }
+                                });
+                        final AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                });
+                break;
+
             case R.id.placeImageView:
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! placeImageView");
                 if (placesFor!=null && placesFor.equals(PLACES_FOR_TOP)) {
                     Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra(ID_STRING, place.getTripId());

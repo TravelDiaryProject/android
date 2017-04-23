@@ -37,6 +37,8 @@ import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.CAMERA;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.PLACES_FOR;
+import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 
 
@@ -152,6 +154,8 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
             case LOAD_IMAGE_GALLERY:
 
                 if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+
+                    Log.d(TAG, "выбрана с галлереи");
                     ///get path to image
                     Uri selectedImage = data.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -163,20 +167,23 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                     ///
 
                     if (checkLocationInImage(picturePath)) { // picture must have location
+                        Log.d(TAG, "проверка локашиона");
                         File file = new File(picturePath); // picture path like in phone
                         RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
+                        Log.d(TAG, "старт аплоад");
                         network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
                             @Override
                             public void responseNetwork(Object o) {
+                                Log.d(TAG, "аплоад респонсе");
                                 inform();
                             }
 
                             @Override
                             public void failNetwork(Throwable t) {
-
+                                Log.d(TAG, "аплоад фаил = " + t.toString());
                             }
                         });
                     }
@@ -214,6 +221,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         toast.show();
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
+        args.putString(PLACES_FOR, PLACES_FOR_TRIP);
         args.putInt(ID_STRING, mTripId);
         placesFragment.setArguments(args);
         FragmentTransaction ft = getFragmentManager().beginTransaction();

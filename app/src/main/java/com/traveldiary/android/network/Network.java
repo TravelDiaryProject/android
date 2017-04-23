@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -148,6 +149,33 @@ public class Network implements NetworkInterface{
             downloadAllCountries(callBack);
         else
             callBack.responseNetwork(allCounties);
+    }
+
+    @Override
+    public void removePlace(String token, int placeId, CallBack callBack) {
+        removePlaceFromServer(token, placeId, callBack);
+    }
+
+    private void removePlaceFromServer(String token, int placeId, final CallBack callBack) {
+        if (TOKEN_CONST!=null && !TOKEN_CONST.equals("")){
+            RequestBody placeIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(placeId));
+            travelDiaryService.removePlace(TOKEN_CONST, placeIdRequest).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    Log.d("NETWORK", "Remove response = " + response.code() + response.message());
+                    if (response.code()==201) {
+                        callBack.responseNetwork(response);
+                    }else {
+                        callBack.failNetwork(new Throwable(response.message()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }
     }
 
 
@@ -495,7 +523,11 @@ public class Network implements NetworkInterface{
         travelDiaryService.postImage(token, body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                callBack.responseNetwork(response);
+                if (response.code()==201) {
+                    callBack.responseNetwork(response);
+                }else {
+                    callBack.failNetwork(new Throwable(response.message()));
+                }
             }
 
             @Override

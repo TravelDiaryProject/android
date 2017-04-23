@@ -82,6 +82,10 @@ public interface TravelDiaryService {
     @POST("/api/v1/my/place")
     Call<ResponseBody> postImage(@Header("Authorization") String token, @Part MultipartBody.Part image, @Part("tripId") RequestBody tripId);
 
+    @Multipart
+    @POST("/api/v1/my/place/remove")
+    Call<ResponseBody> removePlace(@Header("Authorization") String token, @Part("placeId") RequestBody placeId);
+
 
 
    /* @FormUrlEncoded

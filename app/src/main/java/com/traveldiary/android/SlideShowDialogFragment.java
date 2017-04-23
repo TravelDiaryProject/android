@@ -35,7 +35,7 @@ public class SlideShowDialogFragment extends DialogFragment {
     private TextView listCount;
     private MyPagerAdapter myPagerAdapter;
     private List<Place> placeList;
-    private int selectedPosition = 0;
+    public int selectedPosition = 0;
 
     @Nullable
     @Override
@@ -83,7 +83,6 @@ public class SlideShowDialogFragment extends DialogFragment {
 
         @Override
         public void onPageScrolled(int arg0, float arg1, int arg2) {
-
         }
 
         @Override
@@ -99,12 +98,6 @@ public class SlideShowDialogFragment extends DialogFragment {
     }
 
 
-
-
-
-
-
-
     public class MyPagerAdapter extends PagerAdapter {
 
         private LayoutInflater layoutInflater;
@@ -115,7 +108,12 @@ public class SlideShowDialogFragment extends DialogFragment {
             View view = layoutInflater.inflate(R.layout.fullscreen_image_layout, container, false);
 
             PhotoView imageView = (PhotoView) view.findViewById(R.id.photo_view);
-            Glide.with(getActivity()).load(ROOT_URL + placeList.get(position).getPhoto())
+
+
+
+            System.out.println(ROOT_URL + placeList.get(position).getPhoto());
+            Glide.with(getActivity())
+                    .load(ROOT_URL + placeList.get(position).getPhoto())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
