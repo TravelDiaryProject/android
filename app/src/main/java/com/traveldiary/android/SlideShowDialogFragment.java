@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -101,6 +102,7 @@ public class SlideShowDialogFragment extends DialogFragment {
     public class MyPagerAdapter extends PagerAdapter {
 
         private LayoutInflater layoutInflater;
+        private ProgressBar progressBar;
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
@@ -112,16 +114,21 @@ public class SlideShowDialogFragment extends DialogFragment {
 
 
             System.out.println(ROOT_URL + placeList.get(position).getPhoto());
+
+            progressBar = (ProgressBar) view.findViewById(R.id.fullscreen_progress);
+            progressBar.setVisibility(View.VISIBLE);
             Glide.with(getActivity())
                     .load(ROOT_URL + placeList.get(position).getPhoto())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
                             return false;
                         }
 
                         @Override
                         public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
                             return false;
                         }
                     })

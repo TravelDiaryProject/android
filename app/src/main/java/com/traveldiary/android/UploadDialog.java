@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.traveldiary.android.network.CallBack;
@@ -54,6 +55,8 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
     private int mTripId;
 
+    private ProgressBar uploadProgressBar;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,6 +73,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         View view = inflater.inflate(R.layout.fragment_upload_dialog, container, false);
         view.findViewById(R.id.buttonCamera).setOnClickListener(this);
         view.findViewById(R.id.buttonGallery).setOnClickListener(this);
+        uploadProgressBar = (ProgressBar) view.findViewById(R.id.upload_progress);
 
         return view;
     }
@@ -174,15 +178,18 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
                         Log.d(TAG, "старт аплоад");
+                        uploadProgressBar.setVisibility(View.VISIBLE);
                         network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
                             @Override
                             public void responseNetwork(Object o) {
                                 Log.d(TAG, "аплоад респонсе");
+                                uploadProgressBar.setVisibility(View.GONE);
                                 inform();
                             }
 
                             @Override
                             public void failNetwork(Throwable t) {
+                                uploadProgressBar.setVisibility(View.GONE);
                                 Log.d(TAG, "аплоад фаил = " + t.toString());
                             }
                         });
@@ -219,6 +226,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     public void inform(){
         Toast toast = Toast.makeText(getActivity(),R.string.place_created, Toast.LENGTH_SHORT);
         toast.show();
+        Log.d(TAG, "start new fragment");
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);

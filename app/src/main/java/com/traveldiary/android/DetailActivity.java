@@ -35,9 +35,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
     private String photo;
 
-    private Dialog mDialog;
-    private Button uploadFromGalleryBut;
-    private Button uploadFromCameraBut;
     private List<Place> mPlacesList;
 
     private ImageView collapseImage;
@@ -70,12 +67,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
         tripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
         Log.d("MYLOG", " tripID from Intent = " + tripId);
-
-
-        mDialog = new Dialog(this);
-        mDialog.setContentView(R.layout.dialog_view);
-        uploadFromGalleryBut = (Button) mDialog.findViewById(R.id.uploadFromGalleryBut);
-        uploadFromCameraBut = (Button) mDialog.findViewById(R.id.uploadFromCameraBut);
 
 
         PlacesFragment placesFragment = new PlacesFragment();

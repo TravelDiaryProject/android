@@ -13,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,10 +65,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     private int cityId;
     private int countryId;
 
-    private Dialog mDialog;
-    private Button uploadFromGalleryBut;
-    private Button uploadFromCameraBut;
-
     private String placesFor;
 
     @Override
@@ -88,11 +85,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_places,
                 container, false);
-
-        mDialog = new Dialog(getActivity());
-        mDialog.setContentView(R.layout.dialog_view);
-        uploadFromGalleryBut = (Button) mDialog.findViewById(R.id.uploadFromGalleryBut);
-        uploadFromCameraBut = (Button) mDialog.findViewById(R.id.uploadFromCameraBut);
 
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
