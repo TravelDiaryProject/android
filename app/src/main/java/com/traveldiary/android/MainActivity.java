@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.setDrawerListener(toggle);
+        drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -66,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navUserName.setText(userName);
         }
         navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setCheckedItem(R.id.menu_top_places);
+        setTitle(navigationView.getMenu().getItem(3).getTitle());
 
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
@@ -77,19 +81,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.commit();
 
     }
-       /* @Override
+        /*@Override
         public void onBackPressed(){
 
-            *//*if (open==null) {
-                if (back_pressed + 2000 > System.currentTimeMillis())
-                    super.onBackPressed();
-                else
-                    Toast.makeText(getBaseContext(), "Press once again to exit!",
-                            Toast.LENGTH_SHORT).show();
-                back_pressed = System.currentTimeMillis();
-            }else {
+            if (back_pressed + 2000 > System.currentTimeMillis())
                 super.onBackPressed();
-            }*//*
+            else
+                Toast.makeText(getBaseContext(), "Press once again to exit!",
+                            Toast.LENGTH_SHORT).show();
+            back_pressed = System.currentTimeMillis();
         }*/
 
     @Override
@@ -157,7 +157,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.menu_find_place:
                 fragment = new FindPlaceFragment();
-                trans(fragment);
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.content_main, fragment);
+                //ft.addToBackStack(null);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft.commit();
+
+
+                /// /trans(fragment);
                 break;
 
             case R.id.menu_top_places:
@@ -167,22 +174,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment.setArguments(args);
                 //trans(fragment);
 
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_main, fragment);
+                FragmentTransaction ft1 = getFragmentManager().beginTransaction();
+                ft1.replace(R.id.content_main, fragment);
                 //ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                ft1.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft1.commit();
                 break;
         }
 
-        if (itemEnabled == null){
+        /*if (itemEnabled == null){
             item.setEnabled(false);
             itemEnabled = item;
         }else {
             itemEnabled.setEnabled(true);
             item.setEnabled(false);
             itemEnabled = item;
-        }
+        }*/
+        item.setChecked(true);
+        setTitle(item.getTitle());
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;

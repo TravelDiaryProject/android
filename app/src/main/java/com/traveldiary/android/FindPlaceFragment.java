@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.traveldiary.android.model.Country;
@@ -37,7 +38,7 @@ public class FindPlaceFragment extends Fragment {
     private int mSelectedCity = 0;
 
     private AutoCompleteTextView autoCompleteTextView;
-    private Button searchButton;
+    private ImageView searchButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,7 +48,7 @@ public class FindPlaceFragment extends Fragment {
                 container, false);
 
         autoCompleteTextView = (AutoCompleteTextView) rootView.findViewById(R.id.find_autocompletetext);
-        searchButton = (Button) rootView.findViewById(R.id.find_search_button);
+        searchButton = (ImageView) rootView.findViewById(R.id.find_search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

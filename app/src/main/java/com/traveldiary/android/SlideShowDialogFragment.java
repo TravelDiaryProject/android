@@ -9,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -26,9 +25,6 @@ import java.util.List;
 
 import static com.traveldiary.android.Constans.ROOT_URL;
 
-/**
- * Created by Cyborg on 4/14/2017.
- */
 
 public class SlideShowDialogFragment extends DialogFragment {
 
@@ -45,7 +41,6 @@ public class SlideShowDialogFragment extends DialogFragment {
         View v = inflater.inflate(R.layout.fragment_slide_show, container, false);
         viewPager = (ViewPager) v.findViewById(R.id.viewpager);
         listCount = (TextView) v.findViewById(R.id.list_count);
-        //viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
 
         if (getArguments() !=null) {
             placeList = (List<Place>) getArguments().getSerializable("placeList");
@@ -69,10 +64,6 @@ public class SlideShowDialogFragment extends DialogFragment {
 
     private void displayMetaInfo(int position) {
         listCount.setText((position + 1) + " of " + placeList.size());
-
-        /*Image image = images.get(position);
-        lblTitle.setText(image.getName());
-        lblDate.setText(image.getTimestamp());*/
     }
 
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
@@ -137,9 +128,6 @@ public class SlideShowDialogFragment extends DialogFragment {
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageView);
 
-            /*PhotoView imageView = (PhotoView) view.findViewById(R.id.photo_view);
-            imageView.setImageResource(list.get(position));*/
-
             container.addView(view);
             return view;
         }
@@ -160,6 +148,4 @@ public class SlideShowDialogFragment extends DialogFragment {
             container.removeView((View) object);
         }
     }
-
-
 }

@@ -355,33 +355,25 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeShowInMapButton:
-                if (placesFor!=null && placesFor.equals(PLACES_FOR_TOP)) {
-                    MapsFragment mapsFragment = new MapsFragment();
-                    FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-                    Bundle args = new Bundle();
-                    args.putInt(ID_STRING, place.getTripId());
-                    args.putInt(PLACE_ID, place.getId());
-                    mapsFragment.setArguments(args);
+                MapsFragment mapsFragment = new MapsFragment();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-                    ft.replace(R.id.content_main, mapsFragment);
-                    ft.addToBackStack(null);
-                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                    ft.commit();
-                }else {
-                    MapsFragment mapsFragment = new MapsFragment();
-                    FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-                    Bundle args = new Bundle();
-                    args.putInt(ID_STRING, place.getTripId());
-                    args.putInt(PLACE_ID, place.getId());
-                    mapsFragment.setArguments(args);
+                Bundle args = new Bundle();
+                args.putInt(ID_STRING, place.getTripId());
+                args.putInt(PLACE_ID, place.getId());
+                mapsFragment.setArguments(args);
 
+                if (placesFor!=null && placesFor.equals(PLACES_FOR_TRIP)){
                     ft.replace(R.id.content_detail, mapsFragment);
-                    ft.addToBackStack(null);
-                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                    ft.commit();
+                }else {
+                    ft.replace(R.id.content_main, mapsFragment);
                 }
+                ft.addToBackStack(null);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft.commit();
+
                 break;
         }
     }
@@ -392,7 +384,5 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         swipeRefreshLayout.setRefreshing(true);
 
         listPLacesByForType(true);
-
-
     }
 }

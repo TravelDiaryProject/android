@@ -20,6 +20,11 @@
 
 
 
+    <!--FindPlaceFragment-->
+    <string name="enter_city_or_country">Enter city or country</string>
+
+
+
     <string name="label_email">Email address</string>
     <string name="label_password">Password</string>
     <string name="login">Login</string>
