@@ -17,11 +17,18 @@
 
    <!--MainActivity-->
     <string name="not_authorized">Not authorized</string>
+    <string name="menu_future_trips">Future Trips</string>
+    <string name="menu_find_place">Find Place</string>
+    <string name="menu_top_places">Top Places</string>
+    <string name="menu_my_trips">My Trips</string>
 
 
 
     <!--FindPlaceFragment-->
     <string name="enter_city_or_country">Enter city or country</string>
+
+    <!--CreateTripFragment-->
+    <string name="enter_name_for_trip">Enter name for new trip</string>
 
 
 

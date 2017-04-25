@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -25,6 +27,8 @@ import android.widget.Toast;
 import com.traveldiary.android.network.CallBack;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -173,6 +177,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                     if (checkLocationInImage(picturePath)) { // picture must have location
                         Log.d(TAG, "проверка локашиона");
                         File file = new File(picturePath); // picture path like in phone
+
                         RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);

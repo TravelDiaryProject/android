@@ -1,6 +1,7 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,6 +87,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    public void removeTrip(Trip tripRemove){
+        if (mTripsList!=null && tripRemove!=null){
+            mTripsList.remove(tripRemove);
+        }
+        notifyDataSetChanged();
+    }
+
     public void updateAdapter(List<Place> updateList){
         if (updateList!=null){
             mPlaceList.clear();
@@ -126,10 +134,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private Trip trip;
 
         private TextView title;
-        private ImageView imageView1;
         private ImageView imageView2;
         private ImageView imageView3;
         private ImageView imageView4;
+
+        private ImageView tripRemoveButton;
 
         public MyViewHolder(View view) {
             super(view);
@@ -137,10 +146,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             title = (TextView) view.findViewById(R.id.tripTitleView);
             mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
 
-            imageView1 = (ImageView) view.findViewById(R.id.tripImageView1);
             imageView2 = (ImageView) view.findViewById(R.id.tripImageView2);
             imageView3 = (ImageView) view.findViewById(R.id.tripImageView3);
             imageView4 = (ImageView) view.findViewById(R.id.tripImageView4);
+
+            tripRemoveButton = (ImageView) view.findViewById(R.id.tripRemoveButton);
+
+            tripRemoveButton.setOnClickListener(this);
 
             //title.setOnClickListener(this);
             //titleImageView.setOnClickListener(this);
@@ -151,58 +163,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.trip = trip;
 
             mProgressBar.setVisibility(View.VISIBLE);
-
-            /*Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            mProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .thumbnail(0.1f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imageView1);
-            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            mProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .thumbnail(0.1f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imageView2);
-            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            mProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .thumbnail(0.1f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imageView3);*/
             Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
@@ -221,7 +181,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageView4);
 
-
+            tripRemoveButton.setImageResource(R.drawable.ic_delete_24dp);
             title.setText(trip.getTitle());
 
         }

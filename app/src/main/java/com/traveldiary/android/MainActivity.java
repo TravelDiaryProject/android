@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -81,16 +82,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.commit();
 
     }
-        /*@Override
-        public void onBackPressed(){
 
-            if (back_pressed + 2000 > System.currentTimeMillis())
-                super.onBackPressed();
-            else
-                Toast.makeText(getBaseContext(), "Press once again to exit!",
+    @Override
+    public void onBackPressed(){
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            android.app.FragmentManager fm = getFragmentManager();
+            int count = fm.getBackStackEntryCount();
+            if (count > 0) {
+                fm.popBackStack();
+                fm.executePendingTransactions();
+            } else {
+                if (back_pressed + 2000 > System.currentTimeMillis())
+                    super.onBackPressed();
+                else {
+                    Toast.makeText(getBaseContext(), "Press once again to exit!",
                             Toast.LENGTH_SHORT).show();
-            back_pressed = System.currentTimeMillis();
-        }*/
+                }
+                back_pressed = System.currentTimeMillis();
+
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -200,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void trans(Fragment fragment) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
-        ft.addToBackStack(null);
+        //ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }

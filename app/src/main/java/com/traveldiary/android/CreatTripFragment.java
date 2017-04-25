@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.traveldiary.android.network.CallBack;
@@ -20,7 +21,7 @@ import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class CreatTripFragment extends Fragment {
 
-    private Button createTripButton;
+    private ImageView createTripButton;
     private EditText editTripTitle;
 
     @Override
@@ -34,7 +35,7 @@ public class CreatTripFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_creat_trip,
                 container, false);
 
-        createTripButton = (Button) rootView.findViewById(R.id.createTripButton);
+        createTripButton = (ImageView) rootView.findViewById(R.id.createTripButton);
         editTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
 
         createTripButton.setOnClickListener(new View.OnClickListener() {

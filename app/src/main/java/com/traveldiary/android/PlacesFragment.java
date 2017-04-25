@@ -202,9 +202,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             mPlacesList.addAll(placesList);
             recyclerAdapter.notifyDataSetChanged();
             mProgressBar.setVisibility(View.GONE);
-
-
         }else {
+            mPlacesList.clear();
+            mPlacesList.addAll(placesList);
             recyclerAdapter.updateAdapter(placesList);
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -264,7 +264,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
 
-                                        network.removePlace(TOKEN_CONST, place.getId(), new CallBack() {
+                                        network.removePlace(TOKEN_CONST, place, new CallBack() {
                                             @Override
                                             public void responseNetwork(Object o) {
                                                 Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
@@ -294,12 +294,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeImageView:
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! placeImageView");
-                if (placesFor!=null && placesFor.equals(PLACES_FOR_TOP)) {
-                    Intent intent = new Intent(getActivity(), DetailActivity.class);
-                    intent.putExtra(ID_STRING, place.getTripId());
-                    startActivity(intent);
-                }else {
+                if (placesFor.equals(PLACES_FOR_TRIP)) {
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     SlideShowDialogFragment newFragment = new SlideShowDialogFragment();
                     Bundle args = new Bundle();
@@ -307,27 +302,27 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     args.putInt("selectedPosition", possition);
                     newFragment.setArguments(args);
                     newFragment.show(ft, "slideshow");
+                }else {
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    intent.putExtra(ID_STRING, place.getTripId());
+                    startActivity(intent);
                 }
                 break;
 
             case R.id.placeAddToFutureButton:
-                network.addToFutureTrips(TOKEN_CONST, place.getId(), new CallBack() {
+                network.addToFutureTrips(TOKEN_CONST, place, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
-                        Response<ResponseBody> response = (Response<ResponseBody>) o;
-                        if (response.code()==201) {
-                            Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
 
-                            place.setIsInFutureTrips(1);
-                            recyclerAdapter.notifyItemChanged(possition);
-                        }else {
-                            Toast.makeText(getActivity(), "Проблема с сервером ", Toast.LENGTH_LONG).show();
-                        }
+                        Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
+
+                        place.setIsInFutureTrips(1);
+                        recyclerAdapter.notifyItemChanged(possition);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
-
+                        Toast.makeText(getActivity(), t.getMessage() , Toast.LENGTH_LONG).show();
                     }
                 });
                 break;
@@ -356,7 +351,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
             case R.id.placeShowInMapButton:
 
-                MapsFragment mapsFragment = new MapsFragment();
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                intent.putExtra(ID_STRING, place.getTripId());
+                intent.putExtra(PLACE_ID, place.getId());
+                startActivity(intent);
+
+                /*MapsFragment mapsFragment = new MapsFragment();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
 
 
@@ -372,7 +372,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 }
                 ft.addToBackStack(null);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                ft.commit();*/
 
                 break;
         }

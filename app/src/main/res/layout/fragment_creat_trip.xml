@@ -1,25 +1,33 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="200dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
     tools:context="com.traveldiary.android.CreatTripFragment">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="Trip title"
-        android:ems="10"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="47dp"
-        android:id="@+id/editTripTitle" />
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/til_editTripName"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            >
 
-    <Button
-        android:text="Create new Trip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:id="@+id/createTripButton" />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_name_for_trip"
+                android:ems="10"
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/editTripTitle" />
+        </android.support.design.widget.TextInputLayout>
 
-</FrameLayout>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/createTripButton"
+            app:srcCompat="@drawable/ic_add_24dp"/>
+
+</LinearLayout>

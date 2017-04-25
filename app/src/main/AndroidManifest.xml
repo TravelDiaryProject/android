@@ -40,7 +40,9 @@
         <activity
             android:name=".RegistrationActivity"
             android:theme="@style/NoActionBar" />
-        <activity android:name=".MapsActivity" />
+
+        <activity android:name=".MapsActivity"
+            android:label="Map"/>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -56,6 +58,7 @@
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
+
         <activity android:name=".ShowPLaceWithMap"
             >
         </activity>

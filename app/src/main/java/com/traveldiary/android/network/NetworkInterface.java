@@ -1,6 +1,9 @@
 package com.traveldiary.android.network;
 
 
+import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.Trip;
+
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -16,7 +19,7 @@ public interface NetworkInterface {
     void getTripsByCity(int cityId, CallBack callBack);
     void getFutureTrips(String token, CallBack callBack);
 
-    void addToFutureTrips(String token, int placeId, CallBack callBack);
+    void addToFutureTrips(String token, Place place, CallBack callBack);
     void likePlace(String token, int placeId, CallBack callBack);
 
     void createTrip(String token, String tripTitle, CallBack callBack);
@@ -28,6 +31,7 @@ public interface NetworkInterface {
     void getAllCities(CallBack callBack);
     void getAllCountries(CallBack callBack);
 
-    void removePlace(String token, int placeId, CallBack callBack);
+    void removePlace(String token, Place place, CallBack callBack);
+    void removeTrip(String token, Trip trip, CallBack callBack);
 
 }

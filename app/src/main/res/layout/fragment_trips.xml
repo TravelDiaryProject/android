@@ -12,6 +12,33 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/no_trips_textView"
+            android:layout_centerInParent="true"
+            android:text="No trips yet. Click on the button to plan a trip"
+            android:visibility="gone"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/no_trips_planeButton"
+            android:layout_below="@id/no_trips_textView"
+            android:layout_centerHorizontal="true"
+            android:text="Plane"
+            android:visibility="gone"
+
+            />
+
+    </RelativeLayout>
+
+
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -33,6 +60,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+
         android:src="@android:drawable/ic_input_add" />
 
 </FrameLayout>
