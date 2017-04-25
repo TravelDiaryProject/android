@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:context="com.traveldiary.android.FindPlaceFragment">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/til_autocomplete"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            >
+
+            <AutoCompleteTextView
+                android:id="@+id/find_autocompletetext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/enter_city_or_country"
+                android:ems="10"
+                android:text="">
+            </AutoCompleteTextView>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/find_search_button"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_search_24dp"
+            />
+</LinearLayout>

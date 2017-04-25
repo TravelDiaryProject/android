@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/menu_top"
+        >
+
+        <item
+            android:id="@+id/menu_good_memories"
+            android:icon="@drawable/ic_menu_good_memories"
+            android:title="@string/menu_my_trips" />
+
+    </group>
+    <group
+        android:checkableBehavior="single"
+        android:id="@+id/menu_future"
+        >
+
+        <item
+            android:id="@+id/menu_future_trips"
+            android:icon="@drawable/ic_menu_future_trips"
+
+            android:title="@string/menu_future_trips" />
+
+    </group>
+
+    <group
+        android:id="@+id/menu_find"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_find_place"
+            android:icon="@drawable/ic_menu_find_place"
+            android:title="@string/menu_find_place" />
+
+    </group>
+
+
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_top_places"
+            android:icon="@drawable/ic_like"
+            android:title="@string/menu_top_places"
+
+            />
+
+    </group>
+
+</menu>

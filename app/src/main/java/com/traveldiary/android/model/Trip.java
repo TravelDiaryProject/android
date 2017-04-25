@@ -1,16 +1,23 @@
-package com.traveldiary.android;
+package com.traveldiary.android.model;
 
-/**
- * Created by Cyborg on 1/29/2017.
- */
 
-public class Place {
+public class Trip {
+    private int id;
     private String title;
     private String photo;
 
-    public Place(String title, String photo) {
+    public Trip(int id, String title, String photo) {
+        this.id = id;
         this.title = title;
         this.photo = photo;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -31,8 +38,9 @@ public class Place {
 
     @Override
     public String toString() {
-        return "Place{" +
-                "title='" + title + '\'' +
+        return "Trip{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
                 ", photo='" + photo + '\'' +
                 '}';
     }
