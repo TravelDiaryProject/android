@@ -25,10 +25,16 @@ import retrofit2.http.Query;
 
 public interface TravelDiaryService {
 
+//    @GET("/api/v1/top_places")
+//    Call<List<Place>> listTopPlaces();
+//    @GET("/api/v1/top_places")
+//    Call<List<Place>> listTopPlaces(@Header("Authorization") String token);
+
+    //http://188.166.77.89/api/v1/top_places?offset=0&limit=2
     @GET("/api/v1/top_places")
-    Call<List<Place>> listTopPlaces();
+    Call<List<Place>> listTopPlacesOffset(@Query("offset") int offset, @Query("limit") int limit);
     @GET("/api/v1/top_places")
-    Call<List<Place>> listTopPlaces(@Header("Authorization") String token);
+    Call<List<Place>> listTopPlacesOffset(@Query("offset") int offset, @Query("limit") int limit, @Header("Authorization") String token);
 
     @GET("/api/v1/trip/{id}/places")
     Call<List<Place>> listPlacesByTrip(@Path("id") int groupId);

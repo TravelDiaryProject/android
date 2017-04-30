@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 
 import java.io.File;
@@ -175,29 +176,16 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                     ///
 
                     if (checkLocationInImage(picturePath)) { // picture must have location
-                        Log.d(TAG, "проверка локашиона");
+
                         File file = new File(picturePath); // picture path like in phone
 
                         RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-                        Log.d(TAG, "старт аплоад");
                         uploadProgressBar.setVisibility(View.VISIBLE);
-                        network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
-                            @Override
-                            public void responseNetwork(Object o) {
-                                Log.d(TAG, "аплоад респонсе");
-                                uploadProgressBar.setVisibility(View.GONE);
-                                inform();
-                            }
 
-                            @Override
-                            public void failNetwork(Throwable t) {
-                                uploadProgressBar.setVisibility(View.GONE);
-                                Log.d(TAG, "аплоад фаил = " + t.toString());
-                            }
-                        });
+                        upload(body, tripIdRequest);
                     }
                 }
                 break;
@@ -211,27 +199,36 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-                        network.uploadPlace(TOKEN_CONST, body, tripIdRequest, new CallBack() {
-                            @Override
-                            public void responseNetwork(Object o) {
-                                inform();
-                            }
+                        uploadProgressBar.setVisibility(View.VISIBLE);
 
-                            @Override
-                            public void failNetwork(Throwable t) {
-
-                            }
-                        });
+                        upload(body, tripIdRequest);
                     }
                 }
                 break;
         }
     }
 
+    public void upload(MultipartBody.Part body, RequestBody tripIdRequest){
+        DataService dataService = new DataService();
+        dataService.uploadImage(body, tripIdRequest, new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                uploadProgressBar.setVisibility(View.GONE);
+                inform();
+            }
+
+            @Override
+            public void failNetwork(Throwable t) {
+                uploadProgressBar.setVisibility(View.GONE);
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     public void inform(){
-        Toast toast = Toast.makeText(getActivity(),R.string.place_created, Toast.LENGTH_SHORT);
-        toast.show();
-        Log.d(TAG, "start new fragment");
+        Toast.makeText(getActivity(),R.string.place_created, Toast.LENGTH_SHORT).show();
+
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);

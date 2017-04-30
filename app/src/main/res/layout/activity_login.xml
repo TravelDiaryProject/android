@@ -13,17 +13,6 @@
     tools:context="com.traveldiary.android.LoginActivity">
 
 
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
-
-
     <LinearLayout
         android:id="@+id/login_form"
         android:layout_width="match_parent"
@@ -103,6 +92,14 @@
                 android:textSize="24sp" />
 
         </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/login_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
 
 
 </RelativeLayout>

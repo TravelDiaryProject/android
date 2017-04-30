@@ -1,13 +1,18 @@
 package com.traveldiary.android.model;
 
-/**
- * Created by Cyborg on 2/27/2017.
- */
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
-public class City {
 
+public class City extends RealmObject {
+
+    @PrimaryKey
     private int id;
+
     private String name;
+
+    public City() {
+    }
 
     public City(int id, String name) {
         this.id = id;

@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.RegistrationResponse;
 
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
 
     private StringBuilder tokenBuilder;
+    private Context mContext;
 
     private SharedPreferences mSharedPreferences;
 
@@ -46,6 +48,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        mContext = this;
 
         mProgressBar = (ProgressBar) findViewById(R.id.login_progress);
 
@@ -70,21 +74,13 @@ public class LoginActivity extends AppCompatActivity {
                 String password = String.valueOf(mEditLoginPassword.getText());
 
                 if (isLoginValuesValid(email, password) && isNetworkValid()) {
-                    Log.d("LOG and PASS are", "VALID");
-
                     sign(email, password);
-
-
                 } else {
                     mProgressBar.setVisibility(View.GONE);
                     mLoginButton.setClickable(true);
                 }
             }
         };
-    }
-
-    public void badLogOrPass(){
-        Toast.makeText(this, "BAD LOG OR PASS", Toast.LENGTH_LONG).show();
     }
 
     private boolean isNetworkValid() {
@@ -122,8 +118,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void sign(final String email, String password){
-
-        network.signIn(email, password, new CallBack() {
+        DataService dataService = new DataService();
+        dataService.login(email, password, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
                 Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
@@ -140,24 +136,18 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(APP_PREFERENCES_EMAIL, email);
                 editor.apply();
 
-                Log.d("Token", " OK");
-
                 mProgressBar.setVisibility(View.GONE);
 
-               /* Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);*/
-               onBackPressed();
+                onBackPressed();
             }
 
             @Override
             public void failNetwork(Throwable t) {
-                Log.d("Token", " BAD");
+                Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
                 mProgressBar.setVisibility(View.GONE);
                 mLoginButton.setClickable(true);
-                badLogOrPass();
             }
         });
-
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.traveldiary.android;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
@@ -13,14 +12,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Place;
@@ -30,10 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.ResponseBody;
-import retrofit2.Response;
-
-import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
@@ -61,16 +55,22 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
     private FloatingActionButton addPlaceButton;
 
+    private DataService dataService = new DataService();
+
     private int tripId;
     private int cityId;
     private int countryId;
 
     private String placesFor;
 
+    private boolean loading = true;
+    int pastVisiblesItems, visibleItemCount, totalItemCount;
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
 
         if (getArguments() != null){
             placesFor = getArguments().getString(PLACES_FOR);
@@ -122,8 +122,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
     private void listPLacesByForType(final boolean isThisRefresh){
         switch (placesFor){
+
             case PLACES_FOR_TOP:
-                network.getTopPlaces(new CallBack() {
+                dataService.getTopPlaces(0, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
@@ -132,50 +133,62 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     @Override
                     public void failNetwork(Throwable t) {
                         swipeRefreshLayout.setRefreshing(false);
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        loadNextTopPage(dy);
+                    }
+                });
+
+                break;
+
+            case PLACES_FOR_CITY:
+
+                recyclerView.clearOnScrollListeners();
+
+                dataService.getPlacesByCity(cityId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o, isThisRefresh);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
 
-            case PLACES_FOR_CITY:
-                if (cityId != 0){
-                    network.getPlacesByCity(cityId, new CallBack() {
-                        @Override
-                        public void responseNetwork(Object o) {
-                            manipulationWithResponse(o, isThisRefresh);
-                        }
-
-                        @Override
-                        public void failNetwork(Throwable t) {
-                            mProgressBar.setVisibility(View.GONE);
-                            swipeRefreshLayout.setRefreshing(false);
-                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                break;
-
             case PLACES_FOR_COUNTRY:
-                if (countryId !=0){
+                recyclerView.clearOnScrollListeners();
 
-                    network.getPlacesByCountry(countryId, new CallBack() {
-                        @Override
-                        public void responseNetwork(Object o) {
-                            manipulationWithResponse(o, isThisRefresh);
-                        }
+                dataService.getPlacesByCountry(countryId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        manipulationWithResponse(o, isThisRefresh);
+                    }
 
-                        @Override
-                        public void failNetwork(Throwable t) {
-                            mProgressBar.setVisibility(View.GONE);
-                            swipeRefreshLayout.setRefreshing(false);
-                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                }
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        mProgressBar.setVisibility(View.GONE);
+                        swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
                 break;
 
             case PLACES_FOR_TRIP:
-                network.getPlacesByTrip(tripId, new CallBack() {
+
+                recyclerView.clearOnScrollListeners();
+
+                dataService.getPLacesByTrip(tripId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
@@ -184,6 +197,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     @Override
                     public void failNetwork(Throwable t) {
                         swipeRefreshLayout.setRefreshing(false);
+                        mProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
@@ -196,9 +211,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         if (placesList.size()==0){
             Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
         }
-
         //if its refresh not update adapter
         if (!isThisRefresh) {
+            mPlacesList.clear();
             mPlacesList.addAll(placesList);
             recyclerAdapter.notifyDataSetChanged();
             mProgressBar.setVisibility(View.GONE);
@@ -208,7 +223,44 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             recyclerAdapter.updateAdapter(placesList);
             swipeRefreshLayout.setRefreshing(false);
         }
+    }
 
+    public void loadNextTopPage(int dy){
+        if (dy > 0) {
+            visibleItemCount = mLayoutManager.getChildCount();
+            totalItemCount = mLayoutManager.getItemCount();
+            pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
+
+            if (loading) {
+                if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                    loading = false;
+                    dataService.getTopPlaces(totalItemCount, new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            List<Place> placesList = (List<Place>) o;
+
+                            loading = true;
+
+                            if (placesList.size() > 0) {
+                                recyclerAdapter.setLoadMore(true);
+                                recyclerAdapter.notifyDataSetChanged();
+
+                                mPlacesList.addAll(placesList);
+                                recyclerAdapter.notifyItemInserted(totalItemCount);
+                            }else {
+                                recyclerAdapter.setLoadMore(false);
+                                recyclerAdapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }
     }
 
     @Override
@@ -220,17 +272,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             inetStatus.check(getActivity(), new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
-                    // проверка авторизации
-                    if (TOKEN_CONST != null){
-                        clickLogic(view, possition);
-                    }else {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (TOKEN_CONST != null)
+                                clickLogic(view, possition);
+                            else
                                 Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
+                        }
+                    });
                 }
 
                 @Override
@@ -264,21 +314,20 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
 
-                                        network.removePlace(TOKEN_CONST, place, new CallBack() {
+                                        dataService.removePlace(place, new CallBack() {
                                             @Override
                                             public void responseNetwork(Object o) {
                                                 Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
-                                                recyclerAdapter.removePlace(place);
+                                                //recyclerAdapter.removePlace(place);
                                                 dialog.cancel();
                                             }
 
                                             @Override
                                             public void failNetwork(Throwable t) {
-                                                Toast.makeText(getActivity(), "ошибка", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                                                 dialog.cancel();
                                             }
                                         });
-                                        // remove!!!
                                     }
                                 })
                                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -310,41 +359,35 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeAddToFutureButton:
-                network.addToFutureTrips(TOKEN_CONST, place, new CallBack() {
+
+                dataService.addToFuture(place, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
-
                         Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
-
-                        place.setIsInFutureTrips(1);
                         recyclerAdapter.notifyItemChanged(possition);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
                         Toast.makeText(getActivity(), t.getMessage() , Toast.LENGTH_LONG).show();
+                        recyclerAdapter.notifyItemChanged(possition);
                     }
                 });
                 break;
 
             case R.id.placeLikeButton:
-                network.likePlace(TOKEN_CONST, place.getId(), new CallBack() {
+
+                dataService.addLike(place, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
-                        Response<ResponseBody> response = (Response<ResponseBody>) o;
-                        if (response.code()==201) {
-                            Toast.makeText(getActivity(), "places Liked ", Toast.LENGTH_LONG).show();
-
-                            place.setIsLiked(1);
-                            recyclerAdapter.notifyItemChanged(possition);
-                        }else {
-                            Toast.makeText(getActivity(), "Проблема с сервером ", Toast.LENGTH_LONG).show();
-                        }
+                        Toast.makeText(getActivity(), "places Liked ", Toast.LENGTH_LONG).show();
+                        recyclerAdapter.notifyItemChanged(possition);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
-
+                        Toast.makeText(getActivity(), t.getMessage() , Toast.LENGTH_LONG).show();
+                        recyclerAdapter.notifyItemChanged(possition);
                     }
                 });
                 break;
@@ -356,33 +399,13 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 intent.putExtra(PLACE_ID, place.getId());
                 startActivity(intent);
 
-                /*MapsFragment mapsFragment = new MapsFragment();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-
-
-                Bundle args = new Bundle();
-                args.putInt(ID_STRING, place.getTripId());
-                args.putInt(PLACE_ID, place.getId());
-                mapsFragment.setArguments(args);
-
-                if (placesFor!=null && placesFor.equals(PLACES_FOR_TRIP)){
-                    ft.replace(R.id.content_detail, mapsFragment);
-                }else {
-                    ft.replace(R.id.content_main, mapsFragment);
-                }
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();*/
-
                 break;
         }
     }
 
     @Override
     public void onRefresh() {
-
         swipeRefreshLayout.setRefreshing(true);
-
         listPLacesByForType(true);
     }
 }

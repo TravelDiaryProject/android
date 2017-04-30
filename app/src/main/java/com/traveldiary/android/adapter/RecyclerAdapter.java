@@ -28,6 +28,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private static final int TYPE_TRIP = 0;
     private static final int TYPE_PLACE = 1;
+    private static final int TYPE_PROGRESS = 2;
+
+    private boolean isLoadMore = false;
 
     private int mSelectedItemPosition = -1;
 
@@ -61,9 +64,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 View itemView2 = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.second_test_trip, parent, false);
                 return new MyViewHolder(itemView2);
+            case TYPE_PROGRESS:
+                View itemView3 = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.progress_item, parent, false);
+                return new ProgressHolder(itemView3);
         }
 
         return null;
+    }
+
+    public void setLoadMore(boolean loadMore) {
+        isLoadMore = loadMore;
     }
 
     @Override
@@ -77,6 +88,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             MyViewHolder myViewHolder = (MyViewHolder) holder;
             myViewHolder.bindData(mTripsList.get(position), position);
 
+        }else {
+            ProgressHolder progressHolder = (ProgressHolder) holder;
+            progressHolder.bindData();
         }
     }
 
@@ -115,6 +129,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int size = 0;
         if (mTripsList==null){
             size = mPlaceList.size();
+            //size++;
         }else if (mPlaceList==null){
             size = mTripsList.size();
         }
@@ -125,6 +140,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         if (mTripsList!=null)
             return TYPE_TRIP;
+        else if (mPlaceList!=null && mPlaceList.size()== ++position)
+            return TYPE_PROGRESS;
         else
             return TYPE_PLACE;
     }
@@ -163,7 +180,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.trip = trip;
 
             mProgressBar.setVisibility(View.VISIBLE);
-            Glide.with(mContext).load(ROOT_URL + trip.getPhoto())
+            Glide.with(mContext).load(ROOT_URL + trip.getThumbnail())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -243,7 +260,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                             mProgressBar.setVisibility(View.GONE);
-                            Toast.makeText(mContext, "exception = ", Toast.LENGTH_SHORT).show();
                             return false;
                         }
 
@@ -255,6 +271,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     })
                     .thumbnail(0.5f)
                     .crossFade()
+                    .placeholder(R.drawable.ic_image_black_24dp)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(titleImageView);
 
@@ -322,4 +339,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         }
     }
+
+    public class ProgressHolder extends RecyclerView.ViewHolder {
+
+        private ProgressBar progressBar;
+
+        public ProgressHolder(View view) {
+            super(view);
+
+            progressBar = (ProgressBar) view.findViewById(R.id.load_new_items_recycler);
+        }
+
+        public void bindData() {
+            if (isLoadMore)
+                progressBar.setVisibility(View.VISIBLE);
+            else
+                progressBar.setVisibility(View.GONE);
+        }
+    }
+
 }

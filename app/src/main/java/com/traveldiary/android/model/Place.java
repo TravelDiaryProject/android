@@ -3,8 +3,15 @@ package com.traveldiary.android.model;
 
 import java.io.Serializable;
 
-public class Place implements Serializable {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
+
+public class Place extends RealmObject implements Serializable {
+
+    @PrimaryKey
     private int id;
+
     private String title;
     private String photo;
     private String thumbnail;
@@ -18,6 +25,9 @@ public class Place implements Serializable {
     private int isLiked;
     private int isInFutureTrips;
     private int isMine;
+
+    public Place() {
+    }
 
     public Place(int id, String title, String photo, String thumbnail, String latitude, String longitude, String shootedAt, int cityId, int countryId, int tripId, int likes, int isLiked, int isInFutureTrips, int isMine) {
         this.id = id;

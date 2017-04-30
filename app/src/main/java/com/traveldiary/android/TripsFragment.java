@@ -22,6 +22,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.traveldiary.android.data.Data;
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Trip;
@@ -55,6 +57,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
     private TextView noTripsTextView;
     private Button noTripsButton;
+    private DataService dataService;
 
 
     @Override
@@ -75,6 +78,8 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 container, false);
 
         Log.d(TAG, "onCreateView");
+
+        dataService = new DataService();
 
         noTripsTextView = (TextView) rootView.findViewById(R.id.no_trips_textView);
         noTripsButton = (Button) rootView.findViewById(R.id.no_trips_planeButton);
@@ -102,46 +107,40 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     }
 
     private void listTripsByForType(final boolean isThisRefresh){
+
         switch (tripsFor){
             case MY:
                 mAddTripFloatButton.setImageResource(R.drawable.ic_create_new_folder_24dp);
 
-                Log.d(TAG, "listTripsByForType, start download my Trips");
-
-                network.getMyTrips(TOKEN_CONST, new CallBack() {
+                dataService.getMyTrips(new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
-                        Log.d(TAG, "getMyTrips, responseNetwork");
                         manipulateWithResponse(o, isThisRefresh);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
-                        Log.d(TAG, "getMyTrips, failNetwork");
                         mProgressBar.setVisibility(View.GONE);
                         swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
 
             case FUTURE:
-
                 mAddTripFloatButton.hide();
 
-                Log.d(TAG, "listTripsByForType, start download future Trips");
-
-                network.getFutureTrips(TOKEN_CONST ,new CallBack() {
+                dataService.getFutureTrips(new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
-                        Log.d(TAG, "getFutureTrips, responseNetwork");
                         manipulateWithResponse(o, isThisRefresh);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
-                        Log.d(TAG, "getFutureTrips, failNetwork");
                         mProgressBar.setVisibility(View.GONE);
                         swipeRefreshLayout.setRefreshing(false);
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
@@ -151,15 +150,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     public void manipulateWithResponse(Object o, boolean isThisRefresh){
         List<Trip> tripsList = (List<Trip>) o;
 
-        Log.d(TAG, "manipulateWithResponse");
-
         mProgressBar.setVisibility(View.GONE);
 
         if (tripsList.size()==0){
-
+            mTripList.clear();
             noTripsTextView.setVisibility(View.VISIBLE);
             noTripsButton.setVisibility(View.VISIBLE);
-
             //Toast.makeText(getActivity(), "No Trips", Toast.LENGTH_LONG).show();
         }
 
@@ -191,11 +187,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
 
-                            network.removeTrip(TOKEN_CONST, trip, new CallBack() {
+                            dataService.removeTrip(trip, new CallBack() {
                                 @Override
                                 public void responseNetwork(Object o) {
                                     Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
-                                    recyclerAdapter.removeTrip(trip);
+                                    //recyclerAdapter.removeTrip(trip);
                                     dialog.cancel();
                                 }
 
@@ -205,7 +201,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                                     dialog.cancel();
                                 }
                             });
-                            // remove!!!
                         }
                     })
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

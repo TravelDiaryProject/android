@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
@@ -33,9 +34,7 @@ public class FindPlaceFragment extends Fragment {
     private List<Country> mCountryList;
     private List<String> mStringList;
 
-    private String[] mCitiesName;
-
-    private int mSelectedCity = 0;
+    private ArrayAdapter<String> adapter;
 
     private AutoCompleteTextView autoCompleteTextView;
     private ImageView searchButton;
@@ -67,40 +66,40 @@ public class FindPlaceFragment extends Fragment {
         mCountryList = new ArrayList<>();
         mStringList = new ArrayList<>();
 
+        adapter = new ArrayAdapter<String>
+                (getActivity(), android.R.layout.select_dialog_item, mStringList);
+        autoCompleteTextView.setThreshold(1);//will start working from first character
+        autoCompleteTextView.setAdapter(adapter);
 
-        network.getAllCities(new CallBack() {
+
+        final DataService dataService = new DataService();
+        dataService.getAllCities(new CallBack() {
             @Override
             public void responseNetwork(Object o) {
-                List<City> allCities = (List<City>) o;
-
-                mCityList.addAll(allCities);
+                mCityList.addAll((List<City>) o);
 
                 for (int i = 0; i < mCityList.size(); i++){
                     mStringList.add(mCityList.get(i).getName());
                 }
 
-                network.getAllCountries(new CallBack() {
-                    @Override
-                    public void responseNetwork(Object o) {
-                        List<Country> allCounties = (List<Country>) o;
+                adapter.notifyDataSetChanged();
+            }
 
-                        mCountryList.addAll(allCounties);
+            @Override
+            public void failNetwork(Throwable t) {
 
-                        for (int i = 0; i < mCountryList.size(); i++){
-                            mStringList.add(mCountryList.get(i).getName());
-                        }
+            }
+        });
 
-                        mCitiesName = mStringList.toArray(new String[mStringList.size()]);
+        dataService.getAllCountries(new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                mCountryList.addAll((List<Country>) o);
 
-                        autocpleteAdapter(mCitiesName);
-
-                    }
-
-                    @Override
-                    public void failNetwork(Throwable t) {
-
-                    }
-                });
+                for (int i = 0; i < mCountryList.size(); i++){
+                    mStringList.add(mCountryList.get(i).getName());
+                }
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -152,12 +151,4 @@ public class FindPlaceFragment extends Fragment {
         }
         return false;
     }
-
-    private void autocpleteAdapter(String[] cities){
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>
-                (getActivity(), android.R.layout.select_dialog_item, cities);
-        autoCompleteTextView.setThreshold(1);//will start working from first character
-        autoCompleteTextView.setAdapter(adapter);//setting the adapter data into the AutoCompleteTextView
-    }
-
 }

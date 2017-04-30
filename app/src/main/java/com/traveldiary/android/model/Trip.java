@@ -1,15 +1,54 @@
 package com.traveldiary.android.model;
 
 
-public class Trip {
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
+public class Trip extends RealmObject {
+
+    @PrimaryKey
     private int id;
+
     private String title;
     private String photo;
+    private String thumbnail;
+    private int isMine;
+    private int isFuture;
 
-    public Trip(int id, String title, String photo) {
+    public Trip() {
+    }
+
+    public Trip(int id, String title, String photo, String thumbnail, int isMine, int isFuture) {
         this.id = id;
         this.title = title;
         this.photo = photo;
+        this.thumbnail = thumbnail;
+        this.isMine = isMine;
+        this.isFuture = isFuture;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public int getIsFuture() {
+        return isFuture;
+    }
+
+    public void setIsFuture(int isFuture) {
+        this.isFuture = isFuture;
+    }
+
+    public int getIsMine() {
+        return isMine;
+    }
+
+    public void setIsMine(int isMine) {
+        this.isMine = isMine;
     }
 
     public int getId() {
@@ -42,6 +81,9 @@ public class Trip {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", photo='" + photo + '\'' +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", isMine=" + isMine +
+                ", isFuture=" + isFuture +
                 '}';
     }
 }

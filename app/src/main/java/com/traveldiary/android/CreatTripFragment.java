@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 
 import static com.traveldiary.android.App.network;
@@ -38,18 +39,18 @@ public class CreatTripFragment extends Fragment {
         createTripButton = (ImageView) rootView.findViewById(R.id.createTripButton);
         editTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
 
+        final DataService dataService = new DataService();
+
         createTripButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (editTripTitle != null){
                     String tripTitle = editTripTitle.getText().toString();
 
-                    network.createTrip(TOKEN_CONST, tripTitle, new CallBack() {
+                    dataService.createNewTrip(tripTitle, new CallBack() {
                         @Override
                         public void responseNetwork(Object o) {
-                            Toast toast = Toast.makeText(getActivity(),
-                                    "Trip created!!!", Toast.LENGTH_SHORT);
-                            toast.show();
+                            Toast.makeText(getActivity(),"Trip created!!!", Toast.LENGTH_SHORT).show();
 
                             Fragment fragment = new TripsFragment();
                             Bundle args = new Bundle();
@@ -64,9 +65,7 @@ public class CreatTripFragment extends Fragment {
 
                         @Override
                         public void failNetwork(Throwable t) {
-                            Toast toast = Toast.makeText(getActivity(),
-                                    "FAIL!!!", Toast.LENGTH_SHORT);
-                            toast.show();
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
