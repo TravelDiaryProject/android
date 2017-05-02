@@ -70,7 +70,7 @@
             android:scaleType="centerCrop" />
 
         <ImageView
-            android:id="@+id/tripImageView4"
+            android:id="@+id/tripImageView2"
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:background="@color/black"

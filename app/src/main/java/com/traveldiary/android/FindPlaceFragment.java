@@ -18,7 +18,9 @@ import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
@@ -33,6 +35,8 @@ public class FindPlaceFragment extends Fragment {
     private List<City> mCityList;
     private List<Country> mCountryList;
     private List<String> mStringList;
+
+    private Set<String> mStringSet;
 
     private ArrayAdapter<String> adapter;
 
@@ -65,6 +69,7 @@ public class FindPlaceFragment extends Fragment {
         mCityList = new ArrayList<>();
         mCountryList = new ArrayList<>();
         mStringList = new ArrayList<>();
+        mStringSet = new HashSet<>();
 
         adapter = new ArrayAdapter<String>
                 (getActivity(), android.R.layout.select_dialog_item, mStringList);
@@ -76,12 +81,14 @@ public class FindPlaceFragment extends Fragment {
         dataService.getAllCities(new CallBack() {
             @Override
             public void responseNetwork(Object o) {
+                mCityList.clear();
                 mCityList.addAll((List<City>) o);
+
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! - " + mCityList.size());
 
                 for (int i = 0; i < mCityList.size(); i++){
                     mStringList.add(mCityList.get(i).getName());
                 }
-
                 adapter.notifyDataSetChanged();
             }
 
@@ -94,9 +101,13 @@ public class FindPlaceFragment extends Fragment {
         dataService.getAllCountries(new CallBack() {
             @Override
             public void responseNetwork(Object o) {
+                mCountryList.clear();
                 mCountryList.addAll((List<Country>) o);
 
+                //mStringList.clear();
                 for (int i = 0; i < mCountryList.size(); i++){
+                    //mStringSet.add(mCityList.get(i).getName());
+                    //convertAllToOneList();
                     mStringList.add(mCountryList.get(i).getName());
                 }
                 adapter.notifyDataSetChanged();
@@ -109,6 +120,13 @@ public class FindPlaceFragment extends Fragment {
         });
         return rootView;
     }
+
+    /*public void convertAllToOneList(){
+
+        mStringList.addAll(mStringSet);
+        adapter.notifyDataSetChanged();
+
+    }*/
 
     private boolean isWeHaveThisCityOrCountry(String selectedCityOrCountry){
 

@@ -20,6 +20,29 @@ public class Validator {
             Toast.makeText(currentContext, "NO INTERNET", Toast.LENGTH_SHORT).show();
         }
 
+//        if (activeNetwork != null && activeNetwork.isConnected()) {
+//            try {
+//                // тест доступности внешнего ресурса
+//                URL url = new URL("http://www.google.com/");
+//                HttpURLConnection urlc = (HttpURLConnection)url.openConnection();
+//                urlc.setRequestProperty("User-Agent", "test");
+//                urlc.setRequestProperty("Connection", "close");
+//                urlc.setConnectTimeout(1000); // Timeout в секундах
+//                urlc.connect();
+//                // статус ресурса OK
+//                if (urlc.getResponseCode() == 200) {
+//                    return true;
+//                }
+//                // иначе проверка провалилась
+//                return false;
+//
+//            } catch (IOException e) {
+//                Log.d("my_tag", "Ошибка проверки подключения к интернету", e);
+//                return false;
+//            }
+//        }
+//        return false;
+
         return activeNetworkInfo != null;
     }
 

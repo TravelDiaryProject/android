@@ -1,7 +1,7 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
-import android.provider.ContactsContract;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -17,10 +16,15 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
+import com.traveldiary.android.network.CallBack;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.traveldiary.android.App.dataService;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -61,8 +65,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         .inflate(R.layout.place_card, parent, false);
                 return new PlaceHolder(itemView);
             case TYPE_TRIP:
+//                View itemView2 = LayoutInflater.from(parent.getContext())
+//                        .inflate(R.layout.second_test_trip, parent, false);
                 View itemView2 = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.second_test_trip, parent, false);
+                        .inflate(R.layout.horizontal_item_layout, parent, false);
+
                 return new MyViewHolder(itemView2);
             case TYPE_PROGRESS:
                 View itemView3 = LayoutInflater.from(parent.getContext())
@@ -75,6 +82,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void setLoadMore(boolean loadMore) {
         isLoadMore = loadMore;
+    }
+
+    public void addLoadingFooter(){
+        mPlaceList.add(new Place());
+    }
+
+    public void removeLoadingFooter(){
+        int pos = mPlaceList.size()-1;
+        Place place = mPlaceList.get(pos);
+        if (place!=null){
+            mPlaceList.remove(pos);
+            notifyItemRemoved(pos);
+        }
     }
 
     @Override
@@ -127,7 +147,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemCount() {
         int size = 0;
-        if (mTripsList==null){
+        if (mTripsList==null && mPlaceList.size()>0){
             size = mPlaceList.size();
             //size++;
         }else if (mPlaceList==null){
@@ -140,7 +160,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         if (mTripsList!=null)
             return TYPE_TRIP;
-        else if (mPlaceList!=null && mPlaceList.size()== ++position)
+        else if (mPlaceList!=null && position == mPlaceList.size() -1 && isLoadMore)
             return TYPE_PROGRESS;
         else
             return TYPE_PLACE;
@@ -148,58 +168,44 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private Trip trip;
-
+        private HorizontalRecyclerAdapter horizontalRecyclerAdapter;
+        private RecyclerView horizontalRecycler;
         private TextView title;
-        private ImageView imageView2;
-        private ImageView imageView3;
-        private ImageView imageView4;
 
-        private ImageView tripRemoveButton;
+        private List<Place> placesForHorizontal = new ArrayList<>();
 
         public MyViewHolder(View view) {
             super(view);
             view.setOnClickListener(this);
-            title = (TextView) view.findViewById(R.id.tripTitleView);
-            mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
-
-            imageView2 = (ImageView) view.findViewById(R.id.tripImageView2);
-            imageView3 = (ImageView) view.findViewById(R.id.tripImageView3);
-            imageView4 = (ImageView) view.findViewById(R.id.tripImageView4);
-
-            tripRemoveButton = (ImageView) view.findViewById(R.id.tripRemoveButton);
-
-            tripRemoveButton.setOnClickListener(this);
-
-            //title.setOnClickListener(this);
-            //titleImageView.setOnClickListener(this);
+            title = (TextView) view.findViewById(R.id.tvHorizontalHeader);
+            horizontalRecycler = (RecyclerView) view.findViewById(R.id.rvHorizontal);
+            horizontalRecycler.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+            horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext);
+            horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
         }
 
-        public void bindData(Trip trip, int possition){
-
-            this.trip = trip;
-
-            mProgressBar.setVisibility(View.VISIBLE);
-            Glide.with(mContext).load(ROOT_URL + trip.getThumbnail())
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            mProgressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-                    })
-                    .thumbnail(0.1f)
-                    .crossFade()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imageView4);
-
-            tripRemoveButton.setImageResource(R.drawable.ic_delete_24dp);
+        public void bindData(final Trip trip, int possition){
             title.setText(trip.getTitle());
+
+            dataService.getPLacesByTrip(trip.getId(), new CallBack() {
+                @Override
+                public void responseNetwork(Object o) {
+                    List<Place> list = (List<Place>) o;
+                    placesForHorizontal.clear();
+                    placesForHorizontal.addAll(list);
+                    if (placesForHorizontal.size()==0){
+                        placesForHorizontal.add(new Place(trip.getThumbnail()));
+                    }
+                    horizontalRecyclerAdapter.setData(placesForHorizontal);
+                }
+
+                @Override
+                public void failNetwork(Throwable t) {
+
+                }
+            });
+
+            //horizontalRecyclerAdapter.setData();
 
         }
 

@@ -103,6 +103,18 @@ public class DataService {
         });
     }
 
+    public void getTripById(int tripId, final CallBack callBack){
+
+        Trip trip = data.getTripById(tripId);
+        if (trip!=null){
+            callBack.responseNetwork(trip);
+        }else {
+            callBack.failNetwork(new Throwable("Not found"));
+        }
+
+    }
+
+
     public void getPLacesByTrip(final int tripId, final CallBack callBack){
         final RealmResults<Place> listPlacesDB = data.getPlacesByTrip(tripId);
         if (listPlacesDB.size()!=0){
@@ -202,7 +214,6 @@ public class DataService {
     public void getAllCities(final CallBack callBack){
         final RealmResults<City> listCityDB = data.getAllCities();
         if (listCityDB.size()!=0){
-            System.out.println("cities !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111 = " + listCityDB.size());
             callBack.responseNetwork(listCityDB);
         }
         listCityDB.addChangeListener(new RealmChangeListener<RealmResults<City>>() {
@@ -217,12 +228,21 @@ public class DataService {
             public void responseNetwork(Object o) {
                 List<City> listCityServer = (List<City>) o;
 
-                if (listCityDB.size() > listCityServer.size()) {  // если лист в базе пуст а лист с сервера нет..
-                    data.removeCities();                      // отсылаем в коллбек лист с сервера
+                if (listCityDB.size() != listCityServer.size()) {  // если лист в базе пуст а лист с сервера нет..
+                    data.removeCities();
+                    data.addOrUpdateListCities(listCityServer);
+                    // отсылаем в коллбек лист с сервера
                 }else if (listCityDB.size()==0 && listCityServer.size()==0){
                     callBack.responseNetwork(listCityDB);
                 }
-                data.addOrUpdateListCities(listCityServer);
+
+                if (listCityDB.size() == listCityServer.size()){
+                    for (int i = 0; i < listCityServer.size(); i++){
+                        if (listCityDB.get(i).getId()!=listCityServer.get(i).getId()){
+                            data.addOrUpdateListCities(listCityServer);
+                        }
+                    }
+                }
             }
 
             @Override
@@ -235,7 +255,6 @@ public class DataService {
     public void getAllCountries(final CallBack callBack){
         final RealmResults<Country> listCountryDB = data.getAllCountries();
         if (listCountryDB.size()!=0){
-            System.out.println("counties !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1111 = " + listCountryDB.size());
             callBack.responseNetwork(listCountryDB);
         }
         listCountryDB.addChangeListener(new RealmChangeListener<RealmResults<Country>>() {
@@ -250,12 +269,20 @@ public class DataService {
             public void responseNetwork(Object o) {
                 List<Country> listCountryServer = (List<Country>) o;
 
-                if (listCountryDB.size() > listCountryServer.size()) {  // если лист в базе пуст а лист с сервера нет..
+                if (listCountryDB.size() != listCountryServer.size()) {  // если лист в базе пуст а лист с сервера нет..
                     data.removeCountries();
+                    data.addOrUpdateListCountries(listCountryServer);
                 }else if (listCountryDB.size()==0 && listCountryServer.size()==0){
                     callBack.responseNetwork(listCountryDB);
                 }
-                data.addOrUpdateListCountries(listCountryServer);
+
+                if (listCountryDB.size() == listCountryServer.size()){
+                    for (int i = 0; i < listCountryServer.size(); i++){
+                        if (listCountryDB.get(i).getId()!=listCountryServer.get(i).getId()){
+                            data.addOrUpdateListCountries(listCountryServer);
+                        }
+                    }
+                }
             }
 
             @Override

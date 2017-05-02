@@ -49,15 +49,16 @@ public class Data {
     }
 
     public RealmResults<City> getAllCities(){
-        Log.d(TAG, "getAllCities");
         return realm.where(City.class).findAll();
     }
 
     public RealmResults<Country> getAllCountries(){
-        Log.d(TAG, "getAllCities");
         return realm.where(Country.class).findAll();
     }
 
+    public Trip getTripById(int tripId){
+        return realm.where(Trip.class).equalTo("id", tripId).findFirst();
+    }
 
 
 

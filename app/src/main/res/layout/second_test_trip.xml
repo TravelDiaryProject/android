@@ -63,7 +63,7 @@
             >
 
             <ImageView
-                android:id="@+id/tripImageView4"
+                android:id="@+id/tripImageView2"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:background="@color/grey"

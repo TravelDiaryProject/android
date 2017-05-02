@@ -22,7 +22,6 @@ import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.network.InternetStatus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,15 +52,14 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     private LinearLayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
 
-    private FloatingActionButton addPlaceButton;
+    private FloatingActionButton mAddPlaceButton;
 
     private DataService dataService = new DataService();
 
-    private int tripId;
-    private int cityId;
-    private int countryId;
-
-    private String placesFor;
+    private int mTripId;
+    private int mCityId;
+    private int mCountryId;
+    private String mPlacesFor;
 
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
@@ -73,10 +71,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null){
-            placesFor = getArguments().getString(PLACES_FOR);
-            tripId = getArguments().getInt(ID_STRING);
-            cityId = getArguments().getInt(PLACES_BY_CITY);
-            countryId = getArguments().getInt(PLACES_BY_COUNTRY);
+            mPlacesFor = getArguments().getString(PLACES_FOR);
+            mTripId = getArguments().getInt(ID_STRING);
+            mCityId = getArguments().getInt(PLACES_BY_CITY);
+            mCountryId = getArguments().getInt(PLACES_BY_COUNTRY);
         }
     }
 
@@ -89,18 +87,19 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        addPlaceButton = (FloatingActionButton) rootView.findViewById(R.id.add_place_button);
-        addPlaceButton.setOnClickListener(new View.OnClickListener() {
+        mAddPlaceButton = (FloatingActionButton) rootView.findViewById(R.id.add_place_button);
+        mAddPlaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 DialogFragment uploadDialog = new UploadDialog();
                 Bundle args = new Bundle();
-                args.putInt(ID_STRING, tripId);
+                args.putInt(ID_STRING, mTripId);
                 args.putString(UPLOAD_FROM, GALLERY);
                 uploadDialog.setArguments(args);
                 uploadDialog.show(getFragmentManager(), "dialo");
             }
         });
+        mAddPlaceButton.hide();
 
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.places_swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -121,13 +120,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     }
 
     private void listPLacesByForType(final boolean isThisRefresh){
-        switch (placesFor){
+        switch (mPlacesFor){
 
             case PLACES_FOR_TOP:
                 dataService.getTopPlaces(0, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
+                        recyclerAdapter.setLoadMore(true);
+                        recyclerAdapter.addLoadingFooter();
                     }
 
                     @Override
@@ -151,7 +152,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 recyclerView.clearOnScrollListeners();
 
-                dataService.getPlacesByCity(cityId, new CallBack() {
+                dataService.getPlacesByCity(mCityId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
@@ -169,7 +170,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             case PLACES_FOR_COUNTRY:
                 recyclerView.clearOnScrollListeners();
 
-                dataService.getPlacesByCountry(countryId, new CallBack() {
+                dataService.getPlacesByCountry(mCountryId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
@@ -188,7 +189,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 recyclerView.clearOnScrollListeners();
 
-                dataService.getPLacesByTrip(tripId, new CallBack() {
+                dataService.getPLacesByTrip(mTripId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
@@ -208,10 +209,16 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     public void manipulationWithResponse(Object o, boolean isThisRefresh){
         List<Place> placesList = (List<Place>) o;
 
-        if (placesList.size()==0){
+        if (placesList==null || placesList.size()==0){
             Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
+        } else {
+            if (placesList.get(0).getIsMine()==1 && placesList.get(0).getIsInFutureTrips()==0){
+                mAddPlaceButton.setImageResource(R.drawable.ic_add_a_photo_black_24dp);
+                mAddPlaceButton.show();
+            }
         }
-        //if its refresh not update adapter
+
+
         if (!isThisRefresh) {
             mPlacesList.clear();
             mPlacesList.addAll(placesList);
@@ -242,8 +249,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                             loading = true;
 
                             if (placesList.size() > 0) {
-                                recyclerAdapter.setLoadMore(true);
-                                recyclerAdapter.notifyDataSetChanged();
+                                //recyclerAdapter.setLoadMore(true);
+                                //recyclerAdapter.notifyDataSetChanged();
 
                                 mPlacesList.addAll(placesList);
                                 recyclerAdapter.notifyItemInserted(totalItemCount);
@@ -267,8 +274,19 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     public void onItemClick(final View view, final int possition) {
 
         if (view.getId()!=R.id.placeShowInMapButton && view.getId()!=R.id.placeImageView){
+
+            if (Validator.isNetworkAvailable(getActivity())){
+                if (TOKEN_CONST != null)
+                    clickLogic(view, possition);
+                else
+                    Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
+            }
+
+
             // проверка подключения к инету
-            InternetStatus inetStatus = new InternetStatus();
+           /* InternetStatus inetStatus = new InternetStatus();
             inetStatus.check(getActivity(), new CallBack() {
                 @Override
                 public void responseNetwork(Object o) {
@@ -292,7 +310,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         }
                     });
                 }
-            });
+            });*/
         }else {
             clickLogic(view, possition);
         }
@@ -343,7 +361,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeImageView:
-                if (placesFor.equals(PLACES_FOR_TRIP)) {
+                if (mPlacesFor.equals(PLACES_FOR_TRIP)) {
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     SlideShowDialogFragment newFragment = new SlideShowDialogFragment();
                     Bundle args = new Bundle();

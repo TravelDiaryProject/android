@@ -29,6 +29,10 @@ public class Place extends RealmObject implements Serializable {
     public Place() {
     }
 
+    public Place(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
     public Place(int id, String title, String photo, String thumbnail, String latitude, String longitude, String shootedAt, int cityId, int countryId, int tripId, int likes, int isLiked, int isInFutureTrips, int isMine) {
         this.id = id;
         this.title = title;

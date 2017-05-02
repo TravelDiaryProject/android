@@ -1,20 +1,16 @@
 package com.traveldiary.android;
 
-import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -23,7 +19,11 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.adapter.RecyclerAdapter;
+import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.Trip;
+import com.traveldiary.android.network.CallBack;
+
 import java.util.List;
 
 import static com.traveldiary.android.Constans.ID_STRING;
@@ -39,7 +39,9 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
     private ImageView collapseImage;
 
-    private int tripId;
+    private CollapsingToolbarLayout mCollapsingToolbarLayout;
+
+    private int mTripId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,27 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collaps_toolbar_layout);
+
+        mTripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
+        Log.d("MYLOG", " tripID from Intent = " + mTripId);
+
+        DataService dataService = new DataService();
+        dataService.getTripById(mTripId, new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                Trip trip = (Trip) o;
+                mCollapsingToolbarLayout.setTitle(trip.getTitle());
+            }
+
+            @Override
+            public void failNetwork(Throwable t) {
+                System.out.println(t.getMessage());
+            }
+        });
+
+
 
         //collapseImage = (ImageView) findViewById(R.id.detailImageView);
 
@@ -65,14 +88,10 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
         //photo = getIntent().getStringExtra("Photo");
 
-        tripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
-        Log.d("MYLOG", " tripID from Intent = " + tripId);
-
-
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);
-        args.putInt(ID_STRING, tripId);
+        args.putInt(ID_STRING, mTripId);
         placesFragment.setArguments(args);
         trans(placesFragment);
 
