@@ -18,6 +18,7 @@ import com.traveldiary.android.model.RegistrationResponse;
 
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
@@ -76,7 +77,6 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void registration(final String email, String password){
-        DataService dataService = new DataService();
         dataService.registration(email, password, new CallBack() {
             @Override
             public void responseNetwork(Object o) {

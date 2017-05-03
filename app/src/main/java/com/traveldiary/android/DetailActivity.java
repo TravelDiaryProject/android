@@ -26,6 +26,7 @@ import com.traveldiary.android.network.CallBack;
 
 import java.util.List;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
@@ -58,7 +59,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         mTripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
         Log.d("MYLOG", " tripID from Intent = " + mTripId);
 
-        DataService dataService = new DataService();
         dataService.getTripById(mTripId, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
@@ -119,9 +119,9 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
 
     @Override
-    public void onItemClick(View view, int possition) {
-        System.out.println("Click = " + view.getId() + " pos = " + possition);
-        System.out.println("click place id = " + mPlacesList.get(possition).getId());
+    public void onItemClick(View view, int position) {
+        System.out.println("Click = " + view.getId() + " pos = " + position);
+        System.out.println("click place id = " + mPlacesList.get(position).getId());
                /* switch (view.getId()){
                     case R.id.placeLikeButton:
                         System.out.println("Add to my trips by id = " + mPlacesList.get(possition).getId());

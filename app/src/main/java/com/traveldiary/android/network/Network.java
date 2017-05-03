@@ -207,7 +207,6 @@ public class Network implements NetworkInterface{
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
                 if (response.code()==200){
-                    System.out.println("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ m.s = " + response.body().size());
                     callBack.responseNetwork(response.body());
                 }else {
                     callBack.failNetwork(new Throwable(response.message()));

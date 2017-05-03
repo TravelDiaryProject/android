@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.traveldiary.android.data.DataService;
+import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Place;
@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
@@ -41,21 +42,15 @@ import static com.traveldiary.android.Constans.PLACES_FOR_TOP;
 import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
 
-public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener, RecyclerAdapter.ItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
 
-    private RecyclerView recyclerView;
-    private RecyclerAdapter recyclerAdapter;
+    private RecyclerView mRecyclerView;
+    private RecyclerAdapter mRecyclerAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
-
     private List<Place> mPlacesList;
-
     private LinearLayoutManager mLayoutManager;
     private ProgressBar mProgressBar;
-
     private FloatingActionButton mAddPlaceButton;
-
-    private DataService dataService = new DataService();
-
     private int mTripId;
     private int mCityId;
     private int mCountryId;
@@ -104,15 +99,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.places_swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.places_recycler_view);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.places_recycler_view);
 
         mPlacesList = new ArrayList<>();
 
-        recyclerAdapter = new RecyclerAdapter(getActivity(), null, this, mPlacesList);
+        mRecyclerAdapter = new RecyclerAdapter(getActivity(), null, this, this, mPlacesList);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(recyclerAdapter);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setAdapter(mRecyclerAdapter);
 
         listPLacesByForType(false);
 
@@ -127,8 +122,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     @Override
                     public void responseNetwork(Object o) {
                         manipulationWithResponse(o, isThisRefresh);
-                        recyclerAdapter.setLoadMore(true);
-                        recyclerAdapter.addLoadingFooter();
+                        //mRecyclerAdapter.setLoadMore(true);
+                        //mRecyclerAdapter.addLoadingFooter();
                     }
 
                     @Override
@@ -139,7 +134,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     }
                 });
 
-                recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                     @Override
                     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                         loadNextTopPage(dy);
@@ -150,7 +145,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
             case PLACES_FOR_CITY:
 
-                recyclerView.clearOnScrollListeners();
+                mRecyclerView.clearOnScrollListeners();
 
                 dataService.getPlacesByCity(mCityId, new CallBack() {
                     @Override
@@ -168,7 +163,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case PLACES_FOR_COUNTRY:
-                recyclerView.clearOnScrollListeners();
+                mRecyclerView.clearOnScrollListeners();
 
                 dataService.getPlacesByCountry(mCountryId, new CallBack() {
                     @Override
@@ -187,7 +182,20 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
             case PLACES_FOR_TRIP:
 
-                recyclerView.clearOnScrollListeners();
+                mRecyclerView.clearOnScrollListeners();
+
+                dataService.getTripById(mTripId, new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        Trip trip = (Trip) o;
+                        checkIsMineTrip(trip);
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+
+                    }
+                });
 
                 dataService.getPLacesByTrip(mTripId, new CallBack() {
                     @Override
@@ -206,28 +214,29 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         }
     }
 
+    public void checkIsMineTrip(Trip trip){
+        if (trip.getIsMine()==1&&trip.getIsFuture()==0){
+            mAddPlaceButton.setImageResource(R.drawable.ic_add_a_photo_black_24dp);
+            mAddPlaceButton.show();
+        }
+    }
+
     public void manipulationWithResponse(Object o, boolean isThisRefresh){
         List<Place> placesList = (List<Place>) o;
 
         if (placesList==null || placesList.size()==0){
             Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
-        } else {
-            if (placesList.get(0).getIsMine()==1 && placesList.get(0).getIsInFutureTrips()==0){
-                mAddPlaceButton.setImageResource(R.drawable.ic_add_a_photo_black_24dp);
-                mAddPlaceButton.show();
-            }
         }
-
 
         if (!isThisRefresh) {
             mPlacesList.clear();
             mPlacesList.addAll(placesList);
-            recyclerAdapter.notifyDataSetChanged();
+            mRecyclerAdapter.notifyDataSetChanged();
             mProgressBar.setVisibility(View.GONE);
         }else {
             mPlacesList.clear();
             mPlacesList.addAll(placesList);
-            recyclerAdapter.updateAdapter(placesList);
+            mRecyclerAdapter.updateAdapter(placesList);
             swipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -249,14 +258,17 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                             loading = true;
 
                             if (placesList.size() > 0) {
-                                //recyclerAdapter.setLoadMore(true);
-                                //recyclerAdapter.notifyDataSetChanged();
+                                //mRecyclerAdapter.setLoadMore(true);
+                                //mRecyclerAdapter.notifyDataSetChanged();
 
+                                mRecyclerAdapter.removeLoadingFooter();
                                 mPlacesList.addAll(placesList);
-                                recyclerAdapter.notifyItemInserted(totalItemCount);
+                                mRecyclerAdapter.notifyDataSetChanged();
+                                mRecyclerAdapter.addLoadingFooter();
                             }else {
-                                recyclerAdapter.setLoadMore(false);
-                                recyclerAdapter.notifyDataSetChanged();
+                                mRecyclerAdapter.removeLoadingFooter();
+                                //mRecyclerAdapter.setLoadMore(false);
+                                mRecyclerAdapter.notifyDataSetChanged();
                             }
                         }
 
@@ -271,48 +283,20 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     }
 
     @Override
-    public void onItemClick(final View view, final int possition) {
+    public void onItemClick(final View view, final int position) {
 
         if (view.getId()!=R.id.placeShowInMapButton && view.getId()!=R.id.placeImageView){
 
             if (Validator.isNetworkAvailable(getActivity())){
                 if (TOKEN_CONST != null)
-                    clickLogic(view, possition);
+                    clickLogic(view, position);
                 else
                     Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
             }else {
                 Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
             }
-
-
-            // проверка подключения к инету
-           /* InternetStatus inetStatus = new InternetStatus();
-            inetStatus.check(getActivity(), new CallBack() {
-                @Override
-                public void responseNetwork(Object o) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (TOKEN_CONST != null)
-                                clickLogic(view, possition);
-                            else
-                                Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-
-                @Override
-                public void failNetwork(Throwable t) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });*/
         }else {
-            clickLogic(view, possition);
+            clickLogic(view, position);
         }
     }
 
@@ -321,44 +305,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         final Place place = mPlacesList.get(possition);
 
         switch (view.getId()){
-
-            case R.id.placeRemoveButton:
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setMessage("Точно удалить?")
-                                .setCancelable(true)
-                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-
-                                        dataService.removePlace(place, new CallBack() {
-                                            @Override
-                                            public void responseNetwork(Object o) {
-                                                Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
-                                                //recyclerAdapter.removePlace(place);
-                                                dialog.cancel();
-                                            }
-
-                                            @Override
-                                            public void failNetwork(Throwable t) {
-                                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                                                dialog.cancel();
-                                            }
-                                        });
-                                    }
-                                })
-                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                                        dialog.cancel();
-
-                                    }
-                                });
-                        final AlertDialog alert = builder.create();
-                        alert.show();
-                    }
-                });
-                break;
 
             case R.id.placeImageView:
                 if (mPlacesFor.equals(PLACES_FOR_TRIP)) {
@@ -382,13 +328,13 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     @Override
                     public void responseNetwork(Object o) {
                         Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
-                        recyclerAdapter.notifyItemChanged(possition);
+                        mRecyclerAdapter.notifyItemChanged(possition);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
                         Toast.makeText(getActivity(), t.getMessage() , Toast.LENGTH_LONG).show();
-                        recyclerAdapter.notifyItemChanged(possition);
+                        mRecyclerAdapter.notifyItemChanged(possition);
                     }
                 });
                 break;
@@ -399,13 +345,13 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     @Override
                     public void responseNetwork(Object o) {
                         Toast.makeText(getActivity(), "places Liked ", Toast.LENGTH_LONG).show();
-                        recyclerAdapter.notifyItemChanged(possition);
+                        mRecyclerAdapter.notifyItemChanged(possition);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
                         Toast.makeText(getActivity(), t.getMessage() , Toast.LENGTH_LONG).show();
-                        recyclerAdapter.notifyItemChanged(possition);
+                        mRecyclerAdapter.notifyItemChanged(possition);
                     }
                 });
                 break;
@@ -425,5 +371,44 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         listPLacesByForType(true);
+    }
+
+    @Override
+    public void onItemLongClick(View view, final int position) {
+        final Place place = mPlacesList.get(position);
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Точно удалить?")
+                .setCancelable(true)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
+                        dataService.removePlace(place, new CallBack() {
+                            @Override
+                            public void responseNetwork(Object o) {
+                                Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
+//                                mRecyclerAdapter.notifyItemChanged(position);
+                                mPlacesList.remove(position);
+                                mRecyclerAdapter.notifyItemRemoved(position);
+                                //mRecyclerAdapter.removePlace(place);
+                                dialog.cancel();
+                            }
+
+                            @Override
+                            public void failNetwork(Throwable t) {
+                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                                dialog.cancel();
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 }

@@ -1,12 +1,13 @@
 package com.traveldiary.android;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACE_ID;
@@ -38,14 +40,12 @@ import static com.traveldiary.android.Constans.PLACE_ID;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final String TAG = "MAPS";
-
     private GoogleMap mMap;
-
-    List<LatLng> coordinates;
-
-    private int tripId;
-    private int focusPlaceId;
+    private List<LatLng> mCoordinates;
+    private int mTripId;
+    private int mFocusPlaceId;
     private List<Place> mPlacesList = new ArrayList<>();
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +55,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+        mContext = this;
 
-        if (getIntent().getExtras()!=null){
-            tripId = getIntent().getExtras().getInt(ID_STRING);
-            focusPlaceId = getIntent().getExtras().getInt(PLACE_ID);
+        if (getIntent().getExtras() != null) {
+            mTripId = getIntent().getExtras().getInt(ID_STRING);
+            mFocusPlaceId = getIntent().getExtras().getInt(PLACE_ID);
 
-            Log.d("MYLOG", "tripId = " + tripId + " focusPLaceId = " + focusPlaceId);
-
+            Log.d("MYLOG", "mTripId = " + mTripId + " focusPLaceId = " + mFocusPlaceId);
         }
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -83,7 +83,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(final GoogleMap map) {
         mMap = map;
 
-        network.getPlacesByTrip(tripId, new CallBack() {
+        network.getPlacesByTrip(mTripId, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
                 List<Place> placesList = (List<Place>) o;
@@ -93,33 +93,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void failNetwork(Throwable t) {
-
+                Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
-
-
-
     }
 
     private MarkerOptions markerInit(Place place){
 
         LatLng latLng = new LatLng(Double.parseDouble(place.getLatitude()), Double.parseDouble(place.getLongitude()));
 
-        coordinates.add(latLng);
+        mCoordinates.add(latLng);
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("Title");
+        markerOptions.title(place.getTitle());
 
         return markerOptions;
     }
 
     private void smth(GoogleMap googleMap){
 
-        coordinates = new ArrayList<>();
+        mCoordinates = new ArrayList<>();
 
         Log.d("MYLOG", "WTF list size = " + mPlacesList.size());
 
@@ -128,7 +122,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     && !mPlacesList.get(i).getLatitude().equals("")) {
                 googleMap.addMarker(markerInit(mPlacesList.get(i)));
 
-                if (mPlacesList.get(i).getId() == focusPlaceId){
+                if (mPlacesList.get(i).getId() == mFocusPlaceId){
 
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                             new LatLng(Double.parseDouble(mPlacesList.get(i).getLatitude()),
@@ -140,7 +134,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
 
-        String url = getDirectionsUrl(coordinates);
+        String url = getDirectionsUrl(mCoordinates);
 
         Log.d(TAG, url);
 

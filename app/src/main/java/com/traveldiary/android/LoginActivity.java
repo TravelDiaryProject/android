@@ -24,6 +24,7 @@ import com.traveldiary.android.model.RegistrationResponse;
 
 import retrofit2.Response;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
@@ -35,12 +36,9 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mEditEmail;
     private EditText mEditLoginPassword;
     private Button mLoginButton;
-
     private ProgressBar mProgressBar;
-
     private StringBuilder tokenBuilder;
     private Context mContext;
-
     private SharedPreferences mSharedPreferences;
 
 
@@ -118,7 +116,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void sign(final String email, String password){
-        DataService dataService = new DataService();
         dataService.login(email, password, new CallBack() {
             @Override
             public void responseNetwork(Object o) {

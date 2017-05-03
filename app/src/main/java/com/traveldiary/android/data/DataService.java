@@ -23,6 +23,9 @@ public class DataService {
 
     public void getTopPlaces(int offset, final CallBack callBack){
 
+        if (offset!=0)
+            offset--;
+
         network.getTopPlacesOffset(offset, COUNT_LIMIT, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
@@ -399,7 +402,7 @@ public class DataService {
             @Override
             public void responseNetwork(Object o) {
                 data.removePlace(place);
-                //callBack.responseNetwork("removed");
+                callBack.responseNetwork("removed");
                 // removed from server - OK
             }
 

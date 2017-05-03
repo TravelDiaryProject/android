@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -21,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -28,24 +27,17 @@ import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
-import static com.traveldiary.android.App.network;
-import static com.traveldiary.android.Constans.CAMERA;
-import static com.traveldiary.android.Constans.GALLERY;
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
-import static com.traveldiary.android.Constans.TOKEN_CONST;
 
 
 public class UploadDialog extends DialogFragment implements View.OnClickListener {
@@ -60,7 +52,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
     private int mTripId;
 
-    private ProgressBar uploadProgressBar;
+    private ProgressBar mUploadProgressBar;
+    private Button mButtonCamera;
+    private Button mButtonGallery;
 
 
     @Override
@@ -76,9 +70,11 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         getDialog().setTitle(R.string.photo);
 
         View view = inflater.inflate(R.layout.fragment_upload_dialog, container, false);
-        view.findViewById(R.id.buttonCamera).setOnClickListener(this);
-        view.findViewById(R.id.buttonGallery).setOnClickListener(this);
-        uploadProgressBar = (ProgressBar) view.findViewById(R.id.upload_progress);
+        mButtonCamera = (Button) view.findViewById(R.id.buttonCamera);
+        mButtonGallery = (Button) view.findViewById(R.id.buttonGallery);
+        mButtonCamera.setOnClickListener(this);
+        mButtonGallery.setOnClickListener(this);
+        mUploadProgressBar = (ProgressBar) view.findViewById(R.id.upload_progress);
 
         return view;
     }
@@ -183,7 +179,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-                        uploadProgressBar.setVisibility(View.VISIBLE);
+                        mUploadProgressBar.setVisibility(View.VISIBLE);
+                        mButtonGallery.setEnabled(false);
+                        mButtonCamera.setEnabled(false);
 
                         upload(body, tripIdRequest);
                     }
@@ -199,7 +197,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
 
-                        uploadProgressBar.setVisibility(View.VISIBLE);
+                        mUploadProgressBar.setVisibility(View.VISIBLE);
+                        mButtonGallery.setEnabled(false);
+                        mButtonCamera.setEnabled(false);
 
                         upload(body, tripIdRequest);
                     }
@@ -209,17 +209,20 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     }
 
     public void upload(MultipartBody.Part body, RequestBody tripIdRequest){
-        DataService dataService = new DataService();
         dataService.uploadImage(body, tripIdRequest, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
-                uploadProgressBar.setVisibility(View.GONE);
+                mUploadProgressBar.setVisibility(View.GONE);
+                mButtonGallery.setEnabled(true);
+                mButtonCamera.setEnabled(true);
                 inform();
             }
 
             @Override
             public void failNetwork(Throwable t) {
-                uploadProgressBar.setVisibility(View.GONE);
+                mUploadProgressBar.setVisibility(View.GONE);
+                mButtonGallery.setClickable(true);
+                mButtonCamera.setClickable(true);
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

@@ -8,11 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
@@ -22,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.traveldiary.android.App.network;
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
 import static com.traveldiary.android.Constans.PLACES_FOR;
@@ -40,8 +38,8 @@ public class FindPlaceFragment extends Fragment {
 
     private ArrayAdapter<String> adapter;
 
-    private AutoCompleteTextView autoCompleteTextView;
-    private ImageView searchButton;
+    private AutoCompleteTextView mAutoCompleteTextView;
+    private ImageView mSearchButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,13 +48,13 @@ public class FindPlaceFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_find_place,
                 container, false);
 
-        autoCompleteTextView = (AutoCompleteTextView) rootView.findViewById(R.id.find_autocompletetext);
-        searchButton = (ImageView) rootView.findViewById(R.id.find_search_button);
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        mAutoCompleteTextView = (AutoCompleteTextView) rootView.findViewById(R.id.find_autocompletetext);
+        mSearchButton = (ImageView) rootView.findViewById(R.id.find_search_button);
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String selectedCity = autoCompleteTextView.getText().toString();
+                String selectedCity = mAutoCompleteTextView.getText().toString();
 
                 if (!isWeHaveThisCityOrCountry(selectedCity)){
                     Toast.makeText(getActivity(), "NO this city", Toast.LENGTH_SHORT).show();
@@ -73,18 +71,15 @@ public class FindPlaceFragment extends Fragment {
 
         adapter = new ArrayAdapter<String>
                 (getActivity(), android.R.layout.select_dialog_item, mStringList);
-        autoCompleteTextView.setThreshold(1);//will start working from first character
-        autoCompleteTextView.setAdapter(adapter);
+        mAutoCompleteTextView.setThreshold(1);//will start working from first character
+        mAutoCompleteTextView.setAdapter(adapter);
 
 
-        final DataService dataService = new DataService();
         dataService.getAllCities(new CallBack() {
             @Override
             public void responseNetwork(Object o) {
                 mCityList.clear();
                 mCityList.addAll((List<City>) o);
-
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! - " + mCityList.size());
 
                 for (int i = 0; i < mCityList.size(); i++){
                     mStringList.add(mCityList.get(i).getName());
@@ -104,10 +99,7 @@ public class FindPlaceFragment extends Fragment {
                 mCountryList.clear();
                 mCountryList.addAll((List<Country>) o);
 
-                //mStringList.clear();
                 for (int i = 0; i < mCountryList.size(); i++){
-                    //mStringSet.add(mCityList.get(i).getName());
-                    //convertAllToOneList();
                     mStringList.add(mCountryList.get(i).getName());
                 }
                 adapter.notifyDataSetChanged();
@@ -120,13 +112,6 @@ public class FindPlaceFragment extends Fragment {
         });
         return rootView;
     }
-
-    /*public void convertAllToOneList(){
-
-        mStringList.addAll(mStringSet);
-        adapter.notifyDataSetChanged();
-
-    }*/
 
     private boolean isWeHaveThisCityOrCountry(String selectedCityOrCountry){
 

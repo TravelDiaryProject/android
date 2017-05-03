@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.CallBack;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
@@ -35,8 +36,6 @@ public class CreatTripFragment extends Fragment {
 
         mCreateTripButton = (ImageView) rootView.findViewById(R.id.createTripButton);
         mEditTripTitle = (EditText) rootView.findViewById(R.id.editTripTitle);
-
-        final DataService dataService = new DataService();
 
         mCreateTripButton.setOnClickListener(new View.OnClickListener() {
             @Override

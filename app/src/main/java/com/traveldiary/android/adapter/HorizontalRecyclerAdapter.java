@@ -38,7 +38,7 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.horizontal_item, parent, false);
+                .inflate(R.layout.trip_horizontal_item, parent, false);
         return new ItemViewHolder(itemView);
     }
 

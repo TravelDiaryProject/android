@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -33,8 +32,8 @@ import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private String userName;
-    private TextView navUserName;
+    private String mUserName;
+    private TextView mUserNameTextView;
 
     private DrawerLayout drawerLayout;
 
@@ -62,10 +61,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (userName!=null) {
+        if (mUserName !=null) {
             View headerView = navigationView.getHeaderView(0);
-            navUserName = (TextView) headerView.findViewById(R.id.navHeaderUserEmail);
-            navUserName.setText(userName);
+            mUserNameTextView = (TextView) headerView.findViewById(R.id.navHeaderUserEmail);
+            mUserNameTextView.setText(mUserName);
         }
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -226,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mSharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
             if (mSharedPreferences.contains(APP_PREFERENCES_TOKEN)) {
                 TOKEN_CONST = mSharedPreferences.getString(APP_PREFERENCES_TOKEN, "");
-                userName = mSharedPreferences.getString(APP_PREFERENCES_EMAIL, "");
+                mUserName = mSharedPreferences.getString(APP_PREFERENCES_EMAIL, "");
             }
         }
     }
