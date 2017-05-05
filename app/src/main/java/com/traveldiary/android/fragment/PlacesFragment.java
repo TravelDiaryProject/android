@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -12,12 +12,19 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.traveldiary.android.R;
+import com.traveldiary.android.Validator;
+import com.traveldiary.android.activity.DetailActivity;
+import com.traveldiary.android.activity.MapsActivity;
 import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
@@ -56,6 +63,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     private int mCountryId;
     private String mPlacesFor;
 
+    private TextView mNoPlacesTextView;
+    private Button mNoPlacesButton;
+
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
 
@@ -81,6 +91,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
+
+        mNoPlacesTextView = (TextView) rootView.findViewById(R.id.no_placess_textView);
+        mNoPlacesButton = (Button) rootView.findViewById(R.id.no_places_button);
+        mNoPlacesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRefresh();
+            }
+        });
 
         mAddPlaceButton = (FloatingActionButton) rootView.findViewById(R.id.add_place_button);
         mAddPlaceButton.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +150,11 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        if (mPlacesList.size()==0){
+                            mNoPlacesTextView.setText("При загрузке данных произошла ошибка. Проверте подключение к сети.");
+                            mNoPlacesTextView.setVisibility(View.VISIBLE);
+                            mNoPlacesButton.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
 
@@ -200,6 +224,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 dataService.getPLacesByTrip(mTripId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
+                        Log.d("REMOVE", "response get places by trpId = " + mTripId);
                         manipulationWithResponse(o, isThisRefresh);
                     }
 
@@ -223,8 +248,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
     public void manipulationWithResponse(Object o, boolean isThisRefresh){
         List<Place> placesList = (List<Place>) o;
+        mNoPlacesTextView.setVisibility(View.GONE);
+        mNoPlacesButton.setVisibility(View.GONE);
 
         if (placesList==null || placesList.size()==0){
+            mNoPlacesTextView.setText("No places yet");
+            mNoPlacesTextView.setVisibility(View.VISIBLE);
             Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
         }
 
@@ -375,6 +404,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
     @Override
     public void onItemLongClick(View view, final int position) {
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11 " + position);
         final Place place = mPlacesList.get(position);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -388,9 +418,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                             public void responseNetwork(Object o) {
                                 Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
 //                                mRecyclerAdapter.notifyItemChanged(position);
-                                mPlacesList.remove(position);
+
                                 mRecyclerAdapter.notifyItemRemoved(position);
-                                //mRecyclerAdapter.removePlace(place);
+                                mPlacesList.remove(position);
+                                //mRecyclerAdapter.notifyDataSetChanged();
                                 dialog.cancel();
                             }
 

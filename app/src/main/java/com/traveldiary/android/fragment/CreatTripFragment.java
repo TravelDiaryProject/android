@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.fragment;
 
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.traveldiary.android.data.DataService;
+import com.traveldiary.android.R;
 import com.traveldiary.android.network.CallBack;
 
 import static com.traveldiary.android.App.dataService;
@@ -41,7 +41,8 @@ public class CreatTripFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (mEditTripTitle != null){
-                    String tripTitle = mEditTripTitle.getText().toString();
+                    String tripTitle = mEditTripTitle.getText().toString().trim();
+
 
                     dataService.createNewTrip(tripTitle, new CallBack() {
                         @Override

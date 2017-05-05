@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.activity;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -18,8 +18,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.traveldiary.android.fragment.PlacesFragment;
+import com.traveldiary.android.R;
 import com.traveldiary.android.adapter.RecyclerAdapter;
-import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;

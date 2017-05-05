@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.activity;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -18,6 +18,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.traveldiary.android.fragment.FindPlaceFragment;
+import com.traveldiary.android.fragment.PlacesFragment;
+import com.traveldiary.android.R;
+import com.traveldiary.android.fragment.TripsFragment;
 
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;

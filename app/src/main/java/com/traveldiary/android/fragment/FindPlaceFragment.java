@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.fragment;
 
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.traveldiary.android.R;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;

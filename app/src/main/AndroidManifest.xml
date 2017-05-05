@@ -22,7 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".activity.LoginActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar"/>
@@ -42,12 +42,12 @@
 -->
 
         <activity
-            android:name=".RegistrationActivity"
+            android:name=".activity.RegistrationActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBar" />
 
-        <activity android:name=".MapsActivity"
+        <activity android:name=".activity.MapsActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:label="Map"/>
@@ -60,11 +60,11 @@
             android:value="AIzaSyDUw13lKf_QKtQAce0JkGIz_e62xzYE-dY" />
 
         <activity
-            android:name=".DetailActivity"
+            android:name=".activity.DetailActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_detail"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>

@@ -1,6 +1,8 @@
 package com.traveldiary.android.data;
 
 
+import android.util.Log;
+
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.Place;
@@ -42,16 +44,16 @@ public class DataService {
     public void getMyTrips(final CallBack callBack){
 
         final RealmResults<Trip> listMyTripDB = data.getMyTrips();
-        if (listMyTripDB.size()!=0){
-            callBack.responseNetwork(listMyTripDB);
-        }
+//        if (listMyTripDB.size()!=0){
+//            callBack.responseNetwork(listMyTripDB);
+//        }
 
-        listMyTripDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
-            @Override
-            public void onChange(RealmResults<Trip> element) {
-                callBack.responseNetwork(listMyTripDB);
-            }
-        });
+//        listMyTripDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
+//            @Override
+//            public void onChange(RealmResults<Trip> element) {
+//                callBack.responseNetwork(listMyTripDB);
+//            }
+//        });
 
         network.getMyTrips(new CallBack() {
             @Override
@@ -60,14 +62,16 @@ public class DataService {
 
                 if (listMyTripDB.size() > listMyTripServer.size()) {
                     data.removeMyTrips();
-                }else if (listMyTripDB.size()==0 && listMyTripServer.size()==0){
+                }/*else if (listMyTripDB.size()==0 && listMyTripServer.size()==0){
                     callBack.responseNetwork(listMyTripDB);
-                }
+                }*/
                 data.addOrUpdateListTrips(listMyTripServer);
+                callBack.responseNetwork(listMyTripServer);
             }
 
             @Override
             public void failNetwork(Throwable t) {
+                callBack.responseNetwork(listMyTripDB);
                 callBack.failNetwork(t);
             }
         });
@@ -76,15 +80,15 @@ public class DataService {
     public void getFutureTrips(final CallBack callBack){
 
         final RealmResults<Trip> listFutureDB = data.getFutureTrips();
-        if (listFutureDB.size()!=0){
-            callBack.responseNetwork(listFutureDB);
-        }
-        listFutureDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
-            @Override
-            public void onChange(RealmResults<Trip> element) {
-                callBack.responseNetwork(listFutureDB);
-            }
-        });
+//        if (listFutureDB.size()!=0){
+//            callBack.responseNetwork(listFutureDB);
+//        }
+//        listFutureDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
+//            @Override
+//            public void onChange(RealmResults<Trip> element) {
+//                callBack.responseNetwork(listFutureDB);
+//            }
+//        });
 
         network.getFutureTrips(new CallBack() {
             @Override
@@ -93,14 +97,16 @@ public class DataService {
 
                 if (listFutureDB.size() > listFutureTripServer.size()) {
                     data.removeFutureTrips();
-                }else if (listFutureDB.size()==0 && listFutureTripServer.size()==0){
+                }/*else if (listFutureDB.size()==0 && listFutureTripServer.size()==0){
                     callBack.responseNetwork(listFutureDB);
-                }
+                }*/
+                callBack.responseNetwork(listFutureTripServer);
                 data.addOrUpdateListTrips(listFutureTripServer);
             }
 
             @Override
             public void failNetwork(Throwable t) {
+                callBack.responseNetwork(listFutureDB);
                 callBack.failNetwork(t);
             }
         });
@@ -120,15 +126,6 @@ public class DataService {
 
     public void getPLacesByTrip(final int tripId, final CallBack callBack){
         final RealmResults<Place> listPlacesDB = data.getPlacesByTrip(tripId);
-        if (listPlacesDB.size()!=0){
-            callBack.responseNetwork(listPlacesDB);
-        }
-        listPlacesDB.addChangeListener(new RealmChangeListener<RealmResults<Place>>() {
-            @Override
-            public void onChange(RealmResults<Place> element) {
-                callBack.responseNetwork(listPlacesDB);
-            }
-        });
 
         network.getPlacesByTrip(tripId, new CallBack() {
             @Override
@@ -137,14 +134,14 @@ public class DataService {
 
                 if (listPlacesDB.size() > listPlaceServer.size()) {
                     data.removePlacesByTrip(tripId);
-                }else if (listPlacesDB.size()==0 && listPlaceServer.size()==0){
-                    callBack.responseNetwork(listPlacesDB);
                 }
                 data.addOrUpdateListPlaces(listPlaceServer);
+                callBack.responseNetwork(listPlaceServer);
             }
 
             @Override
             public void failNetwork(Throwable t) {
+                callBack.responseNetwork(listPlacesDB);
                 callBack.failNetwork(t);
             }
         });
@@ -422,8 +419,10 @@ public class DataService {
         network.removeTrip(trip.getId(), new CallBack() {
             @Override
             public void responseNetwork(Object o) {
+                data.removePlacesByTrip(trip.getId());
                 data.removeTrip(trip);
-                //callBack.responseNetwork("removed");
+
+                callBack.responseNetwork("removed");
                 // removed from server - OK
             }
 

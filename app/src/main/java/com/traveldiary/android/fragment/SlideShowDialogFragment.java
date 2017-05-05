@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.fragment;
 
 import android.app.DialogFragment;
 import android.content.Context;
@@ -18,6 +18,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.traveldiary.android.R;
 import com.traveldiary.android.animation.ZoomOutPageTransformer;
 import com.traveldiary.android.model.Place;
 

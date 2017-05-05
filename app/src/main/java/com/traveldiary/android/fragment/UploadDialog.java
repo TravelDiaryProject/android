@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
@@ -23,7 +23,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.traveldiary.android.data.DataService;
+import com.traveldiary.android.R;
 import com.traveldiary.android.network.CallBack;
 
 import java.io.File;

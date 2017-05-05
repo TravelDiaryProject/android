@@ -1,25 +1,24 @@
-package com.traveldiary.android;
+package com.traveldiary.android.activity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.traveldiary.android.data.DataService;
+import com.traveldiary.android.R;
+import com.traveldiary.android.Validator;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.RegistrationResponse;
 
 import retrofit2.Response;
 
 import static com.traveldiary.android.App.dataService;
-import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_TOKEN;

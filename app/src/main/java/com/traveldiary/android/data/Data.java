@@ -133,6 +133,15 @@ public class Data {
         realm.commitTransaction();
     }
 
+    public void removeTrip(Trip trip){
+        Log.d(TAG, "removeTrip");
+
+        realm.beginTransaction();
+        Trip trip1 = realm.where(Trip.class).equalTo("id", trip.getId()).findFirst();
+        trip1.deleteFromRealm();
+        realm.commitTransaction();
+    }
+
     public void removeMyTrips(){
 
         realm.beginTransaction();
@@ -187,15 +196,6 @@ public class Data {
         realm.beginTransaction();
         RealmResults<Place> realmResults = realm.where(Place.class).equalTo("countryId", countryId).findAll();
         realmResults.deleteAllFromRealm();
-        realm.commitTransaction();
-    }
-
-
-    public void removeTrip(Trip trip){
-        Log.d(TAG, "removeTrip");
-
-        realm.beginTransaction();
-        trip.deleteFromRealm();
         realm.commitTransaction();
     }
 

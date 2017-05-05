@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.activity;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -16,6 +16,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.traveldiary.android.DataParser;
+import com.traveldiary.android.R;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.network.CallBack;
 
@@ -31,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.App.network;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACE_ID;

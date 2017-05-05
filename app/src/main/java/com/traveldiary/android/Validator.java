@@ -6,9 +6,6 @@ import android.net.NetworkInfo;
 import android.util.Patterns;
 import android.widget.Toast;
 
-/**
- * Created by Cyborg on 2/9/2017.
- */
 
 public class Validator {
 

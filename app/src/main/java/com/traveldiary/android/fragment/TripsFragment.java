@@ -1,4 +1,4 @@
-package com.traveldiary.android;
+package com.traveldiary.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
@@ -20,6 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.traveldiary.android.R;
+import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Trip;
@@ -45,6 +47,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     private FloatingActionButton mAddTripFloatButton;
     private ProgressBar mProgressBar;
     private String mTripsFor;
+
     private TextView mNoTripsTextView;
     private Button mNoTripsButton;
 
@@ -109,6 +112,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                         mProgressBar.setVisibility(View.GONE);
                         mSwipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        noNetworkOrEmptyListInfo("При загрузке данных произошла ошибка. Проверте подключение к сети.", "Повторить попытку");
                     }
                 });
                 break;
@@ -127,9 +131,19 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                         mProgressBar.setVisibility(View.GONE);
                         mSwipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        noNetworkOrEmptyListInfo("При загрузке данных произошла ошибка. Проверте подключение к сети.", "Повторить попытку");
                     }
                 });
                 break;
+        }
+    }
+
+    public void noNetworkOrEmptyListInfo(String textView, String button){
+        if (mTripList.size()==0){
+            mNoTripsTextView.setText(textView);
+            mNoTripsTextView.setVisibility(View.VISIBLE);
+            mNoTripsButton.setText(button);
+            mNoTripsButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -140,8 +154,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
         if (tripsList.size()==0){
             mTripList.clear();
-            mNoTripsTextView.setVisibility(View.VISIBLE);
-            mNoTripsButton.setVisibility(View.VISIBLE);
+            noNetworkOrEmptyListInfo("No trips yet. Click on the button to plan a trip", "Plane");
             //Toast.makeText(getActivity(), "No Trips", Toast.LENGTH_LONG).show();
         }
 
@@ -171,7 +184,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     }
 
     @Override
-    public void onItemLongClick(View view, int position) {
+    public void onItemLongClick(View view, final int position) {
         final Trip trip = mTripList.get(position);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -184,13 +197,14 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                             @Override
                             public void responseNetwork(Object o) {
                                 Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
-                                //mRecyclerAdapter.removeTrip(trip);
+                                mRecyclerAdapter.notifyItemRemoved(position);
+                                mTripList.remove(position);
                                 dialog.cancel();
                             }
 
                             @Override
                             public void failNetwork(Throwable t) {
-                                Toast.makeText(getActivity(), "ошибка", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                                 dialog.cancel();
                             }
                         });

@@ -14,4 +14,14 @@
     <color name="yellow">#efdd00</color>
 
     <color name="transparent">#92d4c400</color>
+
+
+    <color name="newPrimary">#ffeb3b</color>
+    <color name="newPrimaryDark">#c8b900</color>
+
+    <color name="newAccent">#808e95</color>
+    <color name="newBackground">#b0bec5</color>
+    <color name="newBackgroundCard">#e2f1f8</color>
+
+
 </resources>
