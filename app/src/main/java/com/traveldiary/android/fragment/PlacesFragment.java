@@ -1,18 +1,19 @@
 package com.traveldiary.android.fragment;
 
-import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
+import com.traveldiary.android.ToolbarActionMode;
 import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.activity.MapsActivity;
@@ -69,6 +71,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
 
+    private ActionMode mActionMode;
 
 
     @Override
@@ -314,20 +317,81 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     @Override
     public void onItemClick(final View view, final int position) {
 
-        if (view.getId()!=R.id.placeShowInMapButton && view.getId()!=R.id.placeImageView){
-
-            if (Validator.isNetworkAvailable(getActivity())){
-                if (TOKEN_CONST != null)
-                    clickLogic(view, position);
-                else
-                    Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
-            }else {
-                Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
-            }
+        if ( mActionMode != null) {
+            onListItemSelect(position);
         }else {
-            clickLogic(view, position);
+            if (view.getId() != R.id.placeShowInMapButton && view.getId() != R.id.placeImageView) {
+
+                if (Validator.isNetworkAvailable(getActivity())) {
+                    if (TOKEN_CONST != null)
+                        clickLogic(view, position);
+                    else
+                        Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                clickLogic(view, position);
+            }
         }
     }
+
+    @Override
+    public void onItemLongClick(View view, final int position) {
+        onListItemSelect(position);
+    }
+
+    private void onListItemSelect(int position) {
+        mRecyclerAdapter.toggleSelection(position);
+
+        boolean hasCheckedItems = mRecyclerAdapter.getSelectedCount() > 0;
+
+        if (hasCheckedItems && mActionMode == null)
+            mActionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(new ToolbarActionMode(mRecyclerAdapter, null, PlacesFragment.this));
+        else if (!hasCheckedItems && mActionMode != null)
+            mActionMode.finish();
+        if (mActionMode != null)
+            mActionMode.setTitle(String.valueOf(mRecyclerAdapter.getSelectedCount()));
+    }
+
+    public void setNullToActionMode() {
+        if (mActionMode != null) {
+            mActionMode = null;
+
+        }
+    }
+
+    public void deleteRows() {
+        final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();//Get selected ids
+
+        for (int i = (selected.size() - 1); i >= 0; i--) {
+            if (selected.valueAt(i)) {
+                final int finalI = i;
+                final Place place = mPlacesList.get(selected.keyAt(finalI));
+
+                dataService.removePlace(mPlacesList.get(selected.keyAt(i)), new CallBack() {
+                    @Override
+                    public void responseNetwork(Object o) {
+                        mPlacesList.remove(place);
+
+                        if (selected.size()>2)
+                            mRecyclerAdapter.notifyDataSetChanged();
+                        else
+                            mRecyclerAdapter.notifyItemRemoved(selected.keyAt(finalI));
+
+                    }
+
+                    @Override
+                    public void failNetwork(Throwable t) {
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+        Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();//Show Toast
+        mActionMode.finish();
+    }
+
 
     public void clickLogic(final View view, final int possition){
 
@@ -400,46 +464,5 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         listPLacesByForType(true);
-    }
-
-    @Override
-    public void onItemLongClick(View view, final int position) {
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11 " + position);
-        final Place place = mPlacesList.get(position);
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Точно удалить?")
-                .setCancelable(true)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-
-                        dataService.removePlace(place, new CallBack() {
-                            @Override
-                            public void responseNetwork(Object o) {
-                                Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
-//                                mRecyclerAdapter.notifyItemChanged(position);
-
-                                mRecyclerAdapter.notifyItemRemoved(position);
-                                mPlacesList.remove(position);
-                                //mRecyclerAdapter.notifyDataSetChanged();
-                                dialog.cancel();
-                            }
-
-                            @Override
-                            public void failNetwork(Throwable t) {
-                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                                dialog.cancel();
-                            }
-                        });
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
     }
 }

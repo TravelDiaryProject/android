@@ -2,15 +2,12 @@ package com.traveldiary.android.network;
 
 import android.util.Log;
 
-import com.traveldiary.android.data.Data;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -27,18 +24,8 @@ public class Network implements NetworkInterface{
 
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
 
-    private List<Trip> mTripsByCity;
-
-    // TODO: 4/3/2017 refresh list after adding new trip or place!!!!
-
     public Network() {
     }
-
-
-
-    /*
-                PLACES
-         */
 
     @Override
     public void getTopPlacesOffset(int offset, int limit, CallBack callBack) {
@@ -120,49 +107,6 @@ public class Network implements NetworkInterface{
         removeTripFromSerer(tripId, callBack);
     }
 
-
-    /*
-                           TRIPS
-    */
-
-
-
-    /*@Override
-    public void getTripsByCity(int cityId, CallBack callBack) {
-        downloadTripsByCityId(cityId, callBack);
-    }*/
-
-
-
-
-
-
-
-    /*
-               Different
-     */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-                    Realization
-     */
 
     private void downloadTopPlaces(int offset, int limit, final CallBack callBack){
 
@@ -542,35 +486,4 @@ public class Network implements NetworkInterface{
             });
         }
     }
-
-
-
-
-
-    /*
-                Не проверенно!!!!!!
-     */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

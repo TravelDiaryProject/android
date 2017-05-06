@@ -2,6 +2,7 @@ package com.traveldiary.android.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,12 +48,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private ProgressBar mProgressBar;
 
+    private SparseBooleanArray mSelectedItemsIds;
+
     public RecyclerAdapter(Context mContext, List<Trip> tripList, ItemClickListener itemClickListener, ItemLongClickListener itemLongClickListener, List<Place> placeList ) {
         this.mContext = mContext;
         this.mTripsList = tripList;
         this.itemClickListener = itemClickListener;
         this.itemLongClickListener = itemLongClickListener;
         this.mPlaceList = placeList;
+        mSelectedItemsIds = new SparseBooleanArray();
     }
 
     @Override
@@ -97,31 +101,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (holder instanceof PlaceViewHolder){
             PlaceViewHolder placeViewHolder = (PlaceViewHolder) holder;
-            placeViewHolder.bindData(mPlaceList.get(position));
+            placeViewHolder.bindData(mPlaceList.get(position), position);
 
         }else if (holder instanceof TripViewHolder){
             TripViewHolder tripViewHolder = (TripViewHolder) holder;
-            tripViewHolder.bindData(mTripsList.get(position));
+            tripViewHolder.bindData(mTripsList.get(position), position);
 
         }else {
             ProgressHolder progressHolder = (ProgressHolder) holder;
             progressHolder.bindData();
         }
-    }
-
-    public void removePlace(Place placeRemove){
-
-        if (mPlaceList!=null && placeRemove!=null){
-            mPlaceList.remove(placeRemove);
-        }
-        notifyDataSetChanged();
-    }
-
-    public void removeTrip(Trip tripRemove){
-        if (mTripsList!=null && tripRemove!=null){
-            mTripsList.remove(tripRemove);
-        }
-        notifyDataSetChanged();
     }
 
     public void updateAdapter(List<Place> updateList){
@@ -169,6 +158,33 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         void onItemLongClick(View view, int position);
     }
 
+
+    public void toggleSelection(int position) {
+        selectView(position, !mSelectedItemsIds.get(position));
+    }
+
+    public void removeSelection() {
+        mSelectedItemsIds = new SparseBooleanArray();
+        notifyDataSetChanged();
+    }
+
+    public void selectView(int position, boolean value) {
+        if (value)
+            mSelectedItemsIds.put(position, value);
+        else
+            mSelectedItemsIds.delete(position);
+
+        notifyItemChanged(position);
+    }
+
+    public int getSelectedCount() {
+        return mSelectedItemsIds.size();
+    }
+
+    public SparseBooleanArray getSelectedIds() {
+        return mSelectedItemsIds;
+    }
+
     public class TripViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
 
         private HorizontalRecyclerAdapter horizontalRecyclerAdapter;
@@ -188,9 +204,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
         }
 
-        public void bindData(final Trip trip){
+        public void bindData(final Trip trip, int position){
 
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! bindData TripHolder");
+            if (mSelectedItemsIds.get(position))
+                itemView.setBackgroundResource(R.color.grey);
+            else
+                itemView.setBackgroundResource(R.color.white);
 
             title.setText(trip.getTitle());
 
@@ -198,7 +217,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 @Override
                 public void responseNetwork(Object o) {
                     List<Place> list = (List<Place>) o;
-                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! bindData TripHolder list.size = " + list.size());
                     placesForHorizontal.clear();
                     placesForHorizontal.addAll(list);
                     if (placesForHorizontal.size()==0){
@@ -257,7 +275,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             placeShowInMapButton.setOnClickListener(this);
         }
 
-        public void bindData(Place place){
+        public void bindData(Place place, int position){
             this.place = place;
 
             mProgressBar.setVisibility(View.VISIBLE);
@@ -283,6 +301,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(titleImageView);
 
+            if (mSelectedItemsIds.get(position))
+                itemView.setBackgroundResource(R.color.grey);
+            else
+                itemView.setBackgroundResource(R.color.white);
+
             if (place.getIsLiked()==1){
                 placeLikeButton.setImageResource(R.drawable.ic_liked);
             }else if (place.getIsLiked()==0){
@@ -303,7 +326,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 placeAddToFutureButton.setVisibility(View.VISIBLE);
             }
             placeShowInMapButton.setImageResource(R.drawable.ic_location);
-
         }
 
         @Override
@@ -333,7 +355,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 case R.id.placeShowInMapButton:
                     itemClickListener.onItemClick(v, this.getLayoutPosition());
                     break;
-
             }
         }
 
@@ -363,5 +384,4 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 progressBar.setVisibility(View.GONE);
         }
     }
-
 }

@@ -1,17 +1,19 @@
 package com.traveldiary.android.fragment;
 
-import android.app.AlertDialog;
+
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
+import com.traveldiary.android.ToolbarActionMode;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
@@ -50,6 +53,8 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
     private TextView mNoTripsTextView;
     private Button mNoTripsButton;
+
+    private ActionMode mActionMode;
 
 
     @Override
@@ -87,6 +92,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         mRecyclerAdapter = new RecyclerAdapter(getActivity(), mTripList, this, this, null);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
@@ -175,51 +181,73 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     @Override
     public void onItemClick(View view, int position) {
 
-        final Trip trip = mTripList.get(position);
+        if ( mActionMode != null){
+            onListItemSelect(position);
+        }else {
+            final Trip trip = mTripList.get(position);
 
-        Intent intent = new Intent(getActivity(), DetailActivity.class);
-        intent.putExtra(ID_STRING, trip.getId());
-        startActivity(intent);
+            Intent intent = new Intent(getActivity(), DetailActivity.class);
+            intent.putExtra(ID_STRING, trip.getId());
+            startActivity(intent);
+        }
 
     }
 
     @Override
     public void onItemLongClick(View view, final int position) {
-        final Trip trip = mTripList.get(position);
+        onListItemSelect(position);
+    }
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Удалить?")
-                .setCancelable(true)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+    private void onListItemSelect(int position) {
+        mRecyclerAdapter.toggleSelection(position);
 
-                        dataService.removeTrip(trip, new CallBack() {
+        boolean hasCheckedItems = mRecyclerAdapter.getSelectedCount() > 0;
+
+        if (hasCheckedItems && mActionMode == null)
+            mActionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(new ToolbarActionMode(mRecyclerAdapter, TripsFragment.this, null));
+        else if (!hasCheckedItems && mActionMode != null)
+            mActionMode.finish();
+
+        if (mActionMode != null)
+            mActionMode.setTitle(String.valueOf(mRecyclerAdapter.getSelectedCount()));
+    }
+
+    public void setNullToActionMode() {
+        if (mActionMode != null) {
+            mActionMode = null;
+
+        }
+    }
+
+    public void deleteRows() {
+        final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();//Get selected ids
+
+        for (int i = (selected.size() - 1); i >= 0; i--) {
+            if (selected.valueAt(i)) {
+                final int finalI = i;
+                final Trip trip = mTripList.get(selected.keyAt(finalI));
+
+                dataService.removeTrip(mTripList.get(selected.keyAt(i)), new CallBack() {
                             @Override
                             public void responseNetwork(Object o) {
-                                Toast.makeText(getActivity(), "удалено", Toast.LENGTH_SHORT).show();
-                                mRecyclerAdapter.notifyItemRemoved(position);
-                                mTripList.remove(position);
-                                dialog.cancel();
+                                mTripList.remove(trip);
+
+                                if (selected.size()>2)
+                                    mRecyclerAdapter.notifyDataSetChanged();
+                                else
+                                    mRecyclerAdapter.notifyItemRemoved(selected.keyAt(finalI));
                             }
 
                             @Override
                             public void failNetwork(Throwable t) {
                                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                                dialog.cancel();
                             }
                         });
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
+            }
+        }
+        Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();//Show Toast
+        mActionMode.finish();
     }
-
 
     @Override
     public void onClick(View v){

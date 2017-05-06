@@ -85,5 +85,4 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                     .into(imageView);
         }
     }
-
 }

@@ -100,8 +100,8 @@ public class DataService {
                 }/*else if (listFutureDB.size()==0 && listFutureTripServer.size()==0){
                     callBack.responseNetwork(listFutureDB);
                 }*/
-                callBack.responseNetwork(listFutureTripServer);
                 data.addOrUpdateListTrips(listFutureTripServer);
+                callBack.responseNetwork(listFutureTripServer);
             }
 
             @Override
@@ -421,7 +421,6 @@ public class DataService {
             public void responseNetwork(Object o) {
                 data.removePlacesByTrip(trip.getId());
                 data.removeTrip(trip);
-
                 callBack.responseNetwork("removed");
                 // removed from server - OK
             }

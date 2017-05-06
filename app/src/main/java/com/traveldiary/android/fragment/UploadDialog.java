@@ -56,12 +56,10 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     private Button mButtonCamera;
     private Button mButtonGallery;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTripId = getArguments().getInt(ID_STRING);
-        //createDirectory();
     }
 
     @Nullable
@@ -144,9 +142,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     private Uri generateFileUri(){
         directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File file = new File(directory.getPath() + "/" + "photo_" + System.currentTimeMillis() + ".jpg");
-
         photoFromCameraPath = file.getPath();
-
         return Uri.fromFile(file);
     }
 
@@ -160,8 +156,6 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
                 if (resultCode == RESULT_OK && data != null && data.getData() != null) {
 
-                    Log.d(TAG, "выбрана с галлереи");
-                    ///get path to image
                     Uri selectedImage = data.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
@@ -169,7 +163,6 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String picturePath = cursor.getString(columnIndex);
                     cursor.close();
-                    ///
 
                     if (checkLocationInImage(picturePath)) { // picture must have location
 
@@ -228,7 +221,6 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         });
     }
 
-
     public void inform(){
         Toast.makeText(getActivity(),R.string.place_created, Toast.LENGTH_SHORT).show();
 
@@ -239,7 +231,6 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         placesFragment.setArguments(args);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_detail, placesFragment);
-        //ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
         dismiss();
