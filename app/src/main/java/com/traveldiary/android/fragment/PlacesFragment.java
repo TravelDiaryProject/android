@@ -2,9 +2,11 @@ package com.traveldiary.android.fragment;
 
 import android.app.DialogFragment;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,6 +29,7 @@ import com.traveldiary.android.R;
 import com.traveldiary.android.ToolbarActionMode;
 import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.DetailActivity;
+import com.traveldiary.android.activity.MainActivity;
 import com.traveldiary.android.activity.MapsActivity;
 import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;
@@ -40,7 +44,9 @@ import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
+import static com.traveldiary.android.Constans.PLACES_BY_CITY_NAME;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
+import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY_NAME;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR_COUNTRY;
@@ -62,7 +68,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     private FloatingActionButton mAddPlaceButton;
     private int mTripId;
     private int mCityId;
+    private String mCityName;
     private int mCountryId;
+    private String mCountryName;
     private String mPlacesFor;
 
     private TextView mNoPlacesTextView;
@@ -83,6 +91,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             mTripId = getArguments().getInt(ID_STRING);
             mCityId = getArguments().getInt(PLACES_BY_CITY);
             mCountryId = getArguments().getInt(PLACES_BY_COUNTRY);
+            mCityName = getArguments().getString(PLACES_BY_CITY_NAME);
+            mCountryName = getArguments().getString(PLACES_BY_COUNTRY_NAME);
         }
     }
 
@@ -91,6 +101,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_places,
                 container, false);
+
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
 
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -153,11 +169,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        if (mPlacesList.size()==0){
-                            mNoPlacesTextView.setText("При загрузке данных произошла ошибка. Проверте подключение к сети.");
-                            mNoPlacesTextView.setVisibility(View.VISIBLE);
-                            mNoPlacesButton.setVisibility(View.VISIBLE);
-                        }
+                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
                     }
                 });
 
@@ -172,6 +184,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
             case PLACES_FOR_CITY:
 
+                ((MainActivity) getActivity())
+                        .setActionBarTitle(getResources().getString(R.string.search_by) + mCityName);
+
                 mRecyclerView.clearOnScrollListeners();
 
                 dataService.getPlacesByCity(mCityId, new CallBack() {
@@ -185,24 +200,35 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
                     }
                 });
                 break;
 
             case PLACES_FOR_COUNTRY:
+
+                ((MainActivity) getActivity())
+                        .setActionBarTitle(getResources().getString(R.string.search_by) + mCountryName);
+
                 mRecyclerView.clearOnScrollListeners();
+
+                Log.d("PlacesFragment","PLACES_FOR_COUNTRY");
 
                 dataService.getPlacesByCountry(mCountryId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
+                        List<Place> list = (List<Place>) o;
+                        Log.d("PlacesFragment","PLACES_FOR_COUNTRY" + " responseNetwork size = " + list.size());
                         manipulationWithResponse(o, isThisRefresh);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
+                        Log.d("PlacesFragment","PLACES_FOR_COUNTRY" + " failNetwork");
                         mProgressBar.setVisibility(View.GONE);
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
                     }
                 });
                 break;
@@ -227,7 +253,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 dataService.getPLacesByTrip(mTripId, new CallBack() {
                     @Override
                     public void responseNetwork(Object o) {
-                        Log.d("REMOVE", "response get places by trpId = " + mTripId);
                         manipulationWithResponse(o, isThisRefresh);
                     }
 
@@ -236,6 +261,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
                     }
                 });
                 break;
@@ -254,10 +280,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         mNoPlacesTextView.setVisibility(View.GONE);
         mNoPlacesButton.setVisibility(View.GONE);
 
+        Log.d("PlacesFragment","PLACES_FOR_COUNTRY manipulationWithResponse placesList.size = "+ placesList.size());
+
         if (placesList==null || placesList.size()==0){
-            mNoPlacesTextView.setText("No places yet");
-            mNoPlacesTextView.setVisibility(View.VISIBLE);
-            Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
+
+            noNetworkOrEmptyListInfo("No places yet", null);
+
+//            mNoPlacesTextView.setText("No places yet");
+//            mNoPlacesTextView.setVisibility(View.VISIBLE);
+//            Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
         }
 
         if (!isThisRefresh) {
@@ -273,6 +304,18 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         }
     }
 
+    public void noNetworkOrEmptyListInfo(String textView, String buttonText){
+
+        if (mPlacesList.size()==0) {
+            mNoPlacesTextView.setText(textView);
+            mNoPlacesTextView.setVisibility(View.VISIBLE);
+            if (buttonText != null) {
+                mNoPlacesButton.setText(buttonText);
+                mNoPlacesButton.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
     public void loadNextTopPage(int dy){
         if (dy > 0) {
             visibleItemCount = mLayoutManager.getChildCount();
@@ -282,33 +325,41 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             if (loading) {
                 if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
                     loading = false;
-                    dataService.getTopPlaces(totalItemCount, new CallBack() {
+                    mRecyclerAdapter.addLoadingFooter();
+
+                    new Handler().postDelayed(new Runnable() {
                         @Override
-                        public void responseNetwork(Object o) {
-                            List<Place> placesList = (List<Place>) o;
+                        public void run() {
+                            dataService.getTopPlaces(totalItemCount, new CallBack() {
+                                @Override
+                                public void responseNetwork(Object o) {
+                                    List<Place> placesList = (List<Place>) o;
 
-                            loading = true;
+                                    loading = true;
 
-                            if (placesList.size() > 0) {
-                                //mRecyclerAdapter.setLoadMore(true);
-                                //mRecyclerAdapter.notifyDataSetChanged();
+                                    if (placesList.size() > 0) {
+                                        //mRecyclerAdapter.setLoadMore(true);
+                                        //mRecyclerAdapter.notifyDataSetChanged();
 
-                                mRecyclerAdapter.removeLoadingFooter();
-                                mPlacesList.addAll(placesList);
-                                mRecyclerAdapter.notifyDataSetChanged();
-                                mRecyclerAdapter.addLoadingFooter();
-                            }else {
-                                mRecyclerAdapter.removeLoadingFooter();
-                                //mRecyclerAdapter.setLoadMore(false);
-                                mRecyclerAdapter.notifyDataSetChanged();
-                            }
+                                        mRecyclerAdapter.removeLoadingFooter();
+                                        mPlacesList.addAll(placesList);
+                                        mRecyclerAdapter.notifyDataSetChanged();
+                                        //mRecyclerAdapter.addLoadingFooter();
+                                    }else {
+                                        mRecyclerAdapter.removeLoadingFooter();
+                                        //mRecyclerAdapter.setLoadMore(false);
+                                        mRecyclerAdapter.notifyDataSetChanged();
+                                    }
+                                }
+
+                                @Override
+                                public void failNetwork(Throwable t) {
+                                    Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
+                    }, 1000);
 
-                        @Override
-                        public void failNetwork(Throwable t) {
-                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
                 }
             }
         }

@@ -1,7 +1,9 @@
 package com.traveldiary.android.fragment;
 
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -17,6 +19,7 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -57,6 +60,22 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     private ActionMode mActionMode;
 
 
+    public interface OnPlaneButtonListener{
+        public void onPlaneButtonClick();
+    }
+
+    private OnPlaneButtonListener onPlaneButtonListener;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            onPlaneButtonListener = (OnPlaneButtonListener) activity;
+        }catch (ClassCastException e){
+            throw new ClassCastException(activity.toString() + " must implement OnPlaneButtonListener");
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,10 +92,17 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         View rootView = inflater.inflate(R.layout.fragment_trips,
                 container, false);
 
-        Log.d(TAG, "onCreateView");
+
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
 
         mNoTripsTextView = (TextView) rootView.findViewById(R.id.no_trips_textView);
         mNoTripsButton = (Button) rootView.findViewById(R.id.no_trips_planeButton);
+        mNoTripsButton.setOnClickListener(this);
 
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.trips_progress);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -118,7 +144,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                         mProgressBar.setVisibility(View.GONE);
                         mSwipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo("При загрузке данных произошла ошибка. Проверте подключение к сети.", "Повторить попытку");
+                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
                     }
                 });
                 break;
@@ -137,31 +163,40 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                         mProgressBar.setVisibility(View.GONE);
                         mSwipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo("При загрузке данных произошла ошибка. Проверте подключение к сети.", "Повторить попытку");
+                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
                     }
                 });
                 break;
         }
     }
 
-    public void noNetworkOrEmptyListInfo(String textView, String button){
-        if (mTripList.size()==0){
+    public void noNetworkOrEmptyListInfo(String textView, String buttonText){
+
+        if (mTripList.size()==0) {
             mNoTripsTextView.setText(textView);
             mNoTripsTextView.setVisibility(View.VISIBLE);
-            mNoTripsButton.setText(button);
-            mNoTripsButton.setVisibility(View.VISIBLE);
+            if (buttonText != null) {
+                mNoTripsButton.setText(buttonText);
+                mNoTripsButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
     public void manipulateWithResponse(Object o, boolean isThisRefresh){
         List<Trip> tripsList = (List<Trip>) o;
 
+        mNoTripsTextView.setVisibility(View.GONE);
+        mNoTripsButton.setVisibility(View.GONE);
+
         mProgressBar.setVisibility(View.GONE);
 
         if (tripsList.size()==0){
             mTripList.clear();
-            noNetworkOrEmptyListInfo("No trips yet. Click on the button to plan a trip", "Plane");
-            //Toast.makeText(getActivity(), "No Trips", Toast.LENGTH_LONG).show();
+
+            if (mTripsFor.equals(MY))
+                noNetworkOrEmptyListInfo(getResources().getString(R.string.no_my_trips), null);
+            else
+                noNetworkOrEmptyListInfo(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plane));
         }
 
         if (!isThisRefresh) {
@@ -175,7 +210,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             mRecyclerAdapter.updateAdapterTrip(tripsList);
             mSwipeRefreshLayout.setRefreshing(false);
         }
-
     }
 
     @Override
@@ -245,21 +279,34 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                         });
             }
         }
-        Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();//Show Toast
+        Toast.makeText(getActivity(), selected.size() + getResources().getString(R.string.item_deleted), Toast.LENGTH_SHORT).show();//Show Toast
         mActionMode.finish();
     }
 
     @Override
     public void onClick(View v){
-        if (v.getId()==R.id.add_trip_button){
 
-            CreatTripFragment creatTripFragment = new CreatTripFragment();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.content_main, creatTripFragment);
-            ft.addToBackStack(null);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+        switch (v.getId()){
+            case R.id.add_trip_button:
+                CreatTripFragment creatTripFragment = new CreatTripFragment();
+                ft.replace(R.id.content_main, creatTripFragment);
+                ft.addToBackStack(null);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft.commit();
+                break;
+            case R.id.no_trips_planeButton:
+                if (mNoTripsButton.getText().toString().equals(getResources().getString(R.string.try_again))){
+                    onRefresh();
+                }else {
+                    onPlaneButtonListener.onPlaneButtonClick();
+                }
+                break;
         }
+
+
+
     }
 
     @Override

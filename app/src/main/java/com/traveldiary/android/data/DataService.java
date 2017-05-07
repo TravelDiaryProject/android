@@ -44,16 +44,6 @@ public class DataService {
     public void getMyTrips(final CallBack callBack){
 
         final RealmResults<Trip> listMyTripDB = data.getMyTrips();
-//        if (listMyTripDB.size()!=0){
-//            callBack.responseNetwork(listMyTripDB);
-//        }
-
-//        listMyTripDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
-//            @Override
-//            public void onChange(RealmResults<Trip> element) {
-//                callBack.responseNetwork(listMyTripDB);
-//            }
-//        });
 
         network.getMyTrips(new CallBack() {
             @Override
@@ -80,15 +70,6 @@ public class DataService {
     public void getFutureTrips(final CallBack callBack){
 
         final RealmResults<Trip> listFutureDB = data.getFutureTrips();
-//        if (listFutureDB.size()!=0){
-//            callBack.responseNetwork(listFutureDB);
-//        }
-//        listFutureDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
-//            @Override
-//            public void onChange(RealmResults<Trip> element) {
-//                callBack.responseNetwork(listFutureDB);
-//            }
-//        });
 
         network.getFutureTrips(new CallBack() {
             @Override
@@ -183,6 +164,7 @@ public class DataService {
         final RealmResults<Place> listPlacesDB = data.getPlacesByCountry(countryId);
         if (listPlacesDB.size()!=0){
             callBack.responseNetwork(listPlacesDB);
+            Log.d("PlacesFragment","size = " + listPlacesDB.size());
         }
         listPlacesDB.addChangeListener(new RealmChangeListener<RealmResults<Place>>() {
             @Override
@@ -195,6 +177,7 @@ public class DataService {
             @Override
             public void responseNetwork(Object o) {
                 List<Place> listPlaceServer = (List<Place>) o;
+                Log.d("PlacesFragment","size2 = " + listPlaceServer.size());
 
                 if (listPlacesDB.size() > listPlaceServer.size()) {  // если лист в базе пуст а лист с сервера нет..
                     data.removePlacesByCountry(countryId);                      // отсылаем в коллбек лист с сервера

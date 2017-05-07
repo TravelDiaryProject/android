@@ -35,7 +35,7 @@ import static com.traveldiary.android.Constans.PLACES_FOR_TOP;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, TripsFragment.OnPlaneButtonListener {
 
     private String mUserName;
     private TextView mUserNameTextView;
@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MenuItem itemEnabled = null;
 
     private SharedPreferences mSharedPreferences;
+
+    private NavigationView mNavigationView;
 
     private long back_pressed;
 
@@ -65,25 +67,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         if (mUserName !=null) {
-            View headerView = navigationView.getHeaderView(0);
+            View headerView = mNavigationView.getHeaderView(0);
             mUserNameTextView = (TextView) headerView.findViewById(R.id.navHeaderUserEmail);
             mUserNameTextView.setText(mUserName);
         }
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.setCheckedItem(R.id.menu_top_places);
-        setTitle(navigationView.getMenu().getItem(3).getTitle());
+        mNavigationView.setCheckedItem(R.id.menu_top_places);
+        setTitle(mNavigationView.getMenu().getItem(3).getTitle());
 
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TOP);
         placesFragment.setArguments(args);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_main, placesFragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+        trans(placesFragment);
 
     }
 
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (back_pressed + 2000 > System.currentTimeMillis())
                     super.onBackPressed();
                 else {
-                    Toast.makeText(getBaseContext(), "Press once again to exit!",
+                    Toast.makeText(getBaseContext(), getResources().getString(R.string.press_once_again),
                             Toast.LENGTH_SHORT).show();
                 }
                 back_pressed = System.currentTimeMillis();
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (TOKEN_CONST != null && !TOKEN_CONST.equals("")){
             MenuItem singItem = menu.findItem(R.id.action_login);
-            singItem.setTitle("Log Out");
+            singItem.setTitle(getResources().getString(R.string.log_out));
         }
 
         return true;
@@ -177,14 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.menu_find_place:
                 fragment = new FindPlaceFragment();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_main, fragment);
-                //ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
-
-
-                /// /trans(fragment);
+                trans(fragment);
                 break;
 
             case R.id.menu_top_places:
@@ -192,24 +184,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 args = new Bundle();
                 args.putString(PLACES_FOR, PLACES_FOR_TOP);
                 fragment.setArguments(args);
-                //trans(fragment);
-
-                FragmentTransaction ft1 = getFragmentManager().beginTransaction();
-                ft1.replace(R.id.content_main, fragment);
-                //ft.addToBackStack(null);
-                ft1.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft1.commit();
+                trans(fragment);
                 break;
         }
 
-        /*if (itemEnabled == null){
-            item.setEnabled(false);
-            itemEnabled = item;
-        }else {
-            itemEnabled.setEnabled(true);
-            item.setEnabled(false);
-            itemEnabled = item;
-        }*/
         item.setChecked(true);
         setTitle(item.getTitle());
 
@@ -220,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void trans(Fragment fragment) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_main, fragment);
-        //ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }
@@ -233,5 +210,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mUserName = mSharedPreferences.getString(APP_PREFERENCES_EMAIL, "");
             }
         }
+    }
+
+    @Override
+    public void onPlaneButtonClick() {
+        mNavigationView.setCheckedItem(R.id.menu_find_place);
+        setTitle(mNavigationView.getMenu().getItem(2).getTitle());
+
+        FindPlaceFragment findPlaceFragment = new FindPlaceFragment();
+        trans(findPlaceFragment);
+    }
+
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 }

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
+import com.traveldiary.android.activity.MainActivity;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
@@ -23,7 +24,9 @@ import java.util.Set;
 
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
+import static com.traveldiary.android.Constans.PLACES_BY_CITY_NAME;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
+import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY_NAME;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR_COUNTRY;
@@ -70,7 +73,7 @@ public class FindPlaceFragment extends Fragment {
         mStringList = new ArrayList<>();
         mStringSet = new HashSet<>();
 
-        adapter = new ArrayAdapter<String>
+        adapter = new ArrayAdapter<>
                 (getActivity(), android.R.layout.select_dialog_item, mStringList);
         mAutoCompleteTextView.setThreshold(1);//will start working from first character
         mAutoCompleteTextView.setAdapter(adapter);
@@ -114,6 +117,13 @@ public class FindPlaceFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity())
+                .setActionBarTitle("Find Place");
+    }
+
     private boolean isWeHaveThisCityOrCountry(String selectedCityOrCountry){
 
         for (int i = 0; i < mCityList.size(); i++){
@@ -123,6 +133,7 @@ public class FindPlaceFragment extends Fragment {
                 Bundle args = new Bundle();
                 args.putString(PLACES_FOR, PLACES_FOR_CITY);
                 args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
+                args.putString(PLACES_BY_CITY_NAME, mCityList.get(i).getName());
                 placesFragment.setArguments(args);
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -142,6 +153,7 @@ public class FindPlaceFragment extends Fragment {
                 Bundle args = new Bundle();
                 args.putString(PLACES_FOR, PLACES_FOR_COUNTRY);
                 args.putInt(PLACES_BY_COUNTRY, mCountryList.get(i).getId());
+                args.putString(PLACES_BY_COUNTRY_NAME, mCountryList.get(i).getName());
                 placesFragment.setArguments(args);
 
                 FragmentTransaction ft = getFragmentManager().beginTransaction();

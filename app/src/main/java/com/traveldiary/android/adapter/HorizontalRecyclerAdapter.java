@@ -79,7 +79,8 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                             return false;
                         }
                     })
-                    .thumbnail(0.1f)
+                    .thumbnail(0.5f)
+                    .placeholder(R.drawable.ic_image_black_24dp)
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageView);

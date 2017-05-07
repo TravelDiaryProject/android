@@ -20,7 +20,9 @@ public class Constans {
     public static final String FUTURE = "Future";
 
     public static final String PLACES_BY_CITY = "Places_by_city";
+    public static final String PLACES_BY_CITY_NAME = "Places_by_city_name";
     public static final String PLACES_BY_COUNTRY = "Places_by_country";
+    public static final String PLACES_BY_COUNTRY_NAME = "Places_by_country_name";
 
     public static final String UPLOAD_FROM = "uploadFrom";
     public static final String GALLERY = "gellery";

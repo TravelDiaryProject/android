@@ -16,13 +16,14 @@
             android:id="@+id/rvHorizontal"
             android:layout_width="match_parent"
             android:scrollbars="horizontal"
-            android:layout_height="wrap_content" />
+            android:layout_height="110dp" />
 
         <TextView
             android:id="@+id/tvHorizontalHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
+            android:textColor="@color/black"
             android:textSize="28sp"
             />
 

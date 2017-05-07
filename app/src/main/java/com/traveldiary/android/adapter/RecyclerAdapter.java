@@ -1,6 +1,8 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -65,7 +67,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         switch (viewType){
             case TYPE_PLACE:
                 View itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.place_card, parent, false);
+                        .inflate(R.layout.test_place_card, parent, false);
                 return new PlaceViewHolder(itemView);
             case TYPE_TRIP:
                 View itemView2 = LayoutInflater.from(parent.getContext())
@@ -83,6 +85,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public void addLoadingFooter(){
         mPlaceList.add(new Place());
+        notifyItemInserted((mPlaceList.size()-1));
         isLoadMore = true;
     }
 
@@ -204,7 +207,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
         }
 
-        public void bindData(final Trip trip, int position){
+        public void bindData(final Trip trip, int position) {
 
             if (mSelectedItemsIds.get(position))
                 itemView.setBackgroundResource(R.color.grey);
@@ -252,6 +255,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private ImageView placeLikeButton;
         private ImageView placeAddToFutureButton;
         private ImageView placeShowInMapButton;
+
 
         private Place place;
 
@@ -301,10 +305,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(titleImageView);
 
-            if (mSelectedItemsIds.get(position))
-                itemView.setBackgroundResource(R.color.grey);
-            else
-                itemView.setBackgroundResource(R.color.white);
+            if (mSelectedItemsIds.get(position)) {
+                titleImageView.setAlpha(0.4f);
+                //itemView.setBackgroundResource(R.color.grey);
+            }else {
+                titleImageView.setAlpha(1f);
+                //itemView.setBackgroundResource(R.color.white);
+            }
 
             if (place.getIsLiked()==1){
                 placeLikeButton.setImageResource(R.drawable.ic_liked);
@@ -326,6 +333,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 placeAddToFutureButton.setVisibility(View.VISIBLE);
             }
             placeShowInMapButton.setImageResource(R.drawable.ic_location);
+
+            mProgressBar.setVisibility(View.GONE);
         }
 
         @Override

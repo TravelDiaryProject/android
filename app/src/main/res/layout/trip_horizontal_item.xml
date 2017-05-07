@@ -5,10 +5,10 @@
 
     <ImageView
         android:id="@+id/horizontal_trip_image"
-        android:layout_width="120dp"
-        android:layout_height="100dp"
+        android:layout_width="140dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
         android:scaleType="centerCrop"
         />
 

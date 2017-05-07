@@ -16,12 +16,14 @@
     <color name="transparent">#92d4c400</color>
 
 
-    <color name="newPrimary">#ffeb3b</color>
-    <color name="newPrimaryDark">#c8b900</color>
+    <color name="newPrimary">#7bd3dd</color>
+    <color name="newPrimaryDark">#47a2ab</color>
 
-    <color name="newAccent">#808e95</color>
-    <color name="newBackground">#b0bec5</color>
+    <color name="newAccent">#f9e8a3</color>
+    <color name="newBackground">#ffffff</color>
     <color name="newBackgroundCard">#e2f1f8</color>
+
+    <color name="newBackgroundBottomLinesIcon">#c1ffffff</color>
 
 
 </resources>
