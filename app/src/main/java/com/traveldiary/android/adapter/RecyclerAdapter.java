@@ -342,17 +342,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             switch (v.getId()) {
                 case R.id.placeLikeButton:
-                    if (place.getIsLiked()==1){
-                        // is Liked
-                    }else if (place.getIsLiked()==0){
-                        itemClickListener.onItemClick(v, this.getLayoutPosition());
-                    }
+                    itemClickListener.onItemClick(v, this.getLayoutPosition());
                     break;
 
                 case R.id.placeAddToFutureButton:
-                    if (place.getIsInFutureTrips()==1){
-                        // in Fututre
-                    }else if (place.getIsInFutureTrips()==0){
+                    if (place.getIsInFutureTrips()==0){
                         itemClickListener.onItemClick(v, this.getLayoutPosition());
                     }
                     break;

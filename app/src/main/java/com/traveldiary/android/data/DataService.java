@@ -315,6 +315,26 @@ public class DataService {
         });
     }
 
+    public void removeLike(final Place place, final CallBack callBack){
+
+        data.changeLikeStatePlace(place);
+        callBack.responseNetwork("changeLikeStatePlace");
+
+        network.unlikePlace(place.getId(), new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                // изменения загружены на сервер
+                // все ок
+            }
+
+            @Override
+            public void failNetwork(Throwable t) {
+                data.changeFutureStatePlace(place);// откатываем изменения
+                callBack.failNetwork(t);
+            }
+        });
+    }
+
     public void createNewTrip(String tripTitle, final CallBack callBack){
 
         network.createTrip(tripTitle, new CallBack() {

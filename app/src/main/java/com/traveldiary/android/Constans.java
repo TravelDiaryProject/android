@@ -27,6 +27,11 @@ public class Constans {
     public static final String UPLOAD_FROM = "uploadFrom";
     public static final String GALLERY = "gellery";
     public static final String CAMERA = "camera";
+    public static final String PLACES_SEARCH_NAME = "searchName";
+
+    public static final String CREATE_TRIP = "createTrip";
+
+
 
     public static final String APP_PREFERENCES = "mysettings";
     public static final String APP_PREFERENCES_TOKEN = "Nickname";

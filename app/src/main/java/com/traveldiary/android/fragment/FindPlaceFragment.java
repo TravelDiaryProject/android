@@ -1,8 +1,10 @@
 package com.traveldiary.android.fragment;
 
-import android.app.FragmentTransaction;
+
+import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
+import com.traveldiary.android.activity.CreateFindActivity;
 import com.traveldiary.android.activity.MainActivity;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.network.CallBack;
@@ -30,6 +33,8 @@ import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY_NAME;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR_COUNTRY;
+import static com.traveldiary.android.Constans.PLACES_SEARCH_NAME;
+import static com.traveldiary.android.Constans.PLACE_ID;
 
 
 public class FindPlaceFragment extends Fragment {
@@ -117,30 +122,37 @@ public class FindPlaceFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        ((MainActivity) getActivity())
-                .setActionBarTitle("Find Place");
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        ((MainActivity) getActivity())
+//                .setActionBarTitle("Find Place");
+//    }
 
     private boolean isWeHaveThisCityOrCountry(String selectedCityOrCountry){
 
         for (int i = 0; i < mCityList.size(); i++){
             if (mCityList.get(i).getName().toLowerCase().equals(selectedCityOrCountry.toLowerCase())) {
 
-                PlacesFragment placesFragment = new PlacesFragment();
-                Bundle args = new Bundle();
-                args.putString(PLACES_FOR, PLACES_FOR_CITY);
-                args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
-                args.putString(PLACES_BY_CITY_NAME, mCityList.get(i).getName());
-                placesFragment.setArguments(args);
 
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_main, placesFragment);
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                Intent intent = new Intent(getActivity(), CreateFindActivity.class);
+                intent.putExtra(PLACES_FOR, PLACES_FOR_CITY);
+                intent.putExtra(PLACE_ID, mCityList.get(i).getId());
+                intent.putExtra(PLACES_SEARCH_NAME, mCityList.get(i).getName());
+                startActivity(intent);
+
+//                PlacesFragment placesFragment = new PlacesFragment();
+//                Bundle args = new Bundle();
+//                args.putString(PLACES_FOR, PLACES_FOR_CITY);
+//                args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
+//                args.putString(PLACES_BY_CITY_NAME, mCityList.get(i).getName());
+//                placesFragment.setArguments(args);
+//
+//                FragmentTransaction ft = getFragmentManager().beginTransaction();
+//                ft.replace(R.id.content_main, placesFragment);
+//                ft.addToBackStack(null);
+//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//                ft.commit();
 
                 return true;
             }
@@ -149,18 +161,24 @@ public class FindPlaceFragment extends Fragment {
         for (int i = 0; i < mCountryList.size(); i++){
             if (mCountryList.get(i).getName().toLowerCase().equals(selectedCityOrCountry.toLowerCase())) {
 
-                PlacesFragment placesFragment = new PlacesFragment();
-                Bundle args = new Bundle();
-                args.putString(PLACES_FOR, PLACES_FOR_COUNTRY);
-                args.putInt(PLACES_BY_COUNTRY, mCountryList.get(i).getId());
-                args.putString(PLACES_BY_COUNTRY_NAME, mCountryList.get(i).getName());
-                placesFragment.setArguments(args);
+                Intent intent = new Intent(getActivity(), CreateFindActivity.class);
+                intent.putExtra(PLACES_FOR, PLACES_FOR_COUNTRY);
+                intent.putExtra(PLACE_ID, mCountryList.get(i).getId());
+                intent.putExtra(PLACES_SEARCH_NAME, mCountryList.get(i).getName());
+                startActivity(intent);
 
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_main, placesFragment);
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+//                PlacesFragment placesFragment = new PlacesFragment();
+//                Bundle args = new Bundle();
+//                args.putString(PLACES_FOR, PLACES_FOR_COUNTRY);
+//                args.putInt(PLACES_BY_COUNTRY, mCountryList.get(i).getId());
+//                args.putString(PLACES_BY_COUNTRY_NAME, mCountryList.get(i).getName());
+//                placesFragment.setArguments(args);
+//
+//                FragmentTransaction ft = getFragmentManager().beginTransaction();
+//                ft.replace(R.id.content_main, placesFragment);
+//                ft.addToBackStack(null);
+//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//                ft.commit();
 
                 return true;
             }

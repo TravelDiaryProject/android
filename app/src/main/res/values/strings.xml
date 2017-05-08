@@ -15,7 +15,7 @@
     <string name="picture_must_have_gps">The picture must have GPS location! Turn on GPS location info in your camera! Or choice another image!</string>
     <string name="ok">OK</string>
 
-   <!--MainActivity-->
+    <!--MainActivity-->
     <string name="not_authorized">Not authorized</string>
     <string name="menu_future_trips">Future Trips</string>
     <string name="menu_find_place">Find Place</string>
@@ -23,8 +23,6 @@
     <string name="menu_my_trips">My Trips</string>
     <string name="log_out">Log Out</string>
     <string name="press_once_again">Press once again to exit!</string>
-
-
 
 
     <!--TripsFragment-->
@@ -37,7 +35,6 @@
     <string name="item_deleted"> item deleted.</string>
 
 
-
     <!--FindPlaceFragment-->
     <string name="enter_city_or_country">Enter city or country</string>
 
@@ -46,10 +43,8 @@
     <string name="search_by">Search by: </string>
 
 
-
     <!--CreateTripFragment-->
     <string name="enter_name_for_trip">Enter name for new trip</string>
-
 
 
     <string name="label_email">Email address</string>
@@ -77,9 +72,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="action_settings">Settings</string>
-
-
-
 
 
 </resources>

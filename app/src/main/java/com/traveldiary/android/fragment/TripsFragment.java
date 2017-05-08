@@ -2,12 +2,10 @@ package com.traveldiary.android.fragment;
 
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -27,6 +25,7 @@ import android.widget.Toast;
 
 import com.traveldiary.android.R;
 import com.traveldiary.android.ToolbarActionMode;
+import com.traveldiary.android.activity.CreateFindActivity;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.traveldiary.android.App.dataService;
+import static com.traveldiary.android.Constans.CREATE_TRIP;
 import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
@@ -50,7 +50,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private List<Trip> mTripList;
     private LinearLayoutManager mLayoutManager;
-    private FloatingActionButton mAddTripFloatButton;
     private ProgressBar mProgressBar;
     private String mTripsFor;
 
@@ -107,9 +106,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.trips_progress);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        mAddTripFloatButton = (FloatingActionButton) rootView.findViewById(R.id.add_trip_button);
-        mAddTripFloatButton.setOnClickListener(this);
-
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.trips_swipe_refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
@@ -131,7 +127,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
         switch (mTripsFor){
             case MY:
-                mAddTripFloatButton.setImageResource(R.drawable.ic_create_new_folder_24dp);
 
                 dataService.getMyTrips(new CallBack() {
                     @Override
@@ -150,7 +145,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 break;
 
             case FUTURE:
-                mAddTripFloatButton.hide();
 
                 dataService.getFutureTrips(new CallBack() {
                     @Override
@@ -187,7 +181,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
         mNoTripsTextView.setVisibility(View.GONE);
         mNoTripsButton.setVisibility(View.GONE);
-
         mProgressBar.setVisibility(View.GONE);
 
         if (tripsList.size()==0){
@@ -200,7 +193,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         }
 
         if (!isThisRefresh) {
-
             mTripList.clear();
             mTripList.addAll(tripsList);
             mRecyclerAdapter.updateAdapterTrip(tripsList);
@@ -224,7 +216,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             intent.putExtra(ID_STRING, trip.getId());
             startActivity(intent);
         }
-
     }
 
     @Override
@@ -249,7 +240,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     public void setNullToActionMode() {
         if (mActionMode != null) {
             mActionMode = null;
-
         }
     }
 
@@ -286,16 +276,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     @Override
     public void onClick(View v){
 
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-
         switch (v.getId()){
-            case R.id.add_trip_button:
-                CreatTripFragment creatTripFragment = new CreatTripFragment();
-                ft.replace(R.id.content_main, creatTripFragment);
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
-                break;
             case R.id.no_trips_planeButton:
                 if (mNoTripsButton.getText().toString().equals(getResources().getString(R.string.try_again))){
                     onRefresh();
@@ -304,15 +285,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 }
                 break;
         }
-
-
-
     }
 
     @Override
     public void onRefresh() {
         mSwipeRefreshLayout.setRefreshing(true);
-
         listTripsByForType(true);
     }
 }

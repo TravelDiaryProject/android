@@ -115,6 +115,10 @@ public interface TravelDiaryService {
     Call<ResponseBody> likePlace(@Header("Authorization") String token, @Field("placeId") int placeId);
 
     @FormUrlEncoded
+    @POST("/api/v1/my/unlike")
+    Call<ResponseBody> unlikePlace(@Header("Authorization") String token, @Field("placeId") int placeId);
+
+    @FormUrlEncoded
     @POST("/api/v1/login_check")
     Call<RegistrationResponse> getToken(@Field("_username") String username, @Field("_password") String password);
 

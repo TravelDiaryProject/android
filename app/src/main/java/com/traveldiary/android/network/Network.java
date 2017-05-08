@@ -78,6 +78,11 @@ public class Network implements NetworkInterface{
     }
 
     @Override
+    public void unlikePlace(int placeId, CallBack callBack) {
+        uploadUnlike(placeId, callBack);
+    }
+
+    @Override
     public void createTrip(String tripTitle, CallBack callBack) {
         uploadNewTrip(tripTitle, callBack);
     }
@@ -355,6 +360,25 @@ public class Network implements NetworkInterface{
     private void uploadLike(int placeId, final CallBack callBack){
 
         travelDiaryService.likePlace(TOKEN_CONST, placeId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.code()==200 || response.code()==201)
+                    callBack.responseNetwork(response);
+                else
+                    callBack.failNetwork(new Throwable(response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callBack.failNetwork(t);
+            }
+        });
+
+    }
+
+    private void uploadUnlike(int placeId, final CallBack callBack){
+
+        travelDiaryService.unlikePlace(TOKEN_CONST, placeId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code()==200 || response.code()==201)

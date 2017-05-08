@@ -4,6 +4,8 @@
     android:layout_height="200dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context="com.traveldiary.android.fragment.CreatTripFragment">
 
         <android.support.design.widget.TextInputLayout

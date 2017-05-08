@@ -1,11 +1,13 @@
 package com.traveldiary.android.activity;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,6 +23,7 @@ import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.fragment.PlacesFragment;
 import com.traveldiary.android.R;
 import com.traveldiary.android.adapter.RecyclerAdapter;
+import com.traveldiary.android.fragment.UploadDialog;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;
@@ -28,12 +31,14 @@ import com.traveldiary.android.network.CallBack;
 import java.util.List;
 
 import static com.traveldiary.android.App.dataService;
+import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.ROOT_URL;
+import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
-public class DetailActivity extends AppCompatActivity implements RecyclerAdapter.ItemClickListener{
+public class DetailActivity extends AppCompatActivity implements RecyclerAdapter.ItemClickListener, View.OnClickListener{
 
     private String photo;
 
@@ -42,6 +47,8 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
     private ImageView collapseImage;
 
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
+
+    private FloatingActionButton mFab;
 
     private int mTripId;
 
@@ -58,12 +65,21 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collaps_toolbar_layout);
 
         mTripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
+        
+
+        mFab = (FloatingActionButton) findViewById(R.id.add_place_button);
+        mFab.setOnClickListener(this);
+        mFab.hide();
+
         Log.d("MYLOG", " tripID from Intent = " + mTripId);
 
         dataService.getTripById(mTripId, new CallBack() {
             @Override
             public void responseNetwork(Object o) {
                 Trip trip = (Trip) o;
+                if (trip.getIsMine()==1 && trip.getIsFuture()==0){
+                    mFab.show();
+                }
                 mCollapsingToolbarLayout.setTitle(trip.getTitle());
             }
 
@@ -135,7 +151,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
     }
 
     public void trans(Fragment fragment) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_detail, fragment);
         //ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -154,5 +170,17 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId()==R.id.add_place_button){
+            DialogFragment uploadDialog = new UploadDialog();
+            Bundle args = new Bundle();
+            args.putInt(ID_STRING, mTripId);
+            args.putString(UPLOAD_FROM, GALLERY);
+            uploadDialog.setArguments(args);
+            uploadDialog.show(getSupportFragmentManager(), "dialo");
+        }
     }
 }

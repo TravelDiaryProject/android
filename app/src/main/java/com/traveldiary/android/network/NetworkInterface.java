@@ -21,6 +21,7 @@ public interface NetworkInterface {
 
     void addToFutureTrips(int placeId, CallBack callBack);
     void likePlace(int placeId, CallBack callBack);
+    void unlikePlace(int placeId, CallBack callBack);
 
     void createTrip(String tripTitle, CallBack callBack);
     void signIn(String email, String password, CallBack callBack);
