@@ -31,6 +31,7 @@ import java.util.List;
 import io.realm.internal.Collection;
 
 import static com.traveldiary.android.App.dataService;
+import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -41,9 +42,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private boolean isLoadMore = false;
 
     private int mSelectedItemPosition = -1;
-
-    private String ROOT_URL = "http://188.166.77.89/";
-
     private Context mContext;
     private List<Trip> mTripsList;
     private List<Place> mPlaceList;
@@ -52,7 +50,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private ItemLongClickListener itemLongClickListener = null;
 
     private ProgressBar mProgressBar;
-
     private SparseBooleanArray mSelectedItemsIds;
 
     public RecyclerAdapter(Context mContext, List<Trip> tripList, ItemClickListener itemClickListener, ItemLongClickListener itemLongClickListener, List<Place> placeList ) {
@@ -293,7 +290,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.place = place;
 
             mProgressBar.setVisibility(View.VISIBLE);
-            placeTitleText.setText(place.getTitle());
+            placeTitleText.setText(place.getCountryName() + ", " + place.getCityName() + ", " + place.getTitle());
 
             Glide.with(mContext).load(ROOT_URL + place.getThumbnail())
                     .listener(new RequestListener<String, GlideDrawable>() {

@@ -19,7 +19,9 @@ public class Place extends RealmObject implements Serializable {
     private String longitude;
     private String shootedAt;
     private int cityId;
+    private String cityName;
     private int countryId;
+    private String countryName;
     private int tripId;
     private int likes;
     private int isLiked;
@@ -33,21 +35,20 @@ public class Place extends RealmObject implements Serializable {
         this.thumbnail = thumbnail;
     }
 
-    public Place(int id, String title, String photo, String thumbnail, String latitude, String longitude, String shootedAt, int cityId, int countryId, int tripId, int likes, int isLiked, int isInFutureTrips, int isMine) {
-        this.id = id;
-        this.title = title;
-        this.photo = photo;
-        this.thumbnail = thumbnail;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.shootedAt = shootedAt;
-        this.cityId = cityId;
-        this.countryId = countryId;
-        this.tripId = tripId;
-        this.likes = likes;
-        this.isLiked = isLiked;
-        this.isInFutureTrips = isInFutureTrips;
-        this.isMine = isMine;
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
     }
 
     public int getId() {
@@ -173,7 +174,9 @@ public class Place extends RealmObject implements Serializable {
                 ", longitude='" + longitude + '\'' +
                 ", shootedAt='" + shootedAt + '\'' +
                 ", cityId=" + cityId +
+                ", cityName='" + cityName + '\'' +
                 ", countryId=" + countryId +
+                ", countryName='" + countryName + '\'' +
                 ", tripId=" + tripId +
                 ", likes=" + likes +
                 ", isLiked=" + isLiked +

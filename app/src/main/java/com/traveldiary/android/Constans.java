@@ -4,6 +4,7 @@ package com.traveldiary.android;
 public class Constans {
 
     public static final String ROOT_URL = "http://188.166.77.89/";
+
     public static final String TRIP_ID = "tripId";
     public static final String PLACE_ID = "placeId";
 

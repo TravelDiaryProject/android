@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -27,6 +28,8 @@ import com.traveldiary.android.fragment.UploadDialog;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -49,6 +52,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
     private FloatingActionButton mFab;
+    private TextView descriptionTrip;
 
     private int mTripId;
 
@@ -58,11 +62,13 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         setContentView(R.layout.activity_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle("");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collaps_toolbar_layout);
+        descriptionTrip = (TextView) findViewById(R.id.descriptionTrip);
 
         mTripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
         
@@ -81,6 +87,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
                     mFab.show();
                 }
                 mCollapsingToolbarLayout.setTitle(trip.getTitle());
+                descriptionTrip.setText(trip.getDescription());
             }
 
             @Override

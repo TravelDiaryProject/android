@@ -10,6 +10,7 @@ public class Trip extends RealmObject {
     private int id;
 
     private String title;
+    private String description;
     private String photo;
     private String thumbnail;
     private int isMine;
@@ -18,13 +19,13 @@ public class Trip extends RealmObject {
     public Trip() {
     }
 
-    public Trip(int id, String title, String photo, String thumbnail, int isMine, int isFuture) {
-        this.id = id;
-        this.title = title;
-        this.photo = photo;
-        this.thumbnail = thumbnail;
-        this.isMine = isMine;
-        this.isFuture = isFuture;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getThumbnail() {
@@ -80,6 +81,7 @@ public class Trip extends RealmObject {
         return "Trip{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
                 ", photo='" + photo + '\'' +
                 ", thumbnail='" + thumbnail + '\'' +
                 ", isMine=" + isMine +
