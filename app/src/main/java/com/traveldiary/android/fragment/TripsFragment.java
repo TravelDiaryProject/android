@@ -25,8 +25,8 @@ import android.widget.Toast;
 
 import com.traveldiary.android.R;
 import com.traveldiary.android.ToolbarActionMode;
-import com.traveldiary.android.activity.CreateFindActivity;
 import com.traveldiary.android.activity.DetailActivity;
+import com.traveldiary.android.activity.LoginActivity;
 import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Trip;
@@ -35,10 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.traveldiary.android.App.dataService;
-import static com.traveldiary.android.Constans.CREATE_TRIP;
 import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.MY;
+import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener, RecyclerAdapter.ItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -125,46 +125,53 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
     private void listTripsByForType(final boolean isThisRefresh){
 
-        switch (mTripsFor){
-            case MY:
+        if (TOKEN_CONST == null || TOKEN_CONST.equals("")) {
+            setNoViewsInfos(getResources().getString(R.string.need_authorization_function), getResources().getString(R.string.login));
+            mProgressBar.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
+        } else {
 
-                dataService.getMyTrips(new CallBack() {
-                    @Override
-                    public void responseNetwork(Object o) {
-                        manipulateWithResponse(o, isThisRefresh);
-                    }
+            switch (mTripsFor) {
+                case MY:
 
-                    @Override
-                    public void failNetwork(Throwable t) {
-                        mProgressBar.setVisibility(View.GONE);
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
-                    }
-                });
-                break;
+                    dataService.getMyTrips(new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            manipulateWithResponse(o, isThisRefresh);
+                        }
 
-            case FUTURE:
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            mProgressBar.setVisibility(View.GONE);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                            setNoViewsInfos(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
+                        }
+                    });
+                    break;
 
-                dataService.getFutureTrips(new CallBack() {
-                    @Override
-                    public void responseNetwork(Object o) {
-                        manipulateWithResponse(o, isThisRefresh);
-                    }
+                case FUTURE:
 
-                    @Override
-                    public void failNetwork(Throwable t) {
-                        mProgressBar.setVisibility(View.GONE);
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
-                    }
-                });
-                break;
+                    dataService.getFutureTrips(new CallBack() {
+                        @Override
+                        public void responseNetwork(Object o) {
+                            manipulateWithResponse(o, isThisRefresh);
+                        }
+
+                        @Override
+                        public void failNetwork(Throwable t) {
+                            mProgressBar.setVisibility(View.GONE);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                            setNoViewsInfos(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
+                        }
+                    });
+                    break;
+            }
         }
     }
 
-    public void noNetworkOrEmptyListInfo(String textView, String buttonText){
+    public void setNoViewsInfos(String textView, String buttonText){
 
         if (mTripList.size()==0) {
             mNoTripsTextView.setText(textView);
@@ -187,9 +194,9 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             mTripList.clear();
 
             if (mTripsFor.equals(MY))
-                noNetworkOrEmptyListInfo(getResources().getString(R.string.no_my_trips), null);
+                setNoViewsInfos(getResources().getString(R.string.no_my_trips), null);
             else
-                noNetworkOrEmptyListInfo(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plane));
+                setNoViewsInfos(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plane));
         }
 
         if (!isThisRefresh) {
@@ -280,7 +287,10 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             case R.id.no_trips_planeButton:
                 if (mNoTripsButton.getText().toString().equals(getResources().getString(R.string.try_again))){
                     onRefresh();
-                }else {
+                }else if (mNoTripsButton.getText().toString().equals(getResources().getString(R.string.login))){
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                }
+                else {
                     onPlaneButtonListener.onPlaneButtonClick();
                 }
                 break;

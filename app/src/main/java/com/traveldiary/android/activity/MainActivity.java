@@ -226,11 +226,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.menu_future_trips:
-                if (TOKEN_CONST != null && !TOKEN_CONST.equals("")) {
-                    mTabLayout.getTabAt(2).select();
-                } else {
-                    startActivity(new Intent(this, LoginActivity.class));
-                }
+                mTabLayout.getTabAt(2).select();
                 break;
 
             case R.id.menu_find_place:

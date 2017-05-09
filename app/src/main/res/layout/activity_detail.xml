@@ -31,6 +31,15 @@
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"/>-->
 
+            <ImageView
+                android:id="@+id/detailImageView"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_add"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                />
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -49,18 +58,6 @@
         xmlns:tools="http://schemas.android.com/tools"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/common_google_signin_btn_text_dark_default"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@android:drawable/ic_menu_mylocation" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_place_button"

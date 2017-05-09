@@ -64,6 +64,11 @@ public interface TravelDiaryService {
     @GET("/api/v1/my/future-trips")
     Call<List<Trip>> listMyFutureTrips(@Header("Authorization") String token);
 
+    @GET("/api/v1/trip/{tripId}")
+    Call<Trip> getTripById(@Path("tripId") int tripId);
+    @GET("/api/v1/trip/{tripId}")
+    Call<Trip> getTripById(@Header("Authorization") String token, @Path("tripId") int tripId);
+
 
 
     /*@GET("/api/v1/places?city_id={id}")

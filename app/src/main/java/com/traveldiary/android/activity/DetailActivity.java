@@ -92,17 +92,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
 
         //collapseImage = (ImageView) findViewById(R.id.detailImageView);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Open MAPS", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-            }
-        });
-
         //photo = getIntent().getStringExtra("Photo");
 
         PlacesFragment placesFragment = new PlacesFragment();

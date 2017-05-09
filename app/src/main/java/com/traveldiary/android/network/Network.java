@@ -43,6 +43,11 @@ public class Network implements NetworkInterface{
     }
 
     @Override
+    public void getTripById(int tripId, CallBack callBack) {
+        downloadTripById(tripId, callBack);
+    }
+
+    @Override
     public void getPlacesByTrip(int tripId, CallBack callBack) {
         downloadPlacesByTripId(tripId, callBack);
     }
@@ -183,12 +188,53 @@ public class Network implements NetworkInterface{
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-                if (callBack!=null) {
                     callBack.failNetwork(t);
-                }
             }
         });
     }
+
+    private void downloadTripById(int tripId, final CallBack callBack) {
+
+        if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
+            travelDiaryService.getTripById(tripId).enqueue(new Callback<Trip>() {
+                @Override
+                public void onResponse(Call<Trip> call, Response<Trip> response) {
+                    if (response.code()==200) {
+                        callBack.responseNetwork(response.body());
+                    }else {
+                        callBack.failNetwork(new Throwable(response.message()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Trip> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }else {
+            travelDiaryService.getTripById(TOKEN_CONST, tripId).enqueue(new Callback<Trip>() {
+                @Override
+                public void onResponse(Call<Trip> call, Response<Trip> response) {
+                    if (response.code()==200) {
+                        callBack.responseNetwork(response.body());
+                    }else {
+                        callBack.failNetwork(new Throwable(response.message()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Trip> call, Throwable t) {
+                    callBack.failNetwork(t);
+                }
+            });
+        }
+    }
+
+
+
+
+
+
 
     private void downloadPlacesByTripId(int tripId, final CallBack callBack) {
 

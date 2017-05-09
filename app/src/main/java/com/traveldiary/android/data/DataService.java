@@ -95,15 +95,24 @@ public class DataService {
 
     public void getTripById(int tripId, final CallBack callBack){
 
-        Trip trip = data.getTripById(tripId);
-        if (trip!=null){
-            callBack.responseNetwork(trip);
-        }else {
-            callBack.failNetwork(new Throwable("Not found"));
-        }
+        final Trip trip = data.getTripById(tripId);
 
+        network.getTripById(tripId, new CallBack() {
+            @Override
+            public void responseNetwork(Object o) {
+                Trip tripServer = (Trip) o;
+                data.addOrUpdateTrip(tripServer);
+                callBack.responseNetwork(tripServer);
+            }
+
+            @Override
+            public void failNetwork(Throwable t) {
+                if (trip!=null)
+                    callBack.responseNetwork(trip);
+                callBack.failNetwork(t);
+            }
+        });
     }
-
 
     public void getPLacesByTrip(final int tripId, final CallBack callBack){
         final RealmResults<Place> listPlacesDB = data.getPlacesByTrip(tripId);
