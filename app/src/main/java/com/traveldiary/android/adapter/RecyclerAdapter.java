@@ -25,7 +25,10 @@ import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.network.CallBack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import io.realm.internal.Collection;
 
 import static com.traveldiary.android.App.dataService;
 
@@ -167,8 +170,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void removeSelection() {
+        int[] keys = new int[mSelectedItemsIds.size()];
+        for (int i = 0; i < mSelectedItemsIds.size(); i++) {
+            keys[i] = mSelectedItemsIds.keyAt(i);
+        }
+
+        for (int i = 0; i < keys.length; i++) {
+            selectView(keys[i], false);
+        }
         mSelectedItemsIds = new SparseBooleanArray();
-        notifyDataSetChanged();
     }
 
     public void selectView(int position, boolean value) {
