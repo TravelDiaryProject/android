@@ -1,8 +1,5 @@
 package com.traveldiary.android.data;
 
-
-/*write and get to realmDB*/
-
 import android.util.Log;
 
 import com.traveldiary.android.model.City;
@@ -10,53 +7,49 @@ import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmObject;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
-public class Data {
+class Data {
 
     private static String TAG = "DATA";
     private Realm realm = Realm.getDefaultInstance();
 
-    public RealmResults<Trip> getMyTrips(){
-        Log.d(TAG, "getMyTrips");
+    RealmResults<Trip> getMyTrips(){
         return realm.where(Trip.class).equalTo("isMine", 1).equalTo("isFuture", 0).findAll();
     }
 
-    public RealmResults<Trip> getFutureTrips(){
-        Log.d(TAG, "getFutureTrips");
+    RealmResults<Trip> getFutureTrips(){
+        Log.d(TAG, "prepareListFutureTrips");
         return realm.where(Trip.class).equalTo("isFuture", 1).equalTo("isMine", 1).findAll();
     }
 
-    public RealmResults<Place> getPlacesByTrip(int tripId){
+    RealmResults<Place> getPlacesByTrip(int tripId){
         Log.d(TAG, "getPlacesByTrip");
         return realm.where(Place.class).equalTo("tripId", tripId).findAll();
     }
 
-    public RealmResults<Place> getPlacesByCity(int cityId){
-        Log.d(TAG, "getPlacesByCity");
+    RealmResults<Place> getPlacesByCity(int cityId){
+        Log.d(TAG, "prepareListPlacesByCity");
         return realm.where(Place.class).equalTo("cityId", cityId).findAll();
     }
 
-    public RealmResults<Place> getPlacesByCountry(int countryId){
-        Log.d(TAG, "getPlacesByCountry");
+    RealmResults<Place> getPlacesByCountry(int countryId){
+        Log.d(TAG, "prepareListPlacesByCountry");
         return realm.where(Place.class).equalTo("countryId", countryId).findAll();
     }
 
-    public RealmResults<City> getAllCities(){
+    RealmResults<City> getAllCities(){
         return realm.where(City.class).findAll();
     }
 
-    public RealmResults<Country> getAllCountries(){
+    RealmResults<Country> getAllCountries(){
         return realm.where(Country.class).findAll();
     }
 
-    public Trip getTripById(int tripId){
+    Trip getTripById(int tripId){
         return realm.where(Trip.class).equalTo("id", tripId).findFirst();
     }
 
@@ -66,7 +59,7 @@ public class Data {
 
 
 
-    public void addOrUpdateListPlaces(List<Place> placeList){
+    void addOrUpdateListPlaces(List<Place> placeList){
         Log.d(TAG, "addOrUpdateListPlaces");
 
         realm.beginTransaction();
@@ -74,7 +67,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void addOrUpdateListTrips(List<Trip> tripList){
+    void addOrUpdateListTrips(List<Trip> tripList){
         Log.d(TAG, "addOrUpdateListTrips");
 
         realm.beginTransaction();
@@ -82,7 +75,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void addOrUpdateListCities(List<City> cityList){
+    void addOrUpdateListCities(List<City> cityList){
         Log.d(TAG, "addOrUpdateListCities");
 
         realm.beginTransaction();
@@ -90,7 +83,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void addOrUpdateListCountries(List<Country> countryList){
+    void addOrUpdateListCountries(List<Country> countryList){
         Log.d(TAG, "addOrUpdateListCountries");
 
         realm.beginTransaction();
@@ -98,7 +91,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void changeFutureStatePlace(Place place){
+    void changeFutureStatePlace(Place place){
         Log.d(TAG, "addOrUpdatePlaces");
 
         realm.beginTransaction();
@@ -111,7 +104,7 @@ public class Data {
 
     }
 
-    public void changeLikeStatePlace(Place place){
+    void changeLikeStatePlace(Place place){
         Log.d(TAG, "changeLikeStatePlace");
 
         realm.beginTransaction();
@@ -124,8 +117,8 @@ public class Data {
 
     }
 
-    public void removePlace(Place place){
-        Log.d(TAG, "removePlace");
+    void removePlace(Place place){
+        Log.d(TAG, "deletePlace");
 
         realm.beginTransaction();
         Place place1 = realm.where(Place.class).equalTo("id", place.getId()).findFirst();
@@ -133,8 +126,8 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void removeTrip(Trip trip){
-        Log.d(TAG, "removeTrip");
+    void removeTrip(Trip trip){
+        Log.d(TAG, "deleteTrip");
 
         realm.beginTransaction();
         Trip trip1 = realm.where(Trip.class).equalTo("id", trip.getId()).findFirst();
@@ -142,7 +135,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void removeMyTrips(){
+    void removeMyTrips(){
 
         realm.beginTransaction();
         RealmResults<Trip> realmResults = realm.where(Trip.class).equalTo("isMine", 1).equalTo("isFuture", 0).findAll();
@@ -151,7 +144,7 @@ public class Data {
 
     }
 
-    public void removeFutureTrips(){
+    void removeFutureTrips(){
 
         realm.beginTransaction();
         RealmResults<Trip> realmResults = realm.where(Trip.class).equalTo("isMine", 1).equalTo("isFuture", 1).findAll();
@@ -159,7 +152,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void removeCities() {
+    void removeCities() {
 
         realm.beginTransaction();
         RealmResults<City> realmResult = realm.where(City.class).findAll();
@@ -167,7 +160,7 @@ public class Data {
         realm.commitTransaction();
     }
 
-    public void removeCountries() {
+    void removeCountries() {
 
         realm.beginTransaction();
         RealmResults<Country> realmResult = realm.where(Country.class).findAll();
@@ -176,7 +169,7 @@ public class Data {
     }
 
 
-    public void removePlacesByTrip(int tripId){
+    void removePlacesByTrip(int tripId){
 
         realm.beginTransaction();
         RealmResults<Place> realmResults = realm.where(Place.class).equalTo("tripId", tripId).findAll();
@@ -185,29 +178,21 @@ public class Data {
 
     }
 
-    public void removePlacesByCity(int cityId) {
+    void removePlacesByCity(int cityId) {
         realm.beginTransaction();
         RealmResults<Place> realmResults = realm.where(Place.class).equalTo("cityId", cityId).findAll();
         realmResults.deleteAllFromRealm();
         realm.commitTransaction();
     }
 
-    public void removePlacesByCountry(int countryId) {
+    void removePlacesByCountry(int countryId) {
         realm.beginTransaction();
         RealmResults<Place> realmResults = realm.where(Place.class).equalTo("countryId", countryId).findAll();
         realmResults.deleteAllFromRealm();
         realm.commitTransaction();
     }
 
-    public void addOrUpdatePlace(Place place){
-        Log.d(TAG, "addOrUpdatePlace");
-
-        realm.beginTransaction();
-        realm.copyToRealmOrUpdate(place);
-        realm.commitTransaction();
-    }
-
-    public void addOrUpdateTrip(Trip trip){
+    void addOrUpdateTrip(Trip trip){
         Log.d(TAG, "addOrUpdatePlace");
 
         realm.beginTransaction();
@@ -215,17 +200,9 @@ public class Data {
         realm.commitTransaction();
     }
 
-
-
-
-
-
-    public void removeAll(){
+    void removeAll(){
         realm.beginTransaction();
         realm.deleteAll();
         realm.commitTransaction();
     }
-
-
-
 }

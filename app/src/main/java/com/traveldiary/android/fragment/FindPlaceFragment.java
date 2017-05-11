@@ -4,7 +4,6 @@ package com.traveldiary.android.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,22 +13,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
+import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.CreateFindActivity;
-import com.traveldiary.android.activity.MainActivity;
 import com.traveldiary.android.model.Country;
-import com.traveldiary.android.network.CallBack;
 import com.traveldiary.android.model.City;
+import com.traveldiary.android.network.CallbackCities;
+import com.traveldiary.android.network.CallbackCountries;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.traveldiary.android.App.dataService;
-import static com.traveldiary.android.Constans.PLACES_BY_CITY;
-import static com.traveldiary.android.Constans.PLACES_BY_CITY_NAME;
-import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
-import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY_NAME;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_CITY;
 import static com.traveldiary.android.Constans.PLACES_FOR_COUNTRY;
@@ -43,12 +37,9 @@ public class FindPlaceFragment extends Fragment {
     private List<Country> mCountryList;
     private List<String> mStringList;
 
-    private Set<String> mStringSet;
-
     private ArrayAdapter<String> adapter;
 
     private AutoCompleteTextView mAutoCompleteTextView;
-    private ImageView mSearchButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,37 +49,35 @@ public class FindPlaceFragment extends Fragment {
                 container, false);
 
         mAutoCompleteTextView = (AutoCompleteTextView) rootView.findViewById(R.id.find_autocompletetext);
-        mSearchButton = (ImageView) rootView.findViewById(R.id.find_search_button);
+        ImageView mSearchButton = (ImageView) rootView.findViewById(R.id.find_search_button);
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String selectedCity = mAutoCompleteTextView.getText().toString();
+                if (Validator.isNetworkAvailable(getActivity())) {
+                    String selectedCity = mAutoCompleteTextView.getText().toString();
 
-                if (!isWeHaveThisCityOrCountry(selectedCity)){
-                    Toast.makeText(getActivity(), "NO this city", Toast.LENGTH_SHORT).show();
+                    if (!isWeHaveThisCityOrCountry(selectedCity)) {
+                        Toast.makeText(getActivity(), getString(R.string.no_places_by_request), Toast.LENGTH_SHORT).show();
+                    }
                 }
-
-
             }
         });
 
         mCityList = new ArrayList<>();
         mCountryList = new ArrayList<>();
         mStringList = new ArrayList<>();
-        mStringSet = new HashSet<>();
 
         adapter = new ArrayAdapter<>
                 (getActivity(), android.R.layout.select_dialog_item, mStringList);
-        mAutoCompleteTextView.setThreshold(1);//will start working from first character
+        mAutoCompleteTextView.setThreshold(1);
         mAutoCompleteTextView.setAdapter(adapter);
 
-
-        dataService.getAllCities(new CallBack() {
+        dataService.getAllCities(new CallbackCities() {
             @Override
-            public void responseNetwork(Object o) {
+            public void responseNetwork(List<City> cityList) {
                 mCityList.clear();
-                mCityList.addAll((List<City>) o);
+                mCityList.addAll(cityList);
 
                 for (int i = 0; i < mCityList.size(); i++){
                     mStringList.add(mCityList.get(i).getName());
@@ -98,15 +87,15 @@ public class FindPlaceFragment extends Fragment {
 
             @Override
             public void failNetwork(Throwable t) {
-
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
 
-        dataService.getAllCountries(new CallBack() {
+        dataService.getAllCountries(new CallbackCountries() {
             @Override
-            public void responseNetwork(Object o) {
+            public void responseNetwork(List<Country> countryList) {
                 mCountryList.clear();
-                mCountryList.addAll((List<Country>) o);
+                mCountryList.addAll(countryList);
 
                 for (int i = 0; i < mCountryList.size(); i++){
                     mStringList.add(mCountryList.get(i).getName());
@@ -116,44 +105,22 @@ public class FindPlaceFragment extends Fragment {
 
             @Override
             public void failNetwork(Throwable t) {
-
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
         return rootView;
     }
-
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        ((MainActivity) getActivity())
-//                .setActionBarTitle("Find Place");
-//    }
 
     private boolean isWeHaveThisCityOrCountry(String selectedCityOrCountry){
 
         for (int i = 0; i < mCityList.size(); i++){
             if (mCityList.get(i).getName().toLowerCase().equals(selectedCityOrCountry.toLowerCase())) {
 
-
                 Intent intent = new Intent(getActivity(), CreateFindActivity.class);
                 intent.putExtra(PLACES_FOR, PLACES_FOR_CITY);
                 intent.putExtra(PLACE_ID, mCityList.get(i).getId());
                 intent.putExtra(PLACES_SEARCH_NAME, mCityList.get(i).getName());
                 startActivity(intent);
-
-//                PlacesFragment placesFragment = new PlacesFragment();
-//                Bundle args = new Bundle();
-//                args.putString(PLACES_FOR, PLACES_FOR_CITY);
-//                args.putInt(PLACES_BY_CITY, mCityList.get(i).getId());
-//                args.putString(PLACES_BY_CITY_NAME, mCityList.get(i).getName());
-//                placesFragment.setArguments(args);
-//
-//                FragmentTransaction ft = getFragmentManager().beginTransaction();
-//                ft.replace(R.id.content_main, placesFragment);
-//                ft.addToBackStack(null);
-//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//                ft.commit();
-
                 return true;
             }
         }
@@ -166,20 +133,6 @@ public class FindPlaceFragment extends Fragment {
                 intent.putExtra(PLACE_ID, mCountryList.get(i).getId());
                 intent.putExtra(PLACES_SEARCH_NAME, mCountryList.get(i).getName());
                 startActivity(intent);
-
-//                PlacesFragment placesFragment = new PlacesFragment();
-//                Bundle args = new Bundle();
-//                args.putString(PLACES_FOR, PLACES_FOR_COUNTRY);
-//                args.putInt(PLACES_BY_COUNTRY, mCountryList.get(i).getId());
-//                args.putString(PLACES_BY_COUNTRY_NAME, mCountryList.get(i).getName());
-//                placesFragment.setArguments(args);
-//
-//                FragmentTransaction ft = getFragmentManager().beginTransaction();
-//                ft.replace(R.id.content_main, placesFragment);
-//                ft.addToBackStack(null);
-//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//                ft.commit();
-
                 return true;
             }
         }

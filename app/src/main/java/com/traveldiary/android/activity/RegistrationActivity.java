@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.traveldiary.android.R;
 import com.traveldiary.android.Validator;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.SimpleCallBack;
 import com.traveldiary.android.model.RegistrationResponse;
 
 import retrofit2.Response;
@@ -76,9 +76,9 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void registration(final String email, String password){
-        dataService.registration(email, password, new CallBack() {
+        dataService.registration(email, password, new SimpleCallBack() {
             @Override
-            public void responseNetwork(Object o) {
+            public void response(Object o) {
                 Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
                 RegistrationResponse registrationResponse = response.body();
 
@@ -99,7 +99,7 @@ public class RegistrationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void failNetwork(Throwable t) {
+            public void fail(Throwable t) {
                 mProgressBar.setVisibility(View.GONE);
                 mRegistrationButton.setClickable(true);
                 Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_LONG).show();

@@ -20,120 +20,29 @@ import retrofit2.Response;
 
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 
-public class Network implements NetworkInterface{
+public class Network {
 
     private static final TravelDiaryService travelDiaryService = Api.getTravelDiaryService();
 
     public Network() {
     }
 
-    @Override
-    public void getTopPlacesOffset(int offset, int limit, CallBack callBack) {
-            downloadTopPlaces(offset, limit, callBack);
-    }
-
-    @Override
-    public void getMyTrips(CallBack callBack) {
-        downloadMyTrips(callBack);
-    }
-
-    @Override
-    public void getFutureTrips(CallBack callBack) {
-        downloadFutureTrips(callBack);
-    }
-
-    @Override
-    public void getTripById(int tripId, CallBack callBack) {
-        downloadTripById(tripId, callBack);
-    }
-
-    @Override
-    public void getPlacesByTrip(int tripId, CallBack callBack) {
-        downloadPlacesByTripId(tripId, callBack);
-    }
-
-    @Override
-    public void getPlacesByCity(int cityId, CallBack callBack) {
-        downloadPlacesByCityId(cityId, callBack);
-    }
-
-    @Override
-    public void getPlacesByCountry(int countryId, CallBack callBack) {
-        downloadPlacesByCountryId(countryId, callBack);
-    }
-
-    @Override
-    public void getAllCities(CallBack callBack) {
-        downloadAllCities(callBack);
-    }
-
-    @Override
-    public void getAllCountries(CallBack callBack) {
-        downloadAllCountries(callBack);
-    }
-
-    @Override
-    public void addToFutureTrips(int placeId, CallBack callBack) {
-        addToFuture(placeId, callBack);
-    }
-
-    @Override
-    public void likePlace(int placeId, CallBack callBack) {
-        uploadLike(placeId, callBack);
-    }
-
-    @Override
-    public void unlikePlace(int placeId, CallBack callBack) {
-        uploadUnlike(placeId, callBack);
-    }
-
-    @Override
-    public void createTrip(String tripTitle, CallBack callBack) {
-        uploadNewTrip(tripTitle, callBack);
-    }
-
-    @Override
-    public void signIn(String email, String password, CallBack callBack) {
-        login(email, password, callBack);
-    }
-
-    @Override
-    public void registration(String email, String password, CallBack callBack) {
-        reg(email, password, callBack);
-    }
-
-    @Override
-    public void uploadPlace(MultipartBody.Part body, RequestBody tripIdRequest, CallBack callBack) {
-        uploadImage(body, tripIdRequest, callBack);
-    }
-
-    @Override
-    public void removePlace(int placeId, CallBack callBack) {
-        removePlaceFromServer(placeId, callBack);
-    }
-
-    @Override
-    public void removeTrip(int tripId, CallBack callBack) {
-        removeTripFromSerer(tripId, callBack);
-    }
-
-
-    private void downloadTopPlaces(int offset, int limit, final CallBack callBack){
+    public void downloadTopPlaces(int offset, int limit, final CallbackPlaces callbackPlaces){
 
         if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
             travelDiaryService.listTopPlacesOffset(offset, limit).enqueue(new Callback<List<Place>>() {
                 @Override
                 public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
                     if (response.code() == 200) {
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         }else {
@@ -141,74 +50,74 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
                     if (response.code() == 200) {
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         }
     }
 
-    private void downloadMyTrips(final CallBack callBack) {
+    public void downloadMyTrips(final CallbackTrips callbackTrips) {
 
         travelDiaryService.listMyTrips(TOKEN_CONST).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
-                if (response.code()==200){
-                    callBack.responseNetwork(response.body());
-                }else {
-                    callBack.failNetwork(new Throwable(response.message()));
+                if (response.code() == 200) {
+                    callbackTrips.responseNetwork(response.body());
+                } else {
+                    callbackTrips.failNetwork(new Throwable(response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-                callBack.failNetwork(t);
+                callbackTrips.failNetwork(t);
             }
         });
     }
 
-    private void downloadFutureTrips(final CallBack callBack) {
+    public void downloadFutureTrips(final CallbackTrips callbackTrips) {
 
         travelDiaryService.listMyFutureTrips(TOKEN_CONST).enqueue(new Callback<List<Trip>>() {
             @Override
             public void onResponse(Call<List<Trip>> call, retrofit2.Response<List<Trip>> response) {
                 if (response.code()==200){
-                    callBack.responseNetwork(response.body());
+                    callbackTrips.responseNetwork(response.body());
                 }else {
-                    callBack.failNetwork(new Throwable(response.message()));
+                    callbackTrips.failNetwork(new Throwable(response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Trip>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                callbackTrips.failNetwork(t);
             }
         });
     }
 
-    private void downloadTripById(int tripId, final CallBack callBack) {
+    public void downloadTripById(int tripId, final SimpleCallBack simpleCallBack) {
 
         if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
             travelDiaryService.getTripById(tripId).enqueue(new Callback<Trip>() {
                 @Override
                 public void onResponse(Call<Trip> call, Response<Trip> response) {
                     if (response.code()==200) {
-                        callBack.responseNetwork(response.body());
+                        simpleCallBack.response(response.body());
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        simpleCallBack.fail(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Trip> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    simpleCallBack.fail(t);
                 }
             });
         }else {
@@ -216,42 +125,36 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<Trip> call, Response<Trip> response) {
                     if (response.code()==200) {
-                        callBack.responseNetwork(response.body());
+                        simpleCallBack.response(response.body());
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        simpleCallBack.fail(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Trip> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    simpleCallBack.fail(t);
                 }
             });
         }
     }
 
-
-
-
-
-
-
-    private void downloadPlacesByTripId(int tripId, final CallBack callBack) {
+    public void downloadPlacesByTripId(int tripId, final CallbackPlaces callbackPlaces) {
 
         if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
             travelDiaryService.listPlacesByTrip(tripId).enqueue(new Callback<List<Place>>() {
                 @Override
                 public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
                     if (response.code()==200){
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         }else {
@@ -259,21 +162,21 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
                     if (response.code()==200){
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         }
     }
 
-    private void downloadPlacesByCityId(int cityId, final CallBack callBack) {
+    public void downloadPlacesByCityId(int cityId, final CallbackPlaces callbackPlaces) {
 
         if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
 
@@ -281,14 +184,14 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
                     if (response.code() == 200) {
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     } else
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         } else {
@@ -296,20 +199,20 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
                     if (response.code() == 200) {
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     } else
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         }
     }
 
-    private void downloadPlacesByCountryId(int countryId, final CallBack callBack) {
+    public void downloadPlacesByCountryId(int countryId, final CallbackPlaces callbackPlaces) {
 
         if (TOKEN_CONST==null || TOKEN_CONST.equals("")) {
 
@@ -317,14 +220,14 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<List<Place>> call, retrofit2.Response<List<Place>> response) {
                     if (response.code() == 200) {
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     } else
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         } else {
@@ -332,188 +235,188 @@ public class Network implements NetworkInterface{
                 @Override
                 public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
                     if (response.code() == 200) {
-                        callBack.responseNetwork(response.body());
+                        callbackPlaces.responseNetwork(response.body());
                     } else
-                        callBack.failNetwork(new Throwable(response.message()));
+                        callbackPlaces.failNetwork(new Throwable(response.message()));
                 }
 
                 @Override
                 public void onFailure(Call<List<Place>> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    callbackPlaces.failNetwork(t);
                 }
             });
         }
     }
 
-    private void downloadAllCities(final CallBack callBack){
+    public void downloadAllCities(final CallbackCities callbackCities){
 
         travelDiaryService.listAllCities().enqueue(new Callback<List<City>>() {
             @Override
             public void onResponse(Call<List<City>> call, retrofit2.Response<List<City>> response) {
                 if (response.code()==200) {
-                    callBack.responseNetwork(response.body());
+                    callbackCities.responseNetwork(response.body());
                 }else {
-                    callBack.failNetwork(new Throwable(response.message()));
+                    callbackCities.failNetwork(new Throwable(response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<List<City>> call, Throwable t) {
-                callBack.failNetwork(t);
+                callbackCities.failNetwork(t);
             }
         });
     }
 
-    private void downloadAllCountries(final CallBack callBack){
+    public void downloadAllCountries(final CallbackCountries callbackCountries){
 
         travelDiaryService.listAllCountries().enqueue(new Callback<List<Country>>() {
             @Override
             public void onResponse(Call<List<Country>> call, retrofit2.Response<List<Country>> response) {
                 if (response.code()==200) {
-                    callBack.responseNetwork(response.body());
+                    callbackCountries.responseNetwork(response.body());
                 }else {
-                    callBack.failNetwork(new Throwable(response.message()));
+                    callbackCountries.failNetwork(new Throwable(response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Country>> call, Throwable t) {
-                callBack.failNetwork(t);
+                callbackCountries.failNetwork(t);
             }
         });
     }
 
-    private void addToFuture(int placeId, final CallBack callBack){
+    public void addToFuture(int placeId, final SimpleCallBack simpleCallBack){
 
         travelDiaryService.addToFutureTrips(TOKEN_CONST, placeId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code()==201) {
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 }else {
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callBack.failNetwork(t);
+                simpleCallBack.fail(t);
             }
         });
 
     }
 
-    private void uploadLike(int placeId, final CallBack callBack){
+    public void uploadLike(int placeId, final SimpleCallBack simpleCallBack){
 
         travelDiaryService.likePlace(TOKEN_CONST, placeId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code()==200 || response.code()==201)
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 else
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callBack.failNetwork(t);
+                simpleCallBack.fail(t);
             }
         });
 
     }
 
-    private void uploadUnlike(int placeId, final CallBack callBack){
+    public void uploadUnlike(int placeId, final SimpleCallBack simpleCallBack){
 
         travelDiaryService.unlikePlace(TOKEN_CONST, placeId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code()==200 || response.code()==201)
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 else
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callBack.failNetwork(t);
+                simpleCallBack.fail(t);
             }
         });
 
     }
 
-    private void uploadNewTrip(String tripTitle, final CallBack callBack){
+    public void uploadNewTrip(String tripTitle, final SimpleCallBack simpleCallBack){
 
         travelDiaryService.createTrip(TOKEN_CONST, tripTitle).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
 
                 if (response.code()==201)
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 else
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callBack.failNetwork(t);
+                simpleCallBack.fail(t);
             }
         });
 
     }
 
-    private void login(String email, String password, final CallBack callBack){
+    public void login(String email, String password, final SimpleCallBack simpleCallBack){
 
         travelDiaryService.getToken(email, password).enqueue(new Callback<RegistrationResponse>() {
             @Override
             public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
 
                 if (response.code()==200)
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 else
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
             }
 
             @Override
             public void onFailure(Call<RegistrationResponse> call, Throwable t) {
-                callBack.failNetwork(t);
+                simpleCallBack.fail(t);
             }
         });
     }
 
-    private void reg(String email, String password, final CallBack callBack){
+    public void registration(String email, String password, final SimpleCallBack simpleCallBack){
         travelDiaryService.registration(email, password).enqueue(new Callback<RegistrationResponse>() {
             @Override
             public void onResponse(Call<RegistrationResponse> call, Response<RegistrationResponse> response) {
                 if (response.code()==201)
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 else
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
             }
 
             @Override
-            public void onFailure(Call<RegistrationResponse> call, Throwable t) { callBack.failNetwork(t); }
+            public void onFailure(Call<RegistrationResponse> call, Throwable t) { simpleCallBack.fail(t); }
         });
     }
 
-    private void uploadImage(MultipartBody.Part body, RequestBody tripIdRequest, final CallBack callBack){
+    public void uploadImage(MultipartBody.Part body, RequestBody tripIdRequest, final SimpleCallBack simpleCallBack){
         travelDiaryService.postImage(TOKEN_CONST, body, tripIdRequest).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code()==201) {
-                    callBack.responseNetwork(response);
+                    simpleCallBack.response(response);
                 }else {
-                    callBack.failNetwork(new Throwable(response.message()));
+                    simpleCallBack.fail(new Throwable(response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callBack.failNetwork(t);
+                simpleCallBack.fail(t);
             }
         });
     }
 
-    private void removePlaceFromServer(int placeId, final CallBack callBack) {
+    public void removePlace(int placeId, final SimpleCallBack simpleCallBack) {
         if (TOKEN_CONST!=null && !TOKEN_CONST.equals("")){
             RequestBody placeIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(placeId));
             travelDiaryService.removePlace(TOKEN_CONST, placeIdRequest).enqueue(new Callback<ResponseBody>() {
@@ -521,21 +424,21 @@ public class Network implements NetworkInterface{
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Log.d("NETWORK", "Remove response = " + response.code() + response.message());
                     if (response.code()==201) {
-                        callBack.responseNetwork(response);
+                        simpleCallBack.response(response);
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        simpleCallBack.fail(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    simpleCallBack.fail(t);
                 }
             });
         }
     }
 
-    private void removeTripFromSerer(int tripId, final CallBack callBack) {
+    public void removeTrip(int tripId, final SimpleCallBack simpleCallBack) {
         if (TOKEN_CONST!=null && !TOKEN_CONST.equals("")){
             RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(tripId));
             travelDiaryService.removeTrip(TOKEN_CONST, tripIdRequest).enqueue(new Callback<ResponseBody>() {
@@ -543,15 +446,15 @@ public class Network implements NetworkInterface{
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Log.d("NETWORK", "Remove response = " + response.code() + response.message());
                     if (response.code()==201) {
-                        callBack.responseNetwork(response);
+                        simpleCallBack.response(response);
                     }else {
-                        callBack.failNetwork(new Throwable(response.message()));
+                        simpleCallBack.fail(new Throwable(response.message()));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    callBack.failNetwork(t);
+                    simpleCallBack.fail(t);
                 }
             });
         }

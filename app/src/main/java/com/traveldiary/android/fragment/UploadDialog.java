@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.SimpleCallBack;
 
 import java.io.File;
 import java.io.IOException;
@@ -202,9 +202,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     }
 
     public void upload(MultipartBody.Part body, RequestBody tripIdRequest){
-        dataService.uploadImage(body, tripIdRequest, new CallBack() {
+        dataService.uploadPlace(body, tripIdRequest, new SimpleCallBack() {
             @Override
-            public void responseNetwork(Object o) {
+            public void response(Object o) {
                 mUploadProgressBar.setVisibility(View.GONE);
                 mButtonGallery.setEnabled(true);
                 mButtonCamera.setEnabled(true);
@@ -212,7 +212,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
             }
 
             @Override
-            public void failNetwork(Throwable t) {
+            public void fail(Throwable t) {
                 mUploadProgressBar.setVisibility(View.GONE);
                 mButtonGallery.setClickable(true);
                 mButtonCamera.setClickable(true);

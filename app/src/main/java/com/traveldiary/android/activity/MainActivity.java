@@ -28,6 +28,7 @@ import com.traveldiary.android.fragment.PlacesFragment;
 import com.traveldiary.android.R;
 import com.traveldiary.android.fragment.TripsFragment;
 
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_EMAIL;
 import static com.traveldiary.android.Constans.APP_PREFERENCES_TOKEN;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         mNavigationView.setNavigationItemSelectedListener(this);
         mNavigationView.setCheckedItem(R.id.menu_top_places);
+        setTitle("Top Places");
 
         mFab = (FloatingActionButton) findViewById(R.id.add_trip_button);
         mFab.setOnClickListener(this);
@@ -126,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mTabLayout = (TabLayout) findViewById(R.id.tablayout);
         mTabLayout.setupWithViewPager(mViewPager);
         setupTabIcons();
+
+        //mTabLayout.getTabAt(0).select();
 
     }
 
@@ -209,6 +213,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.remove(APP_PREFERENCES_TOKEN);
                 editor.apply();
+
+                dataService.removeAll();
             }
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -257,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onPlaneButtonClick() {
         mTabLayout.getTabAt(3).select();
-    }
+}
 
     @Override
     public void onClick(View v) {

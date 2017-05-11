@@ -25,19 +25,16 @@
         <ImageView
             android:id="@+id/placeImageView"
             android:layout_width="match_parent"
-            android:layout_height="240dp"
+            android:layout_height="match_parent"
             android:scaleType="centerCrop"
             />
-
-
-
 
         <TextView
             android:id="@+id/placeTitleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text=""
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:background="@color/newBackgroundBottomLinesIcon"
             android:textColor="@color/black" />
 
@@ -53,36 +50,33 @@
                 android:id="@+id/placeLikeButton"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
-                android:layout_margin="4dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="10dp"
                 android:adjustViewBounds="true"/>
-            <!--app:srcCompat="@drawable/ic_plus_one_red_24dp"-->
 
             <ImageView
                 android:id="@+id/placeAddToFutureButton"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:layout_alignParentEnd="true"
-                android:layout_margin="4dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="10dp"
                 android:adjustViewBounds="true"/>
-            <!--app:srcCompat="@drawable/ic_add_circle_outline_red_24dp"-->
-
 
             <ImageView
                 android:id="@+id/placeShowInMapButton"
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:layout_toEndOf="@id/placeLikeButton"
-                android:layout_margin="4dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="30dp"
                 android:adjustViewBounds="true"/>
 
         </RelativeLayout>
 
-
-        <!--app:srcCompat="@drawable/ic_location_on_red_24dp"-->
-
-
     </RelativeLayout>
-
-
 
 </android.support.v7.widget.CardView>

@@ -15,10 +15,6 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
 
-/**
- * Created by Cyborg on 4/23/2017.
- */
-
 public class CustomGlideModule implements GlideModule {
 
 

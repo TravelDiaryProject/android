@@ -1,8 +1,6 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -22,13 +20,10 @@ import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.CallbackPlaces;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import io.realm.internal.Collection;
 
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.ROOT_URL;
@@ -178,7 +173,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         mSelectedItemsIds = new SparseBooleanArray();
     }
 
-    public void selectView(int position, boolean value) {
+    private void selectView(int position, boolean value) {
         if (value)
             mSelectedItemsIds.put(position, value);
         else
@@ -195,7 +190,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return mSelectedItemsIds;
     }
 
-    public class TripViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
+    private class TripViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
 
         private HorizontalRecyclerAdapter horizontalRecyclerAdapter;
         private RecyclerView horizontalRecycler;
@@ -203,7 +198,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private List<Place> placesForHorizontal = new ArrayList<>();
 
-        public TripViewHolder(View view) {
+        private TripViewHolder(View view) {
             super(view);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
@@ -214,7 +209,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
         }
 
-        public void bindData(final Trip trip, int position) {
+        private void bindData(final Trip trip, int position) {
 
             if (mSelectedItemsIds.get(position))
                 itemView.setBackgroundResource(R.color.grey);
@@ -223,12 +218,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             title.setText(trip.getTitle());
 
-            dataService.getPLacesByTrip(trip.getId(), new CallBack() {
+            dataService.getPlacesByTrip(trip.getId(), new CallbackPlaces() {
                 @Override
-                public void responseNetwork(Object o) {
-                    List<Place> list = (List<Place>) o;
+                public void responseNetwork(List<Place> placeList) {
                     placesForHorizontal.clear();
-                    placesForHorizontal.addAll(list);
+                    placesForHorizontal.addAll(placeList);
                     if (placesForHorizontal.size()==0){
                         placesForHorizontal.add(new Place(trip.getThumbnail()));
                     }
@@ -255,7 +249,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public class PlaceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
+    private class PlaceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
 
         private TextView placeTitleText;
         private ImageView titleImageView;
@@ -266,7 +260,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private Place place;
 
-        public PlaceViewHolder(View view) {
+        private PlaceViewHolder(View view) {
             super(view);
 
             view.setOnLongClickListener(this);
@@ -286,7 +280,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             placeShowInMapButton.setOnClickListener(this);
         }
 
-        public void bindData(Place place, int position){
+        private void bindData(Place place, int position){
             this.place = place;
 
             mProgressBar.setVisibility(View.VISIBLE);
@@ -377,17 +371,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public class ProgressHolder extends RecyclerView.ViewHolder {
+    private class ProgressHolder extends RecyclerView.ViewHolder {
 
         private ProgressBar progressBar;
 
-        public ProgressHolder(View view) {
+        private ProgressHolder(View view) {
             super(view);
 
             progressBar = (ProgressBar) view.findViewById(R.id.load_new_items_recycler);
         }
 
-        public void bindData() {
+        private void bindData() {
             if (isLoadMore)
                 progressBar.setVisibility(View.VISIBLE);
             else

@@ -1,9 +1,7 @@
 package com.traveldiary.android.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +10,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
-import com.traveldiary.android.activity.MainActivity;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.SimpleCallBack;
 
 import static com.traveldiary.android.App.dataService;
-import static com.traveldiary.android.Constans.MY;
-import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 
 public class CreatTripFragment extends Fragment {
@@ -46,9 +41,9 @@ public class CreatTripFragment extends Fragment {
                     String tripTitle = mEditTripTitle.getText().toString().trim();
 
 
-                    dataService.createNewTrip(tripTitle, new CallBack() {
+                    dataService.createTrip(tripTitle, new SimpleCallBack() {
                         @Override
-                        public void responseNetwork(Object o) {
+                        public void response(Object o) {
                             Toast.makeText(getActivity(),"Trip created!!!", Toast.LENGTH_SHORT).show();
 
                             //Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -66,7 +61,7 @@ public class CreatTripFragment extends Fragment {
                         }
 
                         @Override
-                        public void failNetwork(Throwable t) {
+                        public void fail(Throwable t) {
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });

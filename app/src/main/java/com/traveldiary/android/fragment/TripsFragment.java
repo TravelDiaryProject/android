@@ -12,7 +12,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,9 +26,10 @@ import com.traveldiary.android.R;
 import com.traveldiary.android.ToolbarActionMode;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.activity.LoginActivity;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.SimpleCallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Trip;
+import com.traveldiary.android.network.CallbackTrips;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,6 @@ import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
 public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener, RecyclerAdapter.ItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
-
-    private static String TAG = "TripsFragment";
 
     private RecyclerView mRecyclerView;
     private RecyclerAdapter mRecyclerAdapter;
@@ -60,7 +58,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
 
     public interface OnPlaneButtonListener{
-        public void onPlaneButtonClick();
+        void onPlaneButtonClick();
     }
 
     private OnPlaneButtonListener onPlaneButtonListener;
@@ -81,7 +79,6 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
         if (getArguments() != null){
             mTripsFor = getArguments().getString(TRIPS_FOR);
-            Log.d(TAG, "onCreate, mTripsFor = " + mTripsFor);
         }
     }
 
@@ -133,11 +130,10 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
             switch (mTripsFor) {
                 case MY:
-
-                    dataService.getMyTrips(new CallBack() {
+                    dataService.getMyTrips(new CallbackTrips() {
                         @Override
-                        public void responseNetwork(Object o) {
-                            manipulateWithResponse(o, isThisRefresh);
+                        public void responseNetwork(List<Trip> tripList) {
+                            manipulateWithResponse(tripList, isThisRefresh);
                         }
 
                         @Override
@@ -151,11 +147,10 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                     break;
 
                 case FUTURE:
-
-                    dataService.getFutureTrips(new CallBack() {
+                    dataService.getFutureTrips(new CallbackTrips() {
                         @Override
-                        public void responseNetwork(Object o) {
-                            manipulateWithResponse(o, isThisRefresh);
+                        public void responseNetwork(List<Trip> tripList) {
+                            manipulateWithResponse(tripList, isThisRefresh);
                         }
 
                         @Override
@@ -183,8 +178,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         }
     }
 
-    public void manipulateWithResponse(Object o, boolean isThisRefresh){
-        List<Trip> tripsList = (List<Trip>) o;
+    public void manipulateWithResponse(List<Trip> tripsList, boolean isThisRefresh){
 
         mNoTripsTextView.setVisibility(View.GONE);
         mNoTripsButton.setVisibility(View.GONE);
@@ -196,7 +190,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             if (mTripsFor.equals(MY))
                 setNoViewsInfos(getResources().getString(R.string.no_my_trips), null);
             else
-                setNoViewsInfos(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plane));
+                setNoViewsInfos(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plan));
         }
 
         if (!isThisRefresh) {
@@ -258,9 +252,9 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 final int finalI = i;
                 final Trip trip = mTripList.get(selected.keyAt(finalI));
 
-                dataService.removeTrip(mTripList.get(selected.keyAt(i)), new CallBack() {
+                dataService.removeTrip(mTripList.get(selected.keyAt(i)), new SimpleCallBack() {
                             @Override
-                            public void responseNetwork(Object o) {
+                            public void response(Object o) {
                                 mTripList.remove(trip);
 
                                 if (selected.size()>2)
@@ -270,7 +264,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                             }
 
                             @Override
-                            public void failNetwork(Throwable t) {
+                            public void fail(Throwable t) {
                                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });

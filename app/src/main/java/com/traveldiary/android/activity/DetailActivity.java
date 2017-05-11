@@ -4,7 +4,6 @@ package com.traveldiary.android.activity;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -27,9 +26,7 @@ import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.fragment.UploadDialog;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.CallBack;
-
-import org.w3c.dom.Text;
+import com.traveldiary.android.network.SimpleCallBack;
 
 import java.util.List;
 
@@ -79,9 +76,9 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
 
         Log.d("MYLOG", " tripID from Intent = " + mTripId);
 
-        dataService.getTripById(mTripId, new CallBack() {
+        dataService.getTripById(mTripId, new SimpleCallBack() {
             @Override
-            public void responseNetwork(Object o) {
+            public void response(Object o) {
                 Trip trip = (Trip) o;
                 if (trip.getIsMine()==1 && trip.getIsFuture()==0){
                     mFab.show();
@@ -91,7 +88,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
             }
 
             @Override
-            public void failNetwork(Throwable t) {
+            public void fail(Throwable t) {
                 System.out.println(t.getMessage());
             }
         });

@@ -28,7 +28,7 @@
     <!--TripsFragment-->
     <string name="no_my_trips">You do not have any uploaded travel yet.
                         Click on the plus button below to create your first trip.</string>
-    <string name="plane">Plane</string>
+    <string name="plan">Plan</string>
     <string name="check_network_connection">An error occurred while loading the data. Check the network connection.</string>
     <string name="try_again">Try again</string>
     <string name="no_future_trips">No trips yet. Click on the button to plan a trip</string>
@@ -38,6 +38,9 @@
 
     <!--FindPlaceFragment-->
     <string name="enter_city_or_country">Enter city or country</string>
+    <string name="no_places_by_request">There are no places by your request</string>
+
+
 
 
     <!--PlacesFragment-->

@@ -7,9 +7,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Cyborg on 5/8/2017.
- */
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter{
     private final List<Fragment> mFragmentList = new ArrayList<>();
@@ -32,8 +29,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter{
     public CharSequence getPageTitle(int position) {
         return null;
     }
-
-
 
     public void addFragment(Fragment fragment) {
         mFragmentList.add(fragment);

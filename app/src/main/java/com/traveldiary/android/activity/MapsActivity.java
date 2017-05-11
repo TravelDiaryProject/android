@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.traveldiary.android.DataParser;
 import com.traveldiary.android.R;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.CallbackPlaces;
 
 import org.json.JSONObject;
 
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.traveldiary.android.App.network;
+import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACE_ID;
 
@@ -84,11 +84,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(final GoogleMap map) {
         mMap = map;
 
-        network.getPlacesByTrip(mTripId, new CallBack() {
+        dataService.getPlacesByTrip(mTripId, new CallbackPlaces() {
             @Override
-            public void responseNetwork(Object o) {
-                List<Place> placesList = (List<Place>) o;
-                mPlacesList.addAll(placesList);
+            public void responseNetwork(List<Place> placeList) {
+                mPlacesList.addAll(placeList);
                 smth(map);
             }
 
@@ -157,12 +156,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         int lastCoordinate = coordinates.size()-1;
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("waypoints=");
-
-
-        String origin = "origin=" + coordinates.get(0).latitude + "," + coordinates.get(0).longitude;
-        String destination = "destination=" + coordinates.get(lastCoordinate).latitude + "," + coordinates.get(lastCoordinate).longitude;
-
+        stringBuilder.append("https://maps.googleapis.com/maps/api/directions/json?origin=");
+        stringBuilder.append(coordinates.get(0).latitude);
+        stringBuilder.append(",");
+        stringBuilder.append(coordinates.get(0).longitude);
+        stringBuilder.append("&destination=");
+        stringBuilder.append(coordinates.get(lastCoordinate).latitude);
+        stringBuilder.append(",");
+        stringBuilder.append(coordinates.get(lastCoordinate).longitude);
+        stringBuilder.append("&waypoints=");
 
         for (int i = 1; i < lastCoordinate; i++){
             stringBuilder.append(coordinates.get(i).latitude);
@@ -173,11 +175,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-
-
-        String url = "https://maps.googleapis.com/maps/api/directions/json?" + origin + "&" + destination + "&" + stringBuilder.toString();
-
-        return url;
+        return stringBuilder.toString();
     }
 
     private class DownloadTask extends AsyncTask<String, Void, String> {

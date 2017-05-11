@@ -29,16 +29,16 @@ import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.CreateFindActivity;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.activity.MapsActivity;
-import com.traveldiary.android.network.CallBack;
+import com.traveldiary.android.network.SimpleCallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Place;
+import com.traveldiary.android.network.CallbackPlaces;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.traveldiary.android.App.dataService;
-import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY_NAME;
@@ -51,7 +51,6 @@ import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.PLACE_ID;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.PLACES_FOR_TOP;
-import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
 
 public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener, RecyclerAdapter.ItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -138,12 +137,11 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         switch (mPlacesFor) {
 
             case PLACES_FOR_TOP:
-                dataService.getTopPlaces(0, new CallBack() {
+
+                dataService.getTopPlacesOffset(0, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(Object o) {
-                        manipulationWithResponse(o, isThisRefresh);
-                        //mRecyclerAdapter.setLoadMore(true);
-                        //mRecyclerAdapter.addLoadingFooter();
+                    public void responseNetwork(List<Place> placeList) {
+                        manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
@@ -161,7 +159,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         loadNextTopPage(dy);
                     }
                 });
-
                 break;
 
             case PLACES_FOR_CITY:
@@ -171,10 +168,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 mRecyclerView.clearOnScrollListeners();
 
-                dataService.getPlacesByCity(mCityId, new CallBack() {
+                dataService.getPlacesByCity(mCityId, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(Object o) {
-                        manipulationWithResponse(o, isThisRefresh);
+                    public void responseNetwork(List<Place> placeList) {
+                        manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
@@ -196,17 +193,14 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 Log.d("PlacesFragment", "PLACES_FOR_COUNTRY");
 
-                dataService.getPlacesByCountry(mCountryId, new CallBack() {
+                dataService.getPlacesByCountry(mCountryId, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(Object o) {
-                        List<Place> list = (List<Place>) o;
-                        Log.d("PlacesFragment", "PLACES_FOR_COUNTRY" + " responseNetwork size = " + list.size());
-                        manipulationWithResponse(o, isThisRefresh);
+                    public void responseNetwork(List<Place> placeList) {
+                        manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
                     public void failNetwork(Throwable t) {
-                        Log.d("PlacesFragment", "PLACES_FOR_COUNTRY" + " failNetwork");
                         mProgressBar.setVisibility(View.GONE);
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -219,10 +213,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 mRecyclerView.clearOnScrollListeners();
 
-                dataService.getPLacesByTrip(mTripId, new CallBack() {
+                dataService.getPlacesByTrip(mTripId, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(Object o) {
-                        manipulationWithResponse(o, isThisRefresh);
+                    public void responseNetwork(List<Place> placeList) {
+                        manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
@@ -237,20 +231,15 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
         }
     }
 
-    public void manipulationWithResponse(Object o, boolean isThisRefresh) {
-        List<Place> placesList = (List<Place>) o;
+    public void manipulationWithResponse(List<Place> placesList, boolean isThisRefresh) {
+
         mNoPlacesTextView.setVisibility(View.GONE);
         mNoPlacesButton.setVisibility(View.GONE);
 
         Log.d("PlacesFragment", "PLACES_FOR_COUNTRY manipulationWithResponse placesList.size = " + placesList.size());
 
         if (placesList == null || placesList.size() == 0) {
-
             noNetworkOrEmptyListInfo("No places yet", null);
-
-//            mNoPlacesTextView.setText("No places yet");
-//            mNoPlacesTextView.setVisibility(View.VISIBLE);
-//            Toast.makeText(getActivity(), "No Places", Toast.LENGTH_LONG).show();
         }
 
         if (!isThisRefresh) {
@@ -292,11 +281,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            dataService.getTopPlaces(totalItemCount, new CallBack() {
+                            dataService.getTopPlacesOffset(totalItemCount, new CallbackPlaces() {
                                 @Override
-                                public void responseNetwork(Object o) {
-                                    List<Place> placesList = (List<Place>) o;
-
+                                public void responseNetwork(List<Place> placesList) {
                                     loading = true;
 
                                     if (placesList.size() > 0) {
@@ -339,9 +326,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     if (TOKEN_CONST != null)
                         clickLogic(view, position);
                     else
-                        Toast.makeText(getActivity(), "Need Authorization", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), "No Internet", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.need_authorization_function), Toast.LENGTH_SHORT).show();
                 }
             } else {
                 clickLogic(view, position);
@@ -381,9 +366,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 final int finalI = i;
                 final Place place = mPlacesList.get(selected.keyAt(finalI));
 
-                dataService.removePlace(mPlacesList.get(selected.keyAt(i)), new CallBack() {
+                dataService.removePlace(mPlacesList.get(selected.keyAt(i)), new SimpleCallBack() {
                     @Override
-                    public void responseNetwork(Object o) {
+                    public void response(Object o) {
                         mPlacesList.remove(place);
 
                         if (selected.size() > 2)
@@ -393,7 +378,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                     }
 
                     @Override
-                    public void failNetwork(Throwable t) {
+                    public void fail(Throwable t) {
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -427,15 +412,14 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
             case R.id.placeAddToFutureButton:
 
-                dataService.addToFuture(place, new CallBack() {
+                dataService.addToFutureTrips(place, new SimpleCallBack() {
                     @Override
-                    public void responseNetwork(Object o) {
-                        Toast.makeText(getActivity(), "places added to your future trips", Toast.LENGTH_LONG).show();
+                    public void response(Object o) {
                         mRecyclerAdapter.notifyItemChanged(possition);
                     }
 
                     @Override
-                    public void failNetwork(Throwable t) {
+                    public void fail(Throwable t) {
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                         mRecyclerAdapter.notifyItemChanged(possition);
                     }
@@ -445,29 +429,27 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
             case R.id.placeLikeButton:
 
                 if (place.getIsLiked() == 0) {
-                    dataService.addLike(place, new CallBack() {
+                    dataService.likePlace(place, new SimpleCallBack() {
                         @Override
-                        public void responseNetwork(Object o) {
-                            Toast.makeText(getActivity(), "place Liked ", Toast.LENGTH_LONG).show();
+                        public void response(Object o) {
                             mRecyclerAdapter.notifyItemChanged(possition);
                         }
 
                         @Override
-                        public void failNetwork(Throwable t) {
+                        public void fail(Throwable t) {
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                             mRecyclerAdapter.notifyItemChanged(possition);
                         }
                     });
                 } else if (place.getIsLiked() == 1) {
-                    dataService.removeLike(place, new CallBack() {
+                    dataService.unlikePlace(place, new SimpleCallBack() {
                         @Override
-                        public void responseNetwork(Object o) {
-                            Toast.makeText(getActivity(), "place Unliked ", Toast.LENGTH_LONG).show();
+                        public void response(Object o) {
                             mRecyclerAdapter.notifyItemChanged(possition);
                         }
 
                         @Override
-                        public void failNetwork(Throwable t) {
+                        public void fail(Throwable t) {
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                             mRecyclerAdapter.notifyItemChanged(possition);
                         }

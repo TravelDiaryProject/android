@@ -14,7 +14,7 @@ public class Validator {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         if(activeNetworkInfo == null){
-            Toast.makeText(currentContext, "NO INTERNET", Toast.LENGTH_SHORT).show();
+            Toast.makeText(currentContext, currentContext.getString(R.string.check_network_connection), Toast.LENGTH_SHORT).show();
         }
 
 //        if (activeNetwork != null && activeNetwork.isConnected()) {
