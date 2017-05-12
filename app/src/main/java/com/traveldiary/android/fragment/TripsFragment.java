@@ -26,10 +26,10 @@ import com.traveldiary.android.R;
 import com.traveldiary.android.ToolbarActionMode;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.activity.LoginActivity;
-import com.traveldiary.android.network.SimpleCallBack;
+import com.traveldiary.android.callback.SimpleCallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.CallbackTrips;
+import com.traveldiary.android.callback.CallbackTrips;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
 
-public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.ItemClickListener, RecyclerAdapter.ItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class TripsFragment extends Fragment implements View.OnClickListener, RecyclerAdapter.RecyclerItemListener, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mRecyclerView;
     private RecyclerAdapter mRecyclerAdapter;
@@ -108,7 +108,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.trips_recycler_view);
         mTripList = new ArrayList<>();
-        mRecyclerAdapter = new RecyclerAdapter(getActivity(), mTripList, this, this, null);
+        mRecyclerAdapter = new RecyclerAdapter(getActivity(), mTripList, this, null);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -132,12 +132,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 case MY:
                     dataService.getMyTrips(new CallbackTrips() {
                         @Override
-                        public void responseNetwork(List<Trip> tripList) {
+                        public void response(List<Trip> tripList) {
                             manipulateWithResponse(tripList, isThisRefresh);
                         }
 
                         @Override
-                        public void failNetwork(Throwable t) {
+                        public void fail(Throwable t) {
                             mProgressBar.setVisibility(View.GONE);
                             mSwipeRefreshLayout.setRefreshing(false);
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -149,12 +149,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 case FUTURE:
                     dataService.getFutureTrips(new CallbackTrips() {
                         @Override
-                        public void responseNetwork(List<Trip> tripList) {
+                        public void response(List<Trip> tripList) {
                             manipulateWithResponse(tripList, isThisRefresh);
                         }
 
                         @Override
-                        public void failNetwork(Throwable t) {
+                        public void fail(Throwable t) {
                             mProgressBar.setVisibility(View.GONE);
                             mSwipeRefreshLayout.setRefreshing(false);
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();

@@ -3,15 +3,17 @@ package com.traveldiary.android.data;
 
 import android.util.Log;
 
+import com.traveldiary.android.callback.CallbackRegistration;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.Place;
+import com.traveldiary.android.model.RegistrationResponse;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.SimpleCallBack;
-import com.traveldiary.android.network.CallbackCities;
-import com.traveldiary.android.network.CallbackCountries;
-import com.traveldiary.android.network.CallbackPlaces;
-import com.traveldiary.android.network.CallbackTrips;
+import com.traveldiary.android.callback.SimpleCallBack;
+import com.traveldiary.android.callback.CallbackCities;
+import com.traveldiary.android.callback.CallbackCountries;
+import com.traveldiary.android.callback.CallbackPlaces;
+import com.traveldiary.android.callback.CallbackTrips;
 
 import java.util.List;
 
@@ -83,13 +85,13 @@ public class DataService implements DataInterface {
     }
 
     @Override
-    public void signIn(String email, String password, SimpleCallBack simpleCallBack) {
-        login(email, password, simpleCallBack);
+    public void signIn(String email, String password, CallbackRegistration callbackRegistration) {
+        login(email, password, callbackRegistration);
     }
 
     @Override
-    public void registration(String email, String password, SimpleCallBack simpleCallBack) {
-        registrationUser(email, password, simpleCallBack);
+    public void registration(String email, String password, CallbackRegistration callbackRegistration) {
+        registrationUser(email, password, callbackRegistration);
     }
 
     @Override
@@ -122,21 +124,21 @@ public class DataService implements DataInterface {
         clearDB();
     }
 
-
     private void prepareListTopPlaces(int offset, final CallbackPlaces callbackPlaces){
 
-        if (offset!=0)
+        if (offset!=0) {
             offset--;
+        }
 
         network.downloadTopPlaces(offset, COUNT_LIMIT, new CallbackPlaces() {
             @Override
-            public void responseNetwork(List<Place> placeList) {
-                callbackPlaces.responseNetwork(placeList);
+            public void response(List<Place> placeList) {
+                callbackPlaces.response(placeList);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackPlaces.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackPlaces.fail(t);
             }
         });
     }
@@ -146,19 +148,19 @@ public class DataService implements DataInterface {
 
         network.downloadPlacesByTripId(tripId, new CallbackPlaces() {
             @Override
-            public void responseNetwork(List<Place> listPlaceServer) {
+            public void response(List<Place> listPlaceServer) {
 
                 if (listPlacesDB.size() > listPlaceServer.size()) {
                     data.removePlacesByTrip(tripId);
                 }
                 data.addOrUpdateListPlaces(listPlaceServer);
-                callbackPlaces.responseNetwork(listPlaceServer);
+                callbackPlaces.response(listPlaceServer);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackPlaces.responseNetwork(listPlacesDB);
-                callbackPlaces.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackPlaces.response(listPlacesDB);
+                callbackPlaces.fail(t);
             }
         });
     }
@@ -166,30 +168,30 @@ public class DataService implements DataInterface {
     private void prepareListPlacesByCity(final int cityId, final CallbackPlaces callbackPlaces){
         final RealmResults<Place> listPlacesDB = data.getPlacesByCity(cityId);
         if (listPlacesDB.size()!=0){
-            callbackPlaces.responseNetwork(listPlacesDB);
+            callbackPlaces.response(listPlacesDB);
         }
         listPlacesDB.addChangeListener(new RealmChangeListener<RealmResults<Place>>() {
             @Override
             public void onChange(RealmResults<Place> element) {
-                callbackPlaces.responseNetwork(listPlacesDB);
+                callbackPlaces.response(listPlacesDB);
             }
         });
 
         network.downloadPlacesByCityId(cityId, new CallbackPlaces() {
             @Override
-            public void responseNetwork(List<Place> listPlaceServer) {
+            public void response(List<Place> listPlaceServer) {
 
-                if (listPlacesDB.size() > listPlaceServer.size()) {  // если лист в базе пуст а лист с сервера нет..
+                if (listPlacesDB.size() > listPlaceServer.size()) {
                     data.removePlacesByCity(cityId);
                 }else if (listPlacesDB.size()==0 && listPlaceServer.size()==0){
-                    callbackPlaces.responseNetwork(listPlacesDB);
+                    callbackPlaces.response(listPlacesDB);
                 }
                 data.addOrUpdateListPlaces(listPlaceServer);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackPlaces.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackPlaces.fail(t);
             }
         });
     }
@@ -197,32 +199,30 @@ public class DataService implements DataInterface {
     private void prepareListPlacesByCountry(final int countryId, final CallbackPlaces callbackPlaces){
         final RealmResults<Place> listPlacesDB = data.getPlacesByCountry(countryId);
         if (listPlacesDB.size()!=0){
-            callbackPlaces.responseNetwork(listPlacesDB);
+            callbackPlaces.response(listPlacesDB);
             Log.d("PlacesFragment","size = " + listPlacesDB.size());
         }
         listPlacesDB.addChangeListener(new RealmChangeListener<RealmResults<Place>>() {
             @Override
             public void onChange(RealmResults<Place> element) {
-                callbackPlaces.responseNetwork(listPlacesDB);
+                callbackPlaces.response(listPlacesDB);
             }
         });
 
         network.downloadPlacesByCountryId(countryId, new CallbackPlaces() {
             @Override
-            public void responseNetwork(List<Place> listPlaceServer) {
-                Log.d("PlacesFragment","size2 = " + listPlaceServer.size());
-
-                if (listPlacesDB.size() > listPlaceServer.size()) {  // если лист в базе пуст а лист с сервера нет..
-                    data.removePlacesByCountry(countryId);                      // отсылаем в коллбек лист с сервера
+            public void response(List<Place> listPlaceServer) {
+                if (listPlacesDB.size() > listPlaceServer.size()) {
+                    data.removePlacesByCountry(countryId);
                 }else if (listPlacesDB.size()==0 && listPlaceServer.size()==0){
-                    callbackPlaces.responseNetwork(listPlacesDB);
+                    callbackPlaces.response(listPlacesDB);
                 }
                 data.addOrUpdateListPlaces(listPlaceServer);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackPlaces.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackPlaces.fail(t);
             }
         });
     }
@@ -233,18 +233,18 @@ public class DataService implements DataInterface {
 
         network.downloadMyTrips(new CallbackTrips() {
             @Override
-            public void responseNetwork(List<Trip> listMyTripServer) {
+            public void response(List<Trip> listMyTripServer) {
                 if (listMyTripDB.size() > listMyTripServer.size()) {
                     data.removeMyTrips();
                 }
                 data.addOrUpdateListTrips(listMyTripServer);
-                callbackTripsl.responseNetwork(listMyTripServer);
+                callbackTripsl.response(listMyTripServer);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackTripsl.responseNetwork(listMyTripDB);
-                callbackTripsl.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackTripsl.response(listMyTripDB);
+                callbackTripsl.fail(t);
             }
         });
     }
@@ -255,19 +255,19 @@ public class DataService implements DataInterface {
 
         network.downloadFutureTrips(new CallbackTrips() {
             @Override
-            public void responseNetwork(List<Trip> listFutureTripServer) {
+            public void response(List<Trip> listFutureTripServer) {
 
                 if (listFutureDB.size() > listFutureTripServer.size()) {
                     data.removeFutureTrips();
                 }
                 data.addOrUpdateListTrips(listFutureTripServer);
-                callbackTrips.responseNetwork(listFutureTripServer);
+                callbackTrips.response(listFutureTripServer);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackTrips.responseNetwork(listFutureDB);
-                callbackTrips.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackTrips.response(listFutureDB);
+                callbackTrips.fail(t);
             }
         });
     }
@@ -296,25 +296,25 @@ public class DataService implements DataInterface {
     private void prepareListAllCities(final CallbackCities callbackCities){
         final RealmResults<City> listCityDB = data.getAllCities();
         if (listCityDB.size()!=0){
-            callbackCities.responseNetwork(listCityDB);
+            callbackCities.response(listCityDB);
         }
         listCityDB.addChangeListener(new RealmChangeListener<RealmResults<City>>() {
             @Override
             public void onChange(RealmResults<City> element) {
-                callbackCities.responseNetwork(listCityDB);
+                callbackCities.response(listCityDB);
             }
         });
 
         network.downloadAllCities(new CallbackCities() {
             @Override
-            public void responseNetwork(List<City> listCityServer) {
+            public void response(List<City> listCityServer) {
 
                 if (listCityDB.size() != listCityServer.size()) {  // если лист в базе пуст а лист с сервера нет..
                     data.removeCities();
                     data.addOrUpdateListCities(listCityServer);
                     // отсылаем в коллбек лист с сервера
                 }else if (listCityDB.size()==0 && listCityServer.size()==0){
-                    callbackCities.responseNetwork(listCityDB);
+                    callbackCities.response(listCityDB);
                 }
 
                 if (listCityDB.size() == listCityServer.size()){
@@ -327,8 +327,8 @@ public class DataService implements DataInterface {
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackCities.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackCities.fail(t);
             }
         });
     }
@@ -336,24 +336,24 @@ public class DataService implements DataInterface {
     private void prepareListAllCountries(final CallbackCountries callbackCountries){
         final RealmResults<Country> listCountryDB = data.getAllCountries();
         if (listCountryDB.size()!=0){
-            callbackCountries.responseNetwork(listCountryDB);
+            callbackCountries.response(listCountryDB);
         }
         listCountryDB.addChangeListener(new RealmChangeListener<RealmResults<Country>>() {
             @Override
             public void onChange(RealmResults<Country> element) {
-                callbackCountries.responseNetwork(listCountryDB);
+                callbackCountries.response(listCountryDB);
             }
         });
 
         network.downloadAllCountries(new CallbackCountries() {
             @Override
-            public void responseNetwork(List<Country> listCountryServer) {
+            public void response(List<Country> listCountryServer) {
 
                 if (listCountryDB.size() != listCountryServer.size()) {  // если лист в базе пуст а лист с сервера нет..
                     data.removeCountries();
                     data.addOrUpdateListCountries(listCountryServer);
                 }else if (listCountryDB.size()==0 && listCountryServer.size()==0){
-                    callbackCountries.responseNetwork(listCountryDB);
+                    callbackCountries.response(listCountryDB);
                 }
 
                 if (listCountryDB.size() == listCountryServer.size()){
@@ -366,8 +366,8 @@ public class DataService implements DataInterface {
             }
 
             @Override
-            public void failNetwork(Throwable t) {
-                callbackCountries.failNetwork(t);
+            public void fail(Throwable t) {
+                callbackCountries.fail(t);
             }
         });
     }
@@ -447,32 +447,32 @@ public class DataService implements DataInterface {
         });
     }
 
-    private void login(String email, String password, final SimpleCallBack simpleCallBack){
+    private void login(String email, String password, final CallbackRegistration callbackRegistration){
 
-        network.login(email, password, new SimpleCallBack() {
+        network.login(email, password, new CallbackRegistration() {
             @Override
-            public void response(Object o) {
-                simpleCallBack.response(o);
+            public void response(RegistrationResponse registrationResponse) {
+                callbackRegistration.response(registrationResponse);
             }
 
             @Override
             public void fail(Throwable t) {
-                simpleCallBack.fail(t);
+                callbackRegistration.fail(t);
             }
         });
     }
 
-    private void registrationUser(String email, String password, final SimpleCallBack simpleCallBack){
+    private void registrationUser(String email, String password, final CallbackRegistration callbackRegistration){
 
-        network.registration(email, password, new SimpleCallBack() {
+        network.registration(email, password, new CallbackRegistration() {
             @Override
-            public void response(Object o) {
-                simpleCallBack.response(o);
+            public void response(RegistrationResponse registrationResponse) {
+                callbackRegistration.response(registrationResponse);
             }
 
             @Override
             public void fail(Throwable t) {
-                simpleCallBack.fail(t);
+                callbackRegistration.fail(t);
             }
         });
     }
@@ -499,13 +499,10 @@ public class DataService implements DataInterface {
             public void response(Object o) {
                 data.removePlace(place);
                 simpleCallBack.response("removed");
-                // removed from server - OK
             }
 
             @Override
             public void fail(Throwable t) {
-                // не удален с сервера
-                // добавить в список не синхронизированных объектов
                 simpleCallBack.fail(t);
             }
         });
@@ -519,13 +516,10 @@ public class DataService implements DataInterface {
                 data.removePlacesByTrip(trip.getId());
                 data.removeTrip(trip);
                 simpleCallBack.response("removed");
-                // removed from server - OK
             }
 
             @Override
             public void fail(Throwable t) {
-                // не удален с сервера
-                // добавить в список не синхронизированных объектов
                 simpleCallBack.fail(t);
             }
         });

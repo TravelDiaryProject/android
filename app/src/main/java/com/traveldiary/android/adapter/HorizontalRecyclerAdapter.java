@@ -19,16 +19,20 @@ import java.util.List;
 
 import static com.traveldiary.android.Constans.ROOT_URL;
 
-public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private List<Place> mPlaceList;
+    private RecyclerAdapter.RecyclerItemListener recyclerItemListener = null;
+    private int parentPosition;
 
-    public HorizontalRecyclerAdapter(Context context) {
+    HorizontalRecyclerAdapter(Context context, RecyclerAdapter.RecyclerItemListener recyclerItemListener) {
         this.mContext = context;
+        this.recyclerItemListener = recyclerItemListener;
     }
 
-    public void setData(List<Place> list){
+    void setData(List<Place> list, int parentPosition){
+        this.parentPosition = parentPosition;
         if (mPlaceList!=list){
             mPlaceList = list;
             notifyDataSetChanged();
@@ -57,16 +61,18 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         return size;
     }
 
-    private class ItemViewHolder extends RecyclerView.ViewHolder {
+    private class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         private ImageView imageView;
 
-        public ItemViewHolder(View itemView) {
+        private ItemViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
             imageView = (ImageView) itemView.findViewById(R.id.horizontal_trip_image);
         }
 
-        public void bindData(Place place){
+        private void bindData(Place place){
             Glide.with(mContext).load(ROOT_URL + place.getThumbnail())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
@@ -84,6 +90,17 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageView);
+        }
+
+        @Override
+        public void onClick(View v) {
+            recyclerItemListener.onItemClick(v, parentPosition);
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            recyclerItemListener.onItemLongClick(v, parentPosition);
+            return true;
         }
     }
 }

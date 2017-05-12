@@ -20,7 +20,7 @@ import com.bumptech.glide.request.target.Target;
 import com.traveldiary.android.R;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.CallbackPlaces;
+import com.traveldiary.android.callback.CallbackPlaces;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,22 +36,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private boolean isLoadMore = false;
 
-    private int mSelectedItemPosition = -1;
     private Context mContext;
     private List<Trip> mTripsList;
     private List<Place> mPlaceList;
 
-    private ItemClickListener itemClickListener = null;
-    private ItemLongClickListener itemLongClickListener = null;
+    private RecyclerItemListener recyclerItemListener = null;
 
     private ProgressBar mProgressBar;
     private SparseBooleanArray mSelectedItemsIds;
 
-    public RecyclerAdapter(Context mContext, List<Trip> tripList, ItemClickListener itemClickListener, ItemLongClickListener itemLongClickListener, List<Place> placeList ) {
+    public RecyclerAdapter(Context mContext, List<Trip> tripList, RecyclerItemListener recyclerItemListener, List<Place> placeList) {
         this.mContext = mContext;
         this.mTripsList = tripList;
-        this.itemClickListener = itemClickListener;
-        this.itemLongClickListener = itemLongClickListener;
+        this.recyclerItemListener = recyclerItemListener;
         this.mPlaceList = placeList;
         mSelectedItemsIds = new SparseBooleanArray();
     }
@@ -74,7 +71,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         .inflate(R.layout.progress_item, parent, false);
                 return new ProgressHolder(itemView3);
         }
-
         return null;
     }
 
@@ -148,14 +144,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return TYPE_PLACE;
     }
 
-    public interface ItemClickListener {
+    public interface RecyclerItemListener {
         void onItemClick(View view, int position);
-    }
-
-    public interface ItemLongClickListener{
         void onItemLongClick(View view, int position);
     }
-
 
     public void toggleSelection(int position) {
         selectView(position, !mSelectedItemsIds.get(position));
@@ -167,15 +159,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             keys[i] = mSelectedItemsIds.keyAt(i);
         }
 
-        for (int i = 0; i < keys.length; i++) {
-            selectView(keys[i], false);
+        for (int key : keys) {
+            selectView(key, false);
         }
         mSelectedItemsIds = new SparseBooleanArray();
     }
 
     private void selectView(int position, boolean value) {
         if (value)
-            mSelectedItemsIds.put(position, value);
+            mSelectedItemsIds.put(position, true);
         else
             mSelectedItemsIds.delete(position);
 
@@ -205,11 +197,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             title = (TextView) view.findViewById(R.id.tvHorizontalHeader);
             horizontalRecycler = (RecyclerView) view.findViewById(R.id.rvHorizontal);
             horizontalRecycler.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-            horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext);
+            horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext, recyclerItemListener);
             horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
         }
 
-        private void bindData(final Trip trip, int position) {
+        private void bindData(final Trip trip, final int position) {
 
             if (mSelectedItemsIds.get(position))
                 itemView.setBackgroundResource(R.color.grey);
@@ -220,18 +212,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             dataService.getPlacesByTrip(trip.getId(), new CallbackPlaces() {
                 @Override
-                public void responseNetwork(List<Place> placeList) {
+                public void response(List<Place> placeList) {
                     placesForHorizontal.clear();
                     placesForHorizontal.addAll(placeList);
                     if (placesForHorizontal.size()==0){
                         placesForHorizontal.add(new Place(trip.getThumbnail()));
                     }
-                    horizontalRecyclerAdapter.setData(placesForHorizontal);
+                    horizontalRecyclerAdapter.setData(placesForHorizontal, position);
                     horizontalRecyclerAdapter.notifyDataSetChanged();
                 }
 
                 @Override
-                public void failNetwork(Throwable t) {
+                public void fail(Throwable t) {
                     Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -239,12 +231,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @Override
         public void onClick(View v) {
-            itemClickListener.onItemClick(v, this.getLayoutPosition());
+            recyclerItemListener.onItemClick(v, this.getLayoutPosition());
         }
 
         @Override
         public boolean onLongClick(View v) {
-            itemLongClickListener.onItemLongClick(v, this.getLayoutPosition());
+            recyclerItemListener.onItemLongClick(v, this.getLayoutPosition());
             return true;
         }
     }
@@ -308,10 +300,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             if (mSelectedItemsIds.get(position)) {
                 titleImageView.setAlpha(0.4f);
-                //itemView.setBackgroundResource(R.color.grey);
             }else {
                 titleImageView.setAlpha(1f);
-                //itemView.setBackgroundResource(R.color.white);
             }
 
             if (place.getIsLiked()==1){
@@ -343,21 +333,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             switch (v.getId()) {
                 case R.id.placeLikeButton:
-                    itemClickListener.onItemClick(v, this.getLayoutPosition());
+                    recyclerItemListener.onItemClick(v, this.getLayoutPosition());
                     break;
 
                 case R.id.placeAddToFutureButton:
                     if (place.getIsInFutureTrips()==0){
-                        itemClickListener.onItemClick(v, this.getLayoutPosition());
+                        recyclerItemListener.onItemClick(v, this.getLayoutPosition());
                     }
                     break;
 
                 case R.id.placeImageView:
-                    itemClickListener.onItemClick(v, this.getLayoutPosition());
+                    recyclerItemListener.onItemClick(v, this.getLayoutPosition());
                     break;
 
                 case R.id.placeShowInMapButton:
-                    itemClickListener.onItemClick(v, this.getLayoutPosition());
+                    recyclerItemListener.onItemClick(v, this.getLayoutPosition());
                     break;
             }
         }
@@ -365,7 +355,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         @Override
         public boolean onLongClick(View v) {
             if (place.getIsMine() ==1){
-                itemLongClickListener.onItemLongClick(v, this.getLayoutPosition());
+                recyclerItemListener.onItemLongClick(v, this.getLayoutPosition());
             }
             return false;
         }
@@ -377,15 +367,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private ProgressHolder(View view) {
             super(view);
-
             progressBar = (ProgressBar) view.findViewById(R.id.load_new_items_recycler);
         }
 
         private void bindData() {
-            if (isLoadMore)
+            if (isLoadMore) {
                 progressBar.setVisibility(View.VISIBLE);
-            else
+            }else {
                 progressBar.setVisibility(View.GONE);
+            }
         }
     }
 }

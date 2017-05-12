@@ -27,7 +27,7 @@
             android:configChanges="orientation"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -38,18 +38,15 @@
             android:name=".activity.LoginActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/NoActionBar" />
-        <!--             android:noHistory="true" -->
-
+             />
         <activity
             android:name=".activity.RegistrationActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/NoActionBar" />
+             />
         <activity
             android:name=".activity.MapsActivity"
             android:configChanges="orientation"
-            android:label="Map"
             android:screenOrientation="portrait" />
 
         <meta-data
@@ -65,7 +62,7 @@
             android:label="@string/title_activity_detail"
             android:parentActivityName=".activity.MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            >
 
         </activity>
 
@@ -75,7 +72,7 @@
 
         <activity android:name=".activity.CreateFindActivity"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+
             android:screenOrientation="portrait"
 
             >

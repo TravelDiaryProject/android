@@ -17,8 +17,8 @@ import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.CreateFindActivity;
 import com.traveldiary.android.model.Country;
 import com.traveldiary.android.model.City;
-import com.traveldiary.android.network.CallbackCities;
-import com.traveldiary.android.network.CallbackCountries;
+import com.traveldiary.android.callback.CallbackCities;
+import com.traveldiary.android.callback.CallbackCountries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,7 @@ public class FindPlaceFragment extends Fragment {
 
         dataService.getAllCities(new CallbackCities() {
             @Override
-            public void responseNetwork(List<City> cityList) {
+            public void response(List<City> cityList) {
                 mCityList.clear();
                 mCityList.addAll(cityList);
 
@@ -86,14 +86,14 @@ public class FindPlaceFragment extends Fragment {
             }
 
             @Override
-            public void failNetwork(Throwable t) {
+            public void fail(Throwable t) {
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
 
         dataService.getAllCountries(new CallbackCountries() {
             @Override
-            public void responseNetwork(List<Country> countryList) {
+            public void response(List<Country> countryList) {
                 mCountryList.clear();
                 mCountryList.addAll(countryList);
 
@@ -104,7 +104,7 @@ public class FindPlaceFragment extends Fragment {
             }
 
             @Override
-            public void failNetwork(Throwable t) {
+            public void fail(Throwable t) {
                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

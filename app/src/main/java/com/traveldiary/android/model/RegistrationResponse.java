@@ -1,8 +1,5 @@
 package com.traveldiary.android.model;
 
-/**
- * Created by Cyborg on 2/13/2017.
- */
 
 public class RegistrationResponse {
     private String token;
@@ -10,4 +7,5 @@ public class RegistrationResponse {
     public String getToken() {
         return token;
     }
+
 }

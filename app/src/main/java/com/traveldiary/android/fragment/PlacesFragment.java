@@ -29,10 +29,10 @@ import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.CreateFindActivity;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.activity.MapsActivity;
-import com.traveldiary.android.network.SimpleCallBack;
+import com.traveldiary.android.callback.SimpleCallBack;
 import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.network.CallbackPlaces;
+import com.traveldiary.android.callback.CallbackPlaces;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.PLACES_FOR_TOP;
 
 
-public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClickListener, RecyclerAdapter.ItemLongClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class PlacesFragment extends Fragment implements RecyclerAdapter.RecyclerItemListener, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mRecyclerView;
     private RecyclerAdapter mRecyclerAdapter;
@@ -122,7 +122,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
         mPlacesList = new ArrayList<>();
 
-        mRecyclerAdapter = new RecyclerAdapter(getActivity(), null, this, this, mPlacesList);
+        mRecyclerAdapter = new RecyclerAdapter(getActivity(), null, this, mPlacesList);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -140,12 +140,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 dataService.getTopPlacesOffset(0, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(List<Place> placeList) {
+                    public void response(List<Place> placeList) {
                         manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
-                    public void failNetwork(Throwable t) {
+                    public void fail(Throwable t) {
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -170,12 +170,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 dataService.getPlacesByCity(mCityId, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(List<Place> placeList) {
+                    public void response(List<Place> placeList) {
                         manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
-                    public void failNetwork(Throwable t) {
+                    public void fail(Throwable t) {
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -195,12 +195,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 dataService.getPlacesByCountry(mCountryId, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(List<Place> placeList) {
+                    public void response(List<Place> placeList) {
                         manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
-                    public void failNetwork(Throwable t) {
+                    public void fail(Throwable t) {
                         mProgressBar.setVisibility(View.GONE);
                         swipeRefreshLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -215,12 +215,12 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
 
                 dataService.getPlacesByTrip(mTripId, new CallbackPlaces() {
                     @Override
-                    public void responseNetwork(List<Place> placeList) {
+                    public void response(List<Place> placeList) {
                         manipulationWithResponse(placeList, isThisRefresh);
                     }
 
                     @Override
-                    public void failNetwork(Throwable t) {
+                    public void fail(Throwable t) {
                         swipeRefreshLayout.setRefreshing(false);
                         mProgressBar.setVisibility(View.GONE);
                         Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -283,26 +283,21 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                         public void run() {
                             dataService.getTopPlacesOffset(totalItemCount, new CallbackPlaces() {
                                 @Override
-                                public void responseNetwork(List<Place> placesList) {
+                                public void response(List<Place> placesList) {
                                     loading = true;
 
                                     if (placesList.size() > 0) {
-                                        //mRecyclerAdapter.setLoadMore(true);
-                                        //mRecyclerAdapter.notifyDataSetChanged();
-
                                         mRecyclerAdapter.removeLoadingFooter();
                                         mPlacesList.addAll(placesList);
                                         mRecyclerAdapter.notifyDataSetChanged();
-                                        //mRecyclerAdapter.addLoadingFooter();
                                     } else {
                                         mRecyclerAdapter.removeLoadingFooter();
-                                        //mRecyclerAdapter.setLoadMore(false);
                                         mRecyclerAdapter.notifyDataSetChanged();
                                     }
                                 }
 
                                 @Override
-                                public void failNetwork(Throwable t) {
+                                public void fail(Throwable t) {
                                     Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -359,7 +354,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
     }
 
     public void deleteRows() {
-        final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();//Get selected ids
+        final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();
 
         for (int i = (selected.size() - 1); i >= 0; i--) {
             if (selected.valueAt(i)) {
@@ -384,7 +379,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 });
             }
         }
-        Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();//Show Toast
+        Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();
         mActionMode.finish();
     }
 
@@ -427,7 +422,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeLikeButton:
-
                 if (place.getIsLiked() == 0) {
                     dataService.likePlace(place, new SimpleCallBack() {
                         @Override
@@ -458,7 +452,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.ItemClic
                 break;
 
             case R.id.placeShowInMapButton:
-
                 Intent intent = new Intent(getActivity(), MapsActivity.class);
                 intent.putExtra(ID_STRING, place.getTripId());
                 intent.putExtra(PLACE_ID, place.getId());

@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
 import com.traveldiary.android.R;
-import com.traveldiary.android.fragment.CreatTripFragment;
+import com.traveldiary.android.fragment.CreateTripFragment;
 import com.traveldiary.android.fragment.PlacesFragment;
 import com.traveldiary.android.fragment.TripsFragment;
 
@@ -35,7 +35,7 @@ public class CreateFindActivity extends AppCompatActivity implements TripsFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_find);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarCreate);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -49,8 +49,8 @@ public class CreateFindActivity extends AppCompatActivity implements TripsFragme
 
         if (createTrip!=null){
 
-            CreatTripFragment creatTripFragment = new CreatTripFragment();
-            trans(creatTripFragment);
+            CreateTripFragment createTripFragment = new CreateTripFragment();
+            trans(createTripFragment);
         } else if (placesFor != null && placesFor.equals(PLACES_FOR_CITY)) {
 
             PlacesFragment placesFragment = new PlacesFragment();

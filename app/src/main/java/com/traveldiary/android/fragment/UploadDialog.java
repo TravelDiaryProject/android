@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
-import com.traveldiary.android.network.SimpleCallBack;
+import com.traveldiary.android.callback.SimpleCallBack;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,13 +131,11 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
-
                     }
                 });
         final AlertDialog alert = builder.create();
         alert.show();
     }
-
 
     private Uri generateFileUri(){
         directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
@@ -164,9 +162,9 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                     String picturePath = cursor.getString(columnIndex);
                     cursor.close();
 
-                    if (checkLocationInImage(picturePath)) { // picture must have location
+                    if (checkLocationInImage(picturePath)) {
 
-                        File file = new File(picturePath); // picture path like in phone
+                        File file = new File(picturePath);
 
                         RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
@@ -184,8 +182,8 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
             case LOAD_IMAGE_CAMERA:
 
                 if (resultCode == RESULT_OK ) {
-                    if (checkLocationInImage(photoFromCameraPath)) { // picture must have location
-                        File file = new File(photoFromCameraPath); // picture path like in phone
+                    if (checkLocationInImage(photoFromCameraPath)) {
+                        File file = new File(photoFromCameraPath);
                         RequestBody reqFile = RequestBody.create(MediaType.parse("image"), file);
                         RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
                         MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);

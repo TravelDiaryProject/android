@@ -1,4 +1,4 @@
-package com.traveldiary.android.network;
+package com.traveldiary.android.callback;
 
 
 public interface SimpleCallBack {

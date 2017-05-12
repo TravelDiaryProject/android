@@ -19,10 +19,8 @@ import android.widget.Toast;
 
 import com.traveldiary.android.R;
 import com.traveldiary.android.Validator;
-import com.traveldiary.android.network.SimpleCallBack;
+import com.traveldiary.android.callback.CallbackRegistration;
 import com.traveldiary.android.model.RegistrationResponse;
-
-import retrofit2.Response;
 
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
@@ -115,12 +113,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void sign(final String email, String password){
-        dataService.signIn(email, password, new SimpleCallBack() {
-            @Override
-            public void response(Object o) {
-                Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
-                RegistrationResponse registrationResponse = response.body();
 
+        dataService.signIn(email, password, new CallbackRegistration() {
+            @Override
+            public void response(RegistrationResponse registrationResponse) {
                 tokenBuilder = new StringBuilder("Bearer ");
                 tokenBuilder.append(registrationResponse.getToken());
 

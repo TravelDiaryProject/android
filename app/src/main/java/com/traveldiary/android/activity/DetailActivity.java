@@ -26,7 +26,7 @@ import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.fragment.UploadDialog;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.SimpleCallBack;
+import com.traveldiary.android.callback.SimpleCallBack;
 
 import java.util.List;
 
@@ -38,13 +38,11 @@ import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.ROOT_URL;
 import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
-public class DetailActivity extends AppCompatActivity implements RecyclerAdapter.ItemClickListener, View.OnClickListener{
+public class DetailActivity extends AppCompatActivity implements RecyclerAdapter.RecyclerItemListener, View.OnClickListener{
 
     private String photo;
 
     private List<Place> mPlacesList;
-
-    private ImageView collapseImage;
 
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
@@ -83,7 +81,7 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
                 if (trip.getIsMine()==1 && trip.getIsFuture()==0){
                     mFab.show();
                 }
-                mCollapsingToolbarLayout.setTitle(trip.getTitle());
+                setTitle(trip.getTitle());
                 descriptionTrip.setText(trip.getDescription());
             }
 
@@ -93,11 +91,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
             }
         });
 
-
-
-        //collapseImage = (ImageView) findViewById(R.id.detailImageView);
-        //photo = getIntent().getStringExtra("Photo");
-
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);
@@ -105,26 +98,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         placesFragment.setArguments(args);
         trans(placesFragment);
 
-    }
-
-    public void setCollapseInfo(String tripPhoto){
-        Glide.with(this).load(ROOT_URL + tripPhoto)
-                .listener(new RequestListener<String, GlideDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        System.out.println(e.toString());
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        return false;
-                    }
-                })
-                .thumbnail(0.5f)
-                .crossFade()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(collapseImage);
     }
 
 
@@ -141,6 +114,11 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
                         //recyclerAdapter.notifyItemChanged(possition);
                         break;
                 }*/
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+
     }
 
     public void trans(Fragment fragment) {

@@ -1,12 +1,13 @@
 package com.traveldiary.android.data;
 
+import com.traveldiary.android.callback.CallbackRegistration;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
-import com.traveldiary.android.network.SimpleCallBack;
-import com.traveldiary.android.network.CallbackCities;
-import com.traveldiary.android.network.CallbackCountries;
-import com.traveldiary.android.network.CallbackPlaces;
-import com.traveldiary.android.network.CallbackTrips;
+import com.traveldiary.android.callback.SimpleCallBack;
+import com.traveldiary.android.callback.CallbackCities;
+import com.traveldiary.android.callback.CallbackCountries;
+import com.traveldiary.android.callback.CallbackPlaces;
+import com.traveldiary.android.callback.CallbackTrips;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -27,8 +28,10 @@ interface DataInterface {
     void likePlace(Place place, SimpleCallBack simpleCallBack);
     void unlikePlace(Place place, SimpleCallBack simpleCallBack);
     void createTrip(String tripTitle, SimpleCallBack simpleCallBack);
-    void signIn(String email, String password, SimpleCallBack simpleCallBack);
-    void registration(String email, String password, SimpleCallBack simpleCallBack);
+
+    void signIn(String email, String password, CallbackRegistration callbackRegistration);
+    void registration(String email, String password, CallbackRegistration callbackRegistration);
+
     void uploadPlace(MultipartBody.Part body, RequestBody tripIdRequest, SimpleCallBack simpleCallBack);
 
     void getAllCities(CallbackCities callbackCities);

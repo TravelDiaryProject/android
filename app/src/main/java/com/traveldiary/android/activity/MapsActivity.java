@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -18,8 +19,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.traveldiary.android.DataParser;
 import com.traveldiary.android.R;
+import com.traveldiary.android.callback.SimpleCallBack;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.network.CallbackPlaces;
+import com.traveldiary.android.callback.CallbackPlaces;
+import com.traveldiary.android.model.Trip;
 
 import org.json.JSONObject;
 
@@ -53,6 +56,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarMap);
+        setSupportActionBar(toolbar);
+        setTitle("");
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -61,14 +68,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (getIntent().getExtras() != null) {
             mTripId = getIntent().getExtras().getInt(ID_STRING);
             mFocusPlaceId = getIntent().getExtras().getInt(PLACE_ID);
-
-            Log.d("MYLOG", "mTripId = " + mTripId + " focusPLaceId = " + mFocusPlaceId);
         }
+
+        dataService.getTripById(mTripId, new SimpleCallBack() {
+            @Override
+            public void response(Object o) {
+                Trip trip = (Trip) o;
+                setTitle(trip.getTitle());
+            }
+
+            @Override
+            public void fail(Throwable t) {
+                System.out.println(t.getMessage());
+            }
+        });
+
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
 
     @Override
@@ -77,7 +95,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             finish();
         }
         return true;
-        //return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -86,13 +103,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         dataService.getPlacesByTrip(mTripId, new CallbackPlaces() {
             @Override
-            public void responseNetwork(List<Place> placeList) {
+            public void response(List<Place> placeList) {
                 mPlacesList.addAll(placeList);
                 smth(map);
             }
 
             @Override
-            public void failNetwork(Throwable t) {
+            public void fail(Throwable t) {
                 Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -115,8 +132,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mCoordinates = new ArrayList<>();
 
-        Log.d("MYLOG", "WTF list size = " + mPlacesList.size());
-
         for (int i = 0; i < mPlacesList.size(); i++){
             if (mPlacesList.get(i).getLatitude()!=null && mPlacesList.get(i).getLongitude()!=null
                     && !mPlacesList.get(i).getLatitude().equals("")) {
@@ -128,10 +143,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             new LatLng(Double.parseDouble(mPlacesList.get(i).getLatitude()),
                                     Double.parseDouble(mPlacesList.get(i).getLongitude())), 10));
                 }
-
-                System.out.println("place lat = " + mPlacesList.get(i).getLatitude() + " long = " + mPlacesList.get(i).getLongitude());
             }
-
         }
 
         String url = getDirectionsUrl(mCoordinates);
@@ -207,20 +219,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private String downloadUrl(String strUrl) throws IOException {
         String data = "";
-        InputStream iStream = null;
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(strUrl);
+        URL url = new URL(strUrl);
 
-            urlConnection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.connect();
 
-            urlConnection.connect();
-
-            iStream = urlConnection.getInputStream();
-
+        try (InputStream iStream = urlConnection.getInputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             String line = "";
             while ((line = br.readLine()) != null) {
@@ -234,7 +241,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (Exception e) {
             Log.d("Exception", e.toString());
         } finally {
-            iStream.close();
             urlConnection.disconnect();
         }
         return data;
@@ -242,7 +248,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
-        // Parsing the data in non-ui thread
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
@@ -251,7 +256,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             try {
                 jObject = new JSONObject(jsonData[0]);
-                Log.d("ParserTask",jsonData[0].toString());
+                Log.d("ParserTask", jsonData[0]);
                 DataParser parser = new DataParser();
                 Log.d("ParserTask", parser.toString());
 

@@ -13,10 +13,8 @@ import android.widget.Toast;
 
 import com.traveldiary.android.R;
 import com.traveldiary.android.Validator;
-import com.traveldiary.android.network.SimpleCallBack;
+import com.traveldiary.android.callback.CallbackRegistration;
 import com.traveldiary.android.model.RegistrationResponse;
-
-import retrofit2.Response;
 
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.APP_PREFERENCES;
@@ -76,12 +74,9 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void registration(final String email, String password){
-        dataService.registration(email, password, new SimpleCallBack() {
+        dataService.registration(email, password, new CallbackRegistration() {
             @Override
-            public void response(Object o) {
-                Response<RegistrationResponse> response = (Response<RegistrationResponse>) o;
-                RegistrationResponse registrationResponse = response.body();
-
+            public void response(RegistrationResponse registrationResponse) {
                 tokenBuilder = new StringBuilder("Bearer ");
                 tokenBuilder.append(registrationResponse.getToken());
 
@@ -95,7 +90,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 mProgressBar.setVisibility(View.GONE);
 
-                onBackPressed();
+                startMain();
             }
 
             @Override
@@ -113,10 +108,14 @@ public class RegistrationActivity extends AppCompatActivity {
                 && Validator.isPasswordValid( this, password );
     }
 
-    @Override
-    public void onBackPressed() {
+    private void startMain(){
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

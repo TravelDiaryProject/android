@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import static com.traveldiary.android.Constans.ROOT_URL;
 
 
-public class Api {
+class Api {
 
     private static Retrofit retrofit = null;
 
@@ -18,7 +18,7 @@ public class Api {
     private Api() {
     }
 
-    public static TravelDiaryService getTravelDiaryService(){
+    static TravelDiaryService getTravelDiaryService(){
         return initTravelDiaryService();
     }
 
