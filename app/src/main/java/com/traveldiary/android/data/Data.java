@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 class Data {
 
@@ -28,17 +29,7 @@ class Data {
 
     RealmResults<Place> getPlacesByTrip(int tripId){
         Log.d(TAG, "getPlacesByTrip");
-        return realm.where(Place.class).equalTo("tripId", tripId).findAll();
-    }
-
-    RealmResults<Place> getPlacesByCity(int cityId){
-        Log.d(TAG, "prepareListPlacesByCity");
-        return realm.where(Place.class).equalTo("cityId", cityId).findAll();
-    }
-
-    RealmResults<Place> getPlacesByCountry(int countryId){
-        Log.d(TAG, "prepareListPlacesByCountry");
-        return realm.where(Place.class).equalTo("countryId", countryId).findAll();
+        return realm.where(Place.class).equalTo("tripId", tripId).findAllSorted("shootedAt", Sort.ASCENDING);
     }
 
     RealmResults<City> getAllCities(){
@@ -52,10 +43,6 @@ class Data {
     Trip getTripById(int tripId){
         return realm.where(Trip.class).equalTo("id", tripId).findFirst();
     }
-
-
-
-
 
 
 
@@ -126,11 +113,11 @@ class Data {
         realm.commitTransaction();
     }
 
-    void removeTrip(Trip trip){
+    void removeTrip(int tripId){
         Log.d(TAG, "deleteTrip");
 
         realm.beginTransaction();
-        Trip trip1 = realm.where(Trip.class).equalTo("id", trip.getId()).findFirst();
+        Trip trip1 = realm.where(Trip.class).equalTo("id", tripId).findFirst();
         trip1.deleteFromRealm();
         realm.commitTransaction();
     }
@@ -176,20 +163,6 @@ class Data {
         realmResults.deleteAllFromRealm();
         realm.commitTransaction();
 
-    }
-
-    void removePlacesByCity(int cityId) {
-        realm.beginTransaction();
-        RealmResults<Place> realmResults = realm.where(Place.class).equalTo("cityId", cityId).findAll();
-        realmResults.deleteAllFromRealm();
-        realm.commitTransaction();
-    }
-
-    void removePlacesByCountry(int countryId) {
-        realm.beginTransaction();
-        RealmResults<Place> realmResults = realm.where(Place.class).equalTo("countryId", countryId).findAll();
-        realmResults.deleteAllFromRealm();
-        realm.commitTransaction();
     }
 
     void addOrUpdateTrip(Trip trip){

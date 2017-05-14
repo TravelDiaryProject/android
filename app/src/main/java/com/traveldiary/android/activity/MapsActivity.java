@@ -186,7 +186,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 stringBuilder.append("|");
             }
         }
-
         return stringBuilder.toString();
     }
 
@@ -210,10 +209,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             super.onPostExecute(result);
 
             ParserTask parserTask = new ParserTask();
-
-
             parserTask.execute(result);
-
         }
     }
 
@@ -239,7 +235,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             br.close();
 
         } catch (Exception e) {
-            Log.d("Exception", e.toString());
+            Log.d(TAG, e.toString());
         } finally {
             urlConnection.disconnect();
         }
@@ -256,17 +252,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             try {
                 jObject = new JSONObject(jsonData[0]);
-                Log.d("ParserTask", jsonData[0]);
+                Log.d(TAG, jsonData[0]);
                 DataParser parser = new DataParser();
-                Log.d("ParserTask", parser.toString());
+                Log.d(TAG, parser.toString());
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
-                Log.d("ParserTask","Executing routes");
-                Log.d("ParserTask",routes.toString());
+                Log.d(TAG,"Executing routes");
+                Log.d(TAG,routes.toString());
 
             } catch (Exception e) {
-                Log.d("ParserTask",e.toString());
+                Log.d(TAG,e.toString());
                 e.printStackTrace();
             }
             return routes;
@@ -302,7 +298,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 lineOptions.width(10);
                 lineOptions.color(Color.RED);
 
-                Log.d("onPostExecute","onPostExecute lineoptions decoded");
+                Log.d(TAG,"onPostExecute lineoptions decoded");
 
             }
 
@@ -311,11 +307,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.addPolyline(lineOptions);
             }
             else {
-                Log.d("onPostExecute","without Polylines drawn");
+                Log.d(TAG,"without Polylines drawn");
             }
         }
     }
-
-
-
 }

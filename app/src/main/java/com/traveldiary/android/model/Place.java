@@ -163,6 +163,23 @@ public class Place extends RealmObject implements Serializable {
         this.isMine = isMine;
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) return true;
+        if (!(obj instanceof Place)){
+            return false;
+        }
+        Place place = (Place) obj;
+        return place.id == id && place.title.equals(title)
+                && place.tripId == tripId
+                && place.likes == likes
+                && place.isLiked == isLiked
+                && place.isInFutureTrips == isInFutureTrips
+                && place.isMine == isMine;
+    }
+
     @Override
     public String toString() {
         return "Place{" +

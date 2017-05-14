@@ -216,7 +216,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     placesForHorizontal.clear();
                     placesForHorizontal.addAll(placeList);
                     if (placesForHorizontal.size()==0){
-                        placesForHorizontal.add(new Place(trip.getThumbnail()));
+                        placesForHorizontal.add(new Place());
                     }
                     horizontalRecyclerAdapter.setData(placesForHorizontal, position);
                     horizontalRecyclerAdapter.notifyDataSetChanged();

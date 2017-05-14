@@ -54,6 +54,8 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     private TextView mNoTripsTextView;
     private Button mNoTripsButton;
 
+    private boolean isRefresh = false;
+
     private ActionMode mActionMode;
 
 
@@ -115,12 +117,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
-        listTripsByForType(false);
+        listTripsByForType();
 
         return rootView;
     }
 
-    private void listTripsByForType(final boolean isThisRefresh){
+    private void listTripsByForType(){
 
         if (TOKEN_CONST == null || TOKEN_CONST.equals("")) {
             setNoViewsInfos(getResources().getString(R.string.need_authorization_function), getResources().getString(R.string.login));
@@ -133,7 +135,15 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                     dataService.getMyTrips(new CallbackTrips() {
                         @Override
                         public void response(List<Trip> tripList) {
-                            manipulateWithResponse(tripList, isThisRefresh);
+                            manipulateWithResponse(tripList);
+                        }
+
+                        @Override
+                        public void neutral(List<Trip> neutralList) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            if (mTripList.size()!=neutralList.size() || neutralList.size()==0){
+                                manipulateWithResponse(neutralList);
+                            }
                         }
 
                         @Override
@@ -150,7 +160,15 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                     dataService.getFutureTrips(new CallbackTrips() {
                         @Override
                         public void response(List<Trip> tripList) {
-                            manipulateWithResponse(tripList, isThisRefresh);
+                            manipulateWithResponse(tripList);
+                        }
+
+                        @Override
+                        public void neutral(List<Trip> neutralList) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            if (mTripList.size()!=neutralList.size() || neutralList.size()==0){
+                                manipulateWithResponse(neutralList);
+                            }
                         }
 
                         @Override
@@ -178,7 +196,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
         }
     }
 
-    public void manipulateWithResponse(List<Trip> tripsList, boolean isThisRefresh){
+    public void manipulateWithResponse(List<Trip> tripsList){
 
         mNoTripsTextView.setVisibility(View.GONE);
         mNoTripsButton.setVisibility(View.GONE);
@@ -193,11 +211,12 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
                 setNoViewsInfos(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plan));
         }
 
-        if (!isThisRefresh) {
+        if (!isRefresh) {
             mTripList.clear();
             mTripList.addAll(tripsList);
             mRecyclerAdapter.updateAdapterTrip(tripsList);
         }else {
+            isRefresh = false;
             mTripList.clear();
             mTripList.addAll(tripsList);
             mRecyclerAdapter.updateAdapterTrip(tripsList);
@@ -247,27 +266,20 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     public void deleteRows() {
         final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();//Get selected ids
 
-        for (int i = (selected.size() - 1); i >= 0; i--) {
+        for (int i = 0; i < selected.size(); i++) {
             if (selected.valueAt(i)) {
-                final int finalI = i;
-                final Trip trip = mTripList.get(selected.keyAt(finalI));
+                final Trip trip = mTripList.get(selected.keyAt(i));
 
-                dataService.removeTrip(mTripList.get(selected.keyAt(i)), new SimpleCallBack() {
-                            @Override
-                            public void response(Object o) {
-                                mTripList.remove(trip);
+                dataService.removeTrip(trip.getId(), new SimpleCallBack() {
+                    @Override
+                    public void response(Object o) {
+                    }
 
-                                if (selected.size()>2)
-                                    mRecyclerAdapter.notifyDataSetChanged();
-                                else
-                                    mRecyclerAdapter.notifyItemRemoved(selected.keyAt(finalI));
-                            }
-
-                            @Override
-                            public void fail(Throwable t) {
-                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    @Override
+                    public void fail(Throwable t) {
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }
         Toast.makeText(getActivity(), selected.size() + getResources().getString(R.string.item_deleted), Toast.LENGTH_SHORT).show();//Show Toast
@@ -294,6 +306,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     @Override
     public void onRefresh() {
         mSwipeRefreshLayout.setRefreshing(true);
-        listTripsByForType(true);
+        isRefresh = true;
+        listTripsByForType();
     }
 }

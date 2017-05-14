@@ -77,6 +77,19 @@ public class Trip extends RealmObject {
     }
 
     @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) return true;
+        if (!(obj instanceof Trip)){
+            return false;
+        }
+        Trip trip = (Trip) obj;
+        return trip.id == id && trip.title.equals(title)
+                && trip.description.equals(description);
+    }
+
+
+    @Override
     public String toString() {
         return "Trip{" +
                 "id=" + id +

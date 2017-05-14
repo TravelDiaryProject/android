@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface CallbackTrips {
     void response(List<Trip> tripList);
+    void neutral(List<Trip> neutralList);
     void fail(Throwable t);
 }

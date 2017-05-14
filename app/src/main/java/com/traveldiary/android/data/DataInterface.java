@@ -2,7 +2,6 @@ package com.traveldiary.android.data;
 
 import com.traveldiary.android.callback.CallbackRegistration;
 import com.traveldiary.android.model.Place;
-import com.traveldiary.android.model.Trip;
 import com.traveldiary.android.callback.SimpleCallBack;
 import com.traveldiary.android.callback.CallbackCities;
 import com.traveldiary.android.callback.CallbackCountries;
@@ -38,7 +37,7 @@ interface DataInterface {
     void getAllCountries(CallbackCountries callbackCountries);
 
     void removePlace(Place place, SimpleCallBack simpleCallBack);
-    void removeTrip(Trip trip, SimpleCallBack simpleCallBack);
+    void removeTrip(int tripId, SimpleCallBack simpleCallBack);
     void removeAll();
 
 }

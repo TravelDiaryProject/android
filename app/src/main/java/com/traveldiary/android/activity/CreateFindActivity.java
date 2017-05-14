@@ -52,7 +52,6 @@ public class CreateFindActivity extends AppCompatActivity implements TripsFragme
             CreateTripFragment createTripFragment = new CreateTripFragment();
             trans(createTripFragment);
         } else if (placesFor != null && placesFor.equals(PLACES_FOR_CITY)) {
-
             PlacesFragment placesFragment = new PlacesFragment();
             Bundle args = new Bundle();
             args.putString(PLACES_FOR, PLACES_FOR_CITY);
@@ -61,7 +60,6 @@ public class CreateFindActivity extends AppCompatActivity implements TripsFragme
             placesFragment.setArguments(args);
 
             trans(placesFragment);
-
 
         } else if (placesFor != null && placesFor.equals(PLACES_FOR_COUNTRY)) {
             PlacesFragment placesFragment = new PlacesFragment();
@@ -73,7 +71,6 @@ public class CreateFindActivity extends AppCompatActivity implements TripsFragme
 
             trans(placesFragment);
         }
-
     }
 
     public void trans(Fragment fragment) {

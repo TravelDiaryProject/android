@@ -1,8 +1,6 @@
 package com.traveldiary.android.data;
 
 
-import android.util.Log;
-
 import com.traveldiary.android.callback.CallbackRegistration;
 import com.traveldiary.android.model.City;
 import com.traveldiary.android.model.Country;
@@ -25,6 +23,9 @@ import okhttp3.RequestBody;
 import static com.traveldiary.android.App.network;
 
 public class DataService implements DataInterface {
+
+    private RealmResults<Trip> listMyTripDB;
+    private RealmResults<Trip> listFutureTripDB;
 
     private Data data = new Data();
     private static final int COUNT_LIMIT = 5;
@@ -115,8 +116,8 @@ public class DataService implements DataInterface {
     }
 
     @Override
-    public void removeTrip(Trip trip, SimpleCallBack simpleCallBack) {
-        deleteTrip(trip, simpleCallBack);
+    public void removeTrip(int tripId, SimpleCallBack simpleCallBack) {
+        deleteTrip(tripId, simpleCallBack);
     }
 
     @Override
@@ -150,11 +151,30 @@ public class DataService implements DataInterface {
             @Override
             public void response(List<Place> listPlaceServer) {
 
-                if (listPlacesDB.size() > listPlaceServer.size()) {
+                // need sorted list by data from server
+
+//                if (listPlaceServer.size()==0){
+//                    callbackPlaces.response(listPlaceServer);
+//                } else if (listPlaceServer.size()==listPlacesDB.size()){
+//                    for (int i = 0; i < listPlaceServer.size(); i++){
+//                        if (!listPlaceServer.get(i).equals(listPlacesDB.get(i))){
+//                            data.removePlacesByTrip(tripId);
+//                            data.addOrUpdateListPlaces(listPlaceServer);
+//                            break;
+//                        }
+//                    }
+//                    callbackPlaces.response(listPlaceServer);
+//                } else if (listPlacesDB.size()!=listPlaceServer.size()){
+//                    data.removePlacesByTrip(tripId);
+//                    data.addOrUpdateListPlaces(listPlaceServer);
+//                    callbackPlaces.response(listPlaceServer);
+//                }
+
+                if (listPlacesDB.size() > listPlaceServer.size()) { // It is possible, but very rarely
                     data.removePlacesByTrip(tripId);
                 }
                 data.addOrUpdateListPlaces(listPlaceServer);
-                callbackPlaces.response(listPlaceServer);
+                callbackPlaces.response(listPlaceServer);  // List from server sorted by data
             }
 
             @Override
@@ -166,27 +186,11 @@ public class DataService implements DataInterface {
     }
 
     private void prepareListPlacesByCity(final int cityId, final CallbackPlaces callbackPlaces){
-        final RealmResults<Place> listPlacesDB = data.getPlacesByCity(cityId);
-        if (listPlacesDB.size()!=0){
-            callbackPlaces.response(listPlacesDB);
-        }
-        listPlacesDB.addChangeListener(new RealmChangeListener<RealmResults<Place>>() {
-            @Override
-            public void onChange(RealmResults<Place> element) {
-                callbackPlaces.response(listPlacesDB);
-            }
-        });
 
         network.downloadPlacesByCityId(cityId, new CallbackPlaces() {
             @Override
             public void response(List<Place> listPlaceServer) {
-
-                if (listPlacesDB.size() > listPlaceServer.size()) {
-                    data.removePlacesByCity(cityId);
-                }else if (listPlacesDB.size()==0 && listPlaceServer.size()==0){
-                    callbackPlaces.response(listPlacesDB);
-                }
-                data.addOrUpdateListPlaces(listPlaceServer);
+                callbackPlaces.response(listPlaceServer);
             }
 
             @Override
@@ -197,27 +201,11 @@ public class DataService implements DataInterface {
     }
 
     private void prepareListPlacesByCountry(final int countryId, final CallbackPlaces callbackPlaces){
-        final RealmResults<Place> listPlacesDB = data.getPlacesByCountry(countryId);
-        if (listPlacesDB.size()!=0){
-            callbackPlaces.response(listPlacesDB);
-            Log.d("PlacesFragment","size = " + listPlacesDB.size());
-        }
-        listPlacesDB.addChangeListener(new RealmChangeListener<RealmResults<Place>>() {
-            @Override
-            public void onChange(RealmResults<Place> element) {
-                callbackPlaces.response(listPlacesDB);
-            }
-        });
 
         network.downloadPlacesByCountryId(countryId, new CallbackPlaces() {
             @Override
             public void response(List<Place> listPlaceServer) {
-                if (listPlacesDB.size() > listPlaceServer.size()) {
-                    data.removePlacesByCountry(countryId);
-                }else if (listPlacesDB.size()==0 && listPlaceServer.size()==0){
-                    callbackPlaces.response(listPlacesDB);
-                }
-                data.addOrUpdateListPlaces(listPlaceServer);
+                callbackPlaces.response(listPlaceServer);
             }
 
             @Override
@@ -229,21 +217,34 @@ public class DataService implements DataInterface {
 
     private void prepareListMyTrips(final CallbackTrips callbackTripsl) {
 
-        final RealmResults<Trip> listMyTripDB = data.getMyTrips();
+        if (listMyTripDB==null){
+            listMyTripDB = data.getMyTrips();
+            callbackTripsl.response(listMyTripDB);
+            listMyTripDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
+                @Override
+                public void onChange(RealmResults<Trip> element) {
+                    callbackTripsl.response(listMyTripDB);
+                }
+            });
+        }
 
         network.downloadMyTrips(new CallbackTrips() {
             @Override
             public void response(List<Trip> listMyTripServer) {
-                if (listMyTripDB.size() > listMyTripServer.size()) {
+                if (isTripListsEquals(listMyTripServer, listMyTripDB)){
+                    callbackTripsl.neutral(listMyTripDB);
+                }else {
                     data.removeMyTrips();
+                    data.addOrUpdateListTrips(listMyTripServer);
                 }
-                data.addOrUpdateListTrips(listMyTripServer);
-                callbackTripsl.response(listMyTripServer);
+            }
+
+            @Override
+            public void neutral(List<Trip> listMyTripServer) {
             }
 
             @Override
             public void fail(Throwable t) {
-                callbackTripsl.response(listMyTripDB);
                 callbackTripsl.fail(t);
             }
         });
@@ -251,25 +252,51 @@ public class DataService implements DataInterface {
 
     private void prepareListFutureTrips(final CallbackTrips callbackTrips){
 
-        final RealmResults<Trip> listFutureDB = data.getFutureTrips();
+        if (listFutureTripDB==null){
+            listFutureTripDB = data.getFutureTrips();
+            callbackTrips.response(listFutureTripDB);
+            listFutureTripDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
+                @Override
+                public void onChange(RealmResults<Trip> element) {
+                    callbackTrips.response(listFutureTripDB);
+                }
+            });
+        }
 
         network.downloadFutureTrips(new CallbackTrips() {
             @Override
             public void response(List<Trip> listFutureTripServer) {
-
-                if (listFutureDB.size() > listFutureTripServer.size()) {
+                if (isTripListsEquals(listFutureTripServer, listFutureTripDB)){
+                    callbackTrips.neutral(listFutureTripDB);
+                }else {
                     data.removeFutureTrips();
+                    data.addOrUpdateListTrips(listFutureTripServer);
                 }
-                data.addOrUpdateListTrips(listFutureTripServer);
-                callbackTrips.response(listFutureTripServer);
+            }
+
+            @Override
+            public void neutral(List<Trip> listMyTripServer) {
             }
 
             @Override
             public void fail(Throwable t) {
-                callbackTrips.response(listFutureDB);
                 callbackTrips.fail(t);
             }
         });
+    }
+
+    private boolean isTripListsEquals(List<Trip> listServer, List<Trip> listDB){
+        if (listServer.size() == listDB.size()) {
+            for (int i = 0; i < listDB.size(); i++) {
+                System.out.println("WWWWWWWWWWWWWWWWWWWWWwwwwwwwwwwwwwwwwwwwwwww = " + listServer.get(i).getTitle() + " db = " + listDB.get(i).getTitle());
+                if (!listServer.get(i).equals(listDB.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }else {
+            return false;
+        }
     }
 
     private void prepareTripById(int tripId, final SimpleCallBack simpleCallBack){
@@ -438,6 +465,21 @@ public class DataService implements DataInterface {
             @Override
             public void response(Object o) {
                 simpleCallBack.response("Created");
+                network.downloadMyTrips(new CallbackTrips() {
+                    @Override
+                    public void response(List<Trip> tripList) {
+                        data.addOrUpdateListTrips(tripList);
+                    }
+
+                    @Override
+                    public void neutral(List<Trip> listMyTripServer) {
+                    }
+
+                    @Override
+                    public void fail(Throwable t) {
+                        simpleCallBack.fail(t);
+                    }
+                });
             }
 
             @Override
@@ -508,13 +550,13 @@ public class DataService implements DataInterface {
         });
     }
 
-    private void deleteTrip(final Trip trip, final SimpleCallBack simpleCallBack){
+    private void deleteTrip(final int tripId, final SimpleCallBack simpleCallBack){
 
-        network.removeTrip(trip.getId(), new SimpleCallBack() {
+        network.removeTrip(tripId, new SimpleCallBack() {
             @Override
             public void response(Object o) {
-                data.removePlacesByTrip(trip.getId());
-                data.removeTrip(trip);
+                data.removePlacesByTrip(tripId);
+                data.removeTrip(tripId);
                 simpleCallBack.response("removed");
             }
 
