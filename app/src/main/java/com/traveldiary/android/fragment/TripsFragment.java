@@ -206,9 +206,9 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
             mTripList.clear();
 
             if (mTripsFor.equals(MY))
-                setNoViewsInfos(getResources().getString(R.string.no_my_trips), null);
+                setNoViewsInfos(getString(R.string.no_my_trips), null);
             else
-                setNoViewsInfos(getResources().getString(R.string.no_future_trips), getResources().getString(R.string.plan));
+                setNoViewsInfos(getString(R.string.no_future_trips), getString(R.string.plan));
         }
 
         if (!isRefresh) {

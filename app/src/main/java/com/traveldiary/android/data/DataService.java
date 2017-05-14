@@ -151,31 +151,13 @@ public class DataService implements DataInterface {
         network.downloadPlacesByTripId(tripId, new CallbackPlaces() {
             @Override
             public void response(List<Place> listPlaceServer) {
-
-                // need sorted list by data from server
-
-//                if (listPlaceServer.size()==0){
-//                    callbackPlaces.response(listPlaceServer);
-//                } else if (listPlaceServer.size()==listPlacesDB.size()){
-//                    for (int i = 0; i < listPlaceServer.size(); i++){
-//                        if (!listPlaceServer.get(i).equals(listPlacesDB.get(i))){
-//                            data.removePlacesByTrip(tripId);
-//                            data.addOrUpdateListPlaces(listPlaceServer);
-//                            break;
-//                        }
-//                    }
-//                    callbackPlaces.response(listPlaceServer);
-//                } else if (listPlacesDB.size()!=listPlaceServer.size()){
-//                    data.removePlacesByTrip(tripId);
-//                    data.addOrUpdateListPlaces(listPlaceServer);
-//                    callbackPlaces.response(listPlaceServer);
-//                }
-
-                if (listPlacesDB.size() > listPlaceServer.size()) { // It is possible, but very rarely
+                if (isListsEquals(listPlaceServer, listPlacesDB)){
+                    callbackPlaces.response(listPlacesDB);
+                }else {
                     data.removePlacesByTrip(tripId);
+                    data.addOrUpdateListPlaces(listPlaceServer);
+                    callbackPlaces.response(listPlaceServer);
                 }
-                data.addOrUpdateListPlaces(listPlaceServer);
-                callbackPlaces.response(listPlaceServer);  // List from server sorted by data
             }
 
             @Override
@@ -233,7 +215,7 @@ public class DataService implements DataInterface {
             @Override
             public void response(List<Trip> listMyTripServer) {
                 Collections.reverse(listMyTripServer);
-                if (isTripListsEquals(listMyTripServer, listMyTripDB)){
+                if (isListsEquals(listMyTripServer, listMyTripDB)){
                     callbackTripsl.neutral(listMyTripDB);
                 }else {
                     data.removeMyTrips();
@@ -269,7 +251,7 @@ public class DataService implements DataInterface {
             @Override
             public void response(List<Trip> listFutureTripServer) {
                 Collections.reverse(listFutureTripServer);
-                if (isTripListsEquals(listFutureTripServer, listFutureTripDB)){
+                if (isListsEquals(listFutureTripServer, listFutureTripDB)){
                     callbackTrips.neutral(listFutureTripDB);
                 }else {
                     data.removeFutureTrips();
@@ -288,7 +270,7 @@ public class DataService implements DataInterface {
         });
     }
 
-    private boolean isTripListsEquals(List<Trip> listServer, List<Trip> listDB){
+    private <T> boolean isListsEquals(List<T> listServer, List<T> listDB){
         if (listServer.size() == listDB.size()) {
             for (int i = 0; i < listDB.size(); i++) {
                 if (!listServer.get(i).equals(listDB.get(i))) {
