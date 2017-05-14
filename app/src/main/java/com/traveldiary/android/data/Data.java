@@ -19,12 +19,12 @@ class Data {
     private Realm realm = Realm.getDefaultInstance();
 
     RealmResults<Trip> getMyTrips(){
-        return realm.where(Trip.class).equalTo("isMine", 1).equalTo("isFuture", 0).findAll();
+        return realm.where(Trip.class).equalTo("isMine", 1).equalTo("isFuture", 0).findAllSorted("startDate", Sort.DESCENDING);
     }
 
     RealmResults<Trip> getFutureTrips(){
         Log.d(TAG, "prepareListFutureTrips");
-        return realm.where(Trip.class).equalTo("isFuture", 1).equalTo("isMine", 1).findAll();
+        return realm.where(Trip.class).equalTo("isFuture", 1).equalTo("isMine", 1).findAllSorted("startDate", Sort.DESCENDING);
     }
 
     RealmResults<Place> getPlacesByTrip(int tripId){

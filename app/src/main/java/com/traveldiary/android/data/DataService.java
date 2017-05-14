@@ -13,6 +13,7 @@ import com.traveldiary.android.callback.CallbackCountries;
 import com.traveldiary.android.callback.CallbackPlaces;
 import com.traveldiary.android.callback.CallbackTrips;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.realm.RealmChangeListener;
@@ -231,6 +232,7 @@ public class DataService implements DataInterface {
         network.downloadMyTrips(new CallbackTrips() {
             @Override
             public void response(List<Trip> listMyTripServer) {
+                Collections.reverse(listMyTripServer);
                 if (isTripListsEquals(listMyTripServer, listMyTripDB)){
                     callbackTripsl.neutral(listMyTripDB);
                 }else {
@@ -266,6 +268,7 @@ public class DataService implements DataInterface {
         network.downloadFutureTrips(new CallbackTrips() {
             @Override
             public void response(List<Trip> listFutureTripServer) {
+                Collections.reverse(listFutureTripServer);
                 if (isTripListsEquals(listFutureTripServer, listFutureTripDB)){
                     callbackTrips.neutral(listFutureTripDB);
                 }else {
@@ -288,7 +291,6 @@ public class DataService implements DataInterface {
     private boolean isTripListsEquals(List<Trip> listServer, List<Trip> listDB){
         if (listServer.size() == listDB.size()) {
             for (int i = 0; i < listDB.size(); i++) {
-                System.out.println("WWWWWWWWWWWWWWWWWWWWWwwwwwwwwwwwwwwwwwwwwwww = " + listServer.get(i).getTitle() + " db = " + listDB.get(i).getTitle());
                 if (!listServer.get(i).equals(listDB.get(i))) {
                     return false;
                 }
