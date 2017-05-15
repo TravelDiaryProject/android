@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v7.widget.RecyclerView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -245,9 +246,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private TextView placeTitleText;
         private ImageView titleImageView;
-        private ImageView placeLikeButton;
-        private ImageView placeAddToFutureButton;
-        private ImageView placeShowInMapButton;
+        private ImageButton placeLikeButton;
+        private ImageButton placeAddToFutureButton;
+        private ImageButton placeShowInMapButton;
 
 
         private Place place;
@@ -259,9 +260,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             placeTitleText = (TextView) view.findViewById(R.id.placeTitleText);
             titleImageView = (ImageView) view.findViewById(R.id.placeImageView);
-            placeLikeButton = (ImageView) view.findViewById(R.id.placeLikeButton);
-            placeAddToFutureButton = (ImageView) view.findViewById(R.id.placeAddToFutureButton);
-            placeShowInMapButton = (ImageView) view.findViewById(R.id.placeShowInMapButton);
+            placeLikeButton = (ImageButton) view.findViewById(R.id.placeLikeButton);
+            placeAddToFutureButton = (ImageButton) view.findViewById(R.id.placeAddToFutureButton);
+            placeShowInMapButton = (ImageButton) view.findViewById(R.id.placeShowInMapButton);
 
             mProgressBar = (ProgressBar) view.findViewById(R.id.card_progress);
 
