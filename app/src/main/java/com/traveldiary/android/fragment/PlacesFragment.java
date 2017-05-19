@@ -2,8 +2,10 @@ package com.traveldiary.android.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -138,20 +140,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
 
             case PLACES_FOR_TOP:
 
-                dataService.getTopPlacesOffset(0, new CallbackPlaces() {
-                    @Override
-                    public void response(List<Place> placeList) {
-                        manipulationWithResponse(placeList, isThisRefresh);
-                    }
-
-                    @Override
-                    public void fail(Throwable t) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        mProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
-                    }
-                });
+                dataService.getTopPlacesOffset(0, getCallbackPlaces(isThisRefresh));
 
                 mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                     @Override
@@ -168,20 +157,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
 
                 mRecyclerView.clearOnScrollListeners();
 
-                dataService.getPlacesByCity(mCityId, new CallbackPlaces() {
-                    @Override
-                    public void response(List<Place> placeList) {
-                        manipulationWithResponse(placeList, isThisRefresh);
-                    }
-
-                    @Override
-                    public void fail(Throwable t) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        mProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
-                    }
-                });
+                dataService.getPlacesByCity(mCityId, getCallbackPlaces(isThisRefresh));
                 break;
 
             case PLACES_FOR_COUNTRY:
@@ -191,44 +167,34 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
 
                 mRecyclerView.clearOnScrollListeners();
 
-                Log.d("PlacesFragment", "PLACES_FOR_COUNTRY");
-
-                dataService.getPlacesByCountry(mCountryId, new CallbackPlaces() {
-                    @Override
-                    public void response(List<Place> placeList) {
-                        manipulationWithResponse(placeList, isThisRefresh);
-                    }
-
-                    @Override
-                    public void fail(Throwable t) {
-                        mProgressBar.setVisibility(View.GONE);
-                        swipeRefreshLayout.setRefreshing(false);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
-                    }
-                });
+                dataService.getPlacesByCountry(mCountryId, getCallbackPlaces(isThisRefresh));
                 break;
 
             case PLACES_FOR_TRIP:
 
                 mRecyclerView.clearOnScrollListeners();
 
-                dataService.getPlacesByTrip(mTripId, new CallbackPlaces() {
-                    @Override
-                    public void response(List<Place> placeList) {
-                        manipulationWithResponse(placeList, isThisRefresh);
-                    }
-
-                    @Override
-                    public void fail(Throwable t) {
-                        swipeRefreshLayout.setRefreshing(false);
-                        mProgressBar.setVisibility(View.GONE);
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                        noNetworkOrEmptyListInfo(getResources().getString(R.string.check_network_connection), getResources().getString(R.string.try_again));
-                    }
-                });
+                dataService.getPlacesByTrip(mTripId, getCallbackPlaces(isThisRefresh));
                 break;
         }
+    }
+
+    @NonNull
+    private CallbackPlaces getCallbackPlaces(final boolean isThisRefresh) {
+        return new CallbackPlaces() {
+            @Override
+            public void response(List<Place> placeList) {
+                manipulationWithResponse(placeList, isThisRefresh);
+            }
+
+            @Override
+            public void fail(Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
+                mProgressBar.setVisibility(View.GONE);
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                noNetworkOrEmptyListInfo(getString(R.string.check_network_connection), getString(R.string.try_again));
+            }
+        };
     }
 
     public void manipulationWithResponse(List<Place> placesList, boolean isThisRefresh) {
@@ -238,7 +204,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
 
         Log.d("PlacesFragment", "PLACES_FOR_COUNTRY manipulationWithResponse placesList.size = " + placesList.size());
 
-        if (placesList == null || placesList.size() == 0) {
+        if (placesList.size() == 0) {
             noNetworkOrEmptyListInfo("No places yet", null);
         }
 
