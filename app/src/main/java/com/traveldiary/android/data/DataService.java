@@ -18,6 +18,7 @@ import java.util.List;
 
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -39,6 +40,11 @@ public class DataService implements DataInterface {
     @Override
     public void getPlacesByTrip(int tripId, CallbackPlaces callbackPlaces) {
         prepareListPlacesByTrip(tripId, callbackPlaces);
+    }
+
+    @Override
+    public void getMyPlacesByTrip(int tripId, CallbackPlaces callbackPlaces) {
+        prepareListMyPlacesByTrip(tripId, callbackPlaces);
     }
 
     @Override
@@ -97,8 +103,8 @@ public class DataService implements DataInterface {
     }
 
     @Override
-    public void uploadPlace(MultipartBody.Part body, RequestBody tripIdRequest, SimpleCallBack simpleCallBack) {
-        uploadImage(body, tripIdRequest, simpleCallBack);
+    public void uploadPlace(MultipartBody.Part body, int tripId, SimpleCallBack simpleCallBack) {
+        uploadImage(body, tripId, simpleCallBack);
     }
 
     @Override
@@ -112,8 +118,8 @@ public class DataService implements DataInterface {
     }
 
     @Override
-    public void removePlace(Place place, SimpleCallBack simpleCallBack) {
-        deletePlace(place, simpleCallBack);
+    public void removePlace(int placeId, SimpleCallBack simpleCallBack) {
+        deletePlace(placeId, simpleCallBack);
     }
 
     @Override
@@ -123,7 +129,7 @@ public class DataService implements DataInterface {
 
     @Override
     public void removeAll() {
-        clearDB();
+        data.removeAll();
     }
 
     private void prepareListTopPlaces(int offset, final CallbackPlaces callbackPlaces){
@@ -151,18 +157,37 @@ public class DataService implements DataInterface {
         network.downloadPlacesByTripId(tripId, new CallbackPlaces() {
             @Override
             public void response(List<Place> listPlaceServer) {
-                if (isListsEquals(listPlaceServer, listPlacesDB)){
-                    callbackPlaces.response(listPlacesDB);
-                }else {
+                callbackPlaces.response(listPlaceServer);
+                if (!isListsEquals(listPlaceServer, listPlacesDB)){
                     data.removePlacesByTrip(tripId);
                     data.addOrUpdateListPlaces(listPlaceServer);
-                    callbackPlaces.response(listPlaceServer);
                 }
             }
 
             @Override
             public void fail(Throwable t) {
                 callbackPlaces.response(listPlacesDB);
+                callbackPlaces.fail(t);
+            }
+        });
+    }
+
+    private void prepareListMyPlacesByTrip(final int tripId, final CallbackPlaces callbackPlaces) {
+        final RealmResults<Place> listPlacesDB = data.getPlacesByTrip(tripId);
+        callbackPlaces.response(listPlacesDB);
+
+        network.downloadPlacesByTripId(tripId, new CallbackPlaces() {
+            @Override
+            public void response(List<Place> listPlaceServer) {
+                if (listPlaceServer.size()!=listPlacesDB.size()){
+                    callbackPlaces.response(listPlaceServer);
+                    data.removePlacesByTrip(tripId);
+                    data.addOrUpdateListPlaces(listPlaceServer);
+                }
+            }
+
+            @Override
+            public void fail(Throwable t) {
                 callbackPlaces.fail(t);
             }
         });
@@ -198,15 +223,15 @@ public class DataService implements DataInterface {
         });
     }
 
-    private void prepareListMyTrips(final CallbackTrips callbackTripsl) {
+    private void prepareListMyTrips(final CallbackTrips callbackTrips) {
 
         if (listMyTripDB==null){
             listMyTripDB = data.getMyTrips();
-            callbackTripsl.response(listMyTripDB);
+            callbackTrips.response(listMyTripDB);
             listMyTripDB.addChangeListener(new RealmChangeListener<RealmResults<Trip>>() {
                 @Override
                 public void onChange(RealmResults<Trip> element) {
-                    callbackTripsl.response(listMyTripDB);
+                    callbackTrips.response(listMyTripDB);
                 }
             });
         }
@@ -215,21 +240,16 @@ public class DataService implements DataInterface {
             @Override
             public void response(List<Trip> listMyTripServer) {
                 Collections.reverse(listMyTripServer);
-                if (isListsEquals(listMyTripServer, listMyTripDB)){
-                    callbackTripsl.neutral(listMyTripDB);
-                }else {
+                callbackTrips.response(listMyTripServer);
+                if (!isListsEquals(listMyTripServer, listMyTripDB)){
                     data.removeMyTrips();
                     data.addOrUpdateListTrips(listMyTripServer);
                 }
             }
 
             @Override
-            public void neutral(List<Trip> listMyTripServer) {
-            }
-
-            @Override
             public void fail(Throwable t) {
-                callbackTripsl.fail(t);
+                callbackTrips.fail(t);
             }
         });
     }
@@ -251,16 +271,11 @@ public class DataService implements DataInterface {
             @Override
             public void response(List<Trip> listFutureTripServer) {
                 Collections.reverse(listFutureTripServer);
-                if (isListsEquals(listFutureTripServer, listFutureTripDB)){
-                    callbackTrips.neutral(listFutureTripDB);
-                }else {
+                callbackTrips.response(listFutureTripServer);
+                if (!isListsEquals(listFutureTripServer, listFutureTripDB)){
                     data.removeFutureTrips();
                     data.addOrUpdateListTrips(listFutureTripServer);
                 }
-            }
-
-            @Override
-            public void neutral(List<Trip> listMyTripServer) {
             }
 
             @Override
@@ -443,36 +458,6 @@ public class DataService implements DataInterface {
         });
     }
 
-    private void createNewTrip(String tripTitle, final SimpleCallBack simpleCallBack){
-
-        network.uploadNewTrip(tripTitle, new SimpleCallBack() {
-            @Override
-            public void response(Object o) {
-                simpleCallBack.response("Created");
-                network.downloadMyTrips(new CallbackTrips() {
-                    @Override
-                    public void response(List<Trip> tripList) {
-                        data.addOrUpdateListTrips(tripList);
-                    }
-
-                    @Override
-                    public void neutral(List<Trip> listMyTripServer) {
-                    }
-
-                    @Override
-                    public void fail(Throwable t) {
-                        simpleCallBack.fail(t);
-                    }
-                });
-            }
-
-            @Override
-            public void fail(Throwable t) {
-                simpleCallBack.fail(t);
-            }
-        });
-    }
-
     private void login(String email, String password, final CallbackRegistration callbackRegistration){
 
         network.login(email, password, new CallbackRegistration() {
@@ -503,7 +488,35 @@ public class DataService implements DataInterface {
         });
     }
 
-    private void uploadImage(MultipartBody.Part body, RequestBody tripIdRequest, final SimpleCallBack simpleCallBack){
+    private void createNewTrip(String tripTitle, final SimpleCallBack simpleCallBack){
+
+        network.uploadNewTrip(tripTitle, new SimpleCallBack() {
+            @Override
+            public void response(Object o) {
+                simpleCallBack.response("Created");
+                network.downloadMyTrips(new CallbackTrips() {
+                    @Override
+                    public void response(List<Trip> tripList) {
+                        data.addOrUpdateListTrips(tripList);
+                    }
+
+                    @Override
+                    public void fail(Throwable t) {
+                        simpleCallBack.fail(t);
+                    }
+                });
+            }
+
+            @Override
+            public void fail(Throwable t) {
+                simpleCallBack.fail(t);
+            }
+        });
+    }
+
+    private void uploadImage(MultipartBody.Part body, final int tripId, final SimpleCallBack simpleCallBack){
+
+        RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(tripId));
 
         network.uploadImage(body, tripIdRequest, new SimpleCallBack() {
             @Override
@@ -518,12 +531,12 @@ public class DataService implements DataInterface {
         });
     }
 
-    private void deletePlace(final Place place, final SimpleCallBack simpleCallBack){
+    private void deletePlace(final int placeId, final SimpleCallBack simpleCallBack){
 
-        network.removePlace(place.getId(), new SimpleCallBack() {
+        network.removePlace(placeId, new SimpleCallBack() {
             @Override
             public void response(Object o) {
-                data.removePlace(place);
+                data.removePlace(placeId);
                 simpleCallBack.response("removed");
             }
 
@@ -549,9 +562,5 @@ public class DataService implements DataInterface {
                 simpleCallBack.fail(t);
             }
         });
-    }
-
-    private void clearDB(){
-        data.removeAll();
     }
 }

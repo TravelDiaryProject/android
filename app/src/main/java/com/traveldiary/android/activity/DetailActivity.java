@@ -43,17 +43,10 @@ import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.UPLOAD_FROM;
 
-public class DetailActivity extends AppCompatActivity implements RecyclerAdapter.RecyclerItemListener, View.OnClickListener{
+public class DetailActivity extends AppCompatActivity implements View.OnClickListener{
 
     private final int PERMISSION_REQUEST = 1;
     private boolean permissionsAreGranted;
-
-
-    private String photo;
-
-    private List<Place> mPlacesList;
-
-    private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
     private FloatingActionButton mFab;
     private TextView descriptionTrip;
@@ -71,10 +64,9 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collaps_toolbar_layout);
         descriptionTrip = (TextView) findViewById(R.id.descriptionTrip);
 
-        mTripId = getIntent().getIntExtra(ID_STRING, -1); // what to do if id not send
+        mTripId = getIntent().getIntExtra(ID_STRING, -1);
         
 
         mFab = (FloatingActionButton) findViewById(R.id.add_place_button);
@@ -118,26 +110,6 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
             onClick(mFab);
             permissionsAreGranted = false;
         }
-    }
-
-    @Override
-    public void onItemClick(View view, int position) {
-        System.out.println("Click = " + view.getId() + " pos = " + position);
-        System.out.println("click place id = " + mPlacesList.get(position).getId());
-               /* switch (view.getId()){
-                    case R.id.placeLikeButton:
-                        System.out.println("Add to my trips by id = " + mPlacesList.get(possition).getId());
-                        *//*ImageView imageView = (ImageView) view;
-                        imageView.setVisibility(View.GONE);*//*
-                        //view.setVisibility(View.GONE);
-                        //recyclerAdapter.notifyItemChanged(possition);
-                        break;
-                }*/
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
-
     }
 
     public void trans(Fragment fragment) {
@@ -206,18 +178,18 @@ public class DetailActivity extends AppCompatActivity implements RecyclerAdapter
             startUploadDialog();
         } else if (!checkStoragePermission() && !checkLocationPermission()) {
             requestMultiplePermissions(new String[]{
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.ACCESS_FINE_LOCATION
             });
         } else if (!checkStoragePermission()) {
-            requestMultiplePermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE});
+            requestMultiplePermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
         } else if (!checkLocationPermission()) {
             requestMultiplePermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
         }
     }
 
     public boolean checkStoragePermission(){
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     public boolean checkLocationPermission(){

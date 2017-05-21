@@ -24,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.traveldiary.android.R;
+import com.traveldiary.android.SingleShotLocationProvider;
 import com.traveldiary.android.callback.SimpleCallBack;
 
 import java.io.File;
@@ -48,7 +49,6 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     private static final int LOAD_IMAGE_CAMERA = 2;
 
     private String photoFromCameraPath;
-    private File directory;
 
     private int mTripId;
 
@@ -138,7 +138,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     }
 
     private Uri generateFileUri(){
-        directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File file = new File(directory.getPath() + "/" + "photo_" + System.currentTimeMillis() + ".jpg");
         photoFromCameraPath = file.getPath();
         return Uri.fromFile(file);
@@ -151,61 +151,101 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         switch (requestCode){
 
             case LOAD_IMAGE_GALLERY:
-
                 if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-
                     Uri selectedImage = data.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                    cursor.moveToFirst();
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String picturePath = cursor.getString(columnIndex);
-                    cursor.close();
-
-                    if (checkLocationInImage(picturePath)) {
-
-                        File file = new File(picturePath);
-
-                        RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-                        RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
-                        MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
-
-                        mUploadProgressBar.setVisibility(View.VISIBLE);
-                        mButtonGallery.setEnabled(false);
-                        mButtonCamera.setEnabled(false);
-
-                        upload(body, tripIdRequest);
+                    int columnIndex;
+                    if (cursor != null) {
+                        cursor.moveToFirst();
+                        columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String picturePath = cursor.getString(columnIndex);
+                        cursor.close();
+                        if (checkLocationInImage(picturePath)) {
+                            upload(picturePath, mTripId);
+                        } else {
+                            informPictureNoLocation();
+                        }
                     }
                 }
                 break;
 
             case LOAD_IMAGE_CAMERA:
-
                 if (resultCode == RESULT_OK ) {
                     if (checkLocationInImage(photoFromCameraPath)) {
-                        File file = new File(photoFromCameraPath);
-                        RequestBody reqFile = RequestBody.create(MediaType.parse("image"), file);
-                        RequestBody tripIdRequest = RequestBody.create(MediaType.parse("multipart/form-data"), Integer.toString(mTripId));
-                        MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
-
-                        mUploadProgressBar.setVisibility(View.VISIBLE);
-                        mButtonGallery.setEnabled(false);
-                        mButtonCamera.setEnabled(false);
-
-                        upload(body, tripIdRequest);
+                        upload(photoFromCameraPath, mTripId);
+                    }else {
+                        SingleShotLocationProvider.requestSingleUpdate(getActivity(),
+                                new SingleShotLocationProvider.LocationCallback() {
+                                    @Override public void onNewLocationAvailable(SingleShotLocationProvider.GPSCoordinates location) {
+                                        setExif(photoFromCameraPath, location.latitude, location.longitude);
+                                        if (checkLocationInImage(photoFromCameraPath)) {
+                                            upload(photoFromCameraPath, mTripId);
+                                        } else {
+                                            informPictureNoLocation();
+                                        }
+                                    }
+                                });
                     }
                 }
                 break;
         }
     }
 
-    public void upload(MultipartBody.Part body, RequestBody tripIdRequest){
-        dataService.uploadPlace(body, tripIdRequest, new SimpleCallBack() {
+    public void informPictureNoLocation(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.picture_must_have_gps)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void setExif(String path, double latitude, double longitude){
+
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(path);
+            int num1Lat = (int)Math.floor(latitude);
+            int num2Lat = (int)Math.floor((latitude - num1Lat) * 60);
+            double num3Lat = (latitude - ((double)num1Lat+((double)num2Lat/60))) * 3600000;
+
+            int num1Lon = (int)Math.floor(longitude);
+            int num2Lon = (int)Math.floor((longitude - num1Lon) * 60);
+            double num3Lon = (longitude - ((double)num1Lon+((double)num2Lon/60))) * 3600000;
+
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, num1Lat+"/1,"+num2Lat+"/1,"+num3Lat+"/1000");
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, num1Lon+"/1,"+num2Lon+"/1,"+num3Lon+"/1000");
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude>0?"N":"S");
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude>0?"E":"W");
+
+            exif.saveAttributes();
+
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+        }
+    }
+
+    public void upload(String picturePath, int tripId){
+
+        File file = new File(picturePath);
+
+        RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("place[file]", file.getName(), reqFile);
+
+        mUploadProgressBar.setVisibility(View.VISIBLE);
+        mButtonGallery.setEnabled(false);
+        mButtonCamera.setEnabled(false);
+
+
+        dataService.uploadPlace(body, tripId, new SimpleCallBack() {
             @Override
             public void response(Object o) {
                 mUploadProgressBar.setVisibility(View.GONE);
-                mButtonGallery.setEnabled(true);
-                mButtonCamera.setEnabled(true);
                 inform();
             }
 
@@ -221,7 +261,6 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
     public void inform(){
         Toast.makeText(getActivity(),R.string.place_created, Toast.LENGTH_SHORT).show();
-
         PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);
@@ -235,30 +274,14 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
     }
 
     private boolean checkLocationInImage(String photoPath){
-        ExifInterface exif = null;
+        ExifInterface exif;
         try {
             exif = new ExifInterface(photoPath);
+            return exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE) != null && exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE) != null;
 
         } catch (IOException e) {
             Log.d(TAG, "problem with exifInterface", e);
         }
-        if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)==null || exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)==null) {
-
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(R.string.picture_must_have_gps)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                            dialog.cancel();
-                        }
-                    });
-            final AlertDialog alert = builder.create();
-            alert.show();
-
-            return false;
-        }
-        else if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)!=null || exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)!=null)
-            return true;
         return false;
     }
 }

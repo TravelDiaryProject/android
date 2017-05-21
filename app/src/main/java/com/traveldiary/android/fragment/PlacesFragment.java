@@ -1,8 +1,6 @@
 package com.traveldiary.android.fragment;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -19,7 +17,6 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -74,10 +71,11 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
     private Button mNoPlacesButton;
 
     private boolean loading = true;
-    int pastVisiblesItems, visibleItemCount, totalItemCount;
+    private int totalItemCount;
 
     private ActionMode mActionMode;
 
+    private boolean mIsRefresh = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,12 +96,6 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_places,
                 container, false);
-
-        View view = getActivity().getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
 
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -130,17 +122,16 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mRecyclerAdapter);
 
-        listPLacesByForType(false);
+        listPLacesByForType();
 
         return rootView;
     }
 
-    private void listPLacesByForType(final boolean isThisRefresh) {
+    private void listPLacesByForType() {
         switch (mPlacesFor) {
 
             case PLACES_FOR_TOP:
-
-                dataService.getTopPlacesOffset(0, getCallbackPlaces(isThisRefresh));
+                dataService.getTopPlacesOffset(0, getCallbackPlaces());
 
                 mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                     @Override
@@ -151,40 +142,29 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
                 break;
 
             case PLACES_FOR_CITY:
+                ((CreateFindActivity) getActivity()).setActionBarTitle(mCityName);
 
-                ((CreateFindActivity) getActivity())
-                        .setActionBarTitle(mCityName);
-
-                mRecyclerView.clearOnScrollListeners();
-
-                dataService.getPlacesByCity(mCityId, getCallbackPlaces(isThisRefresh));
+                dataService.getPlacesByCity(mCityId, getCallbackPlaces());
                 break;
 
             case PLACES_FOR_COUNTRY:
+                ((CreateFindActivity) getActivity()).setActionBarTitle(mCountryName);
 
-                ((CreateFindActivity) getActivity())
-                        .setActionBarTitle(mCountryName);
-
-                mRecyclerView.clearOnScrollListeners();
-
-                dataService.getPlacesByCountry(mCountryId, getCallbackPlaces(isThisRefresh));
+                dataService.getPlacesByCountry(mCountryId, getCallbackPlaces());
                 break;
 
             case PLACES_FOR_TRIP:
-
-                mRecyclerView.clearOnScrollListeners();
-
-                dataService.getPlacesByTrip(mTripId, getCallbackPlaces(isThisRefresh));
+                dataService.getPlacesByTrip(mTripId, getCallbackPlaces());
                 break;
         }
     }
 
     @NonNull
-    private CallbackPlaces getCallbackPlaces(final boolean isThisRefresh) {
+    private CallbackPlaces getCallbackPlaces() {
         return new CallbackPlaces() {
             @Override
             public void response(List<Place> placeList) {
-                manipulationWithResponse(placeList, isThisRefresh);
+                manipulationWithResponse(placeList);
             }
 
             @Override
@@ -197,26 +177,27 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
         };
     }
 
-    public void manipulationWithResponse(List<Place> placesList, boolean isThisRefresh) {
+    public void manipulationWithResponse(List<Place> placesList) {
 
         mNoPlacesTextView.setVisibility(View.GONE);
         mNoPlacesButton.setVisibility(View.GONE);
-
-        Log.d("PlacesFragment", "PLACES_FOR_COUNTRY manipulationWithResponse placesList.size = " + placesList.size());
+        mProgressBar.setVisibility(View.GONE);
 
         if (placesList.size() == 0) {
+            mPlacesList.clear();
             noNetworkOrEmptyListInfo("No places yet", null);
         }
 
-        if (!isThisRefresh) {
+        if (!mIsRefresh) {
             mPlacesList.clear();
             mPlacesList.addAll(placesList);
-            mRecyclerAdapter.notifyDataSetChanged();
-            mProgressBar.setVisibility(View.GONE);
+            mRecyclerAdapter.updateAdapterPlace(placesList);
+
         } else {
+            mIsRefresh = false;
             mPlacesList.clear();
             mPlacesList.addAll(placesList);
-            mRecyclerAdapter.updateAdapter(placesList);
+            mRecyclerAdapter.updateAdapterPlace(placesList);
             swipeRefreshLayout.setRefreshing(false);
         }
     }
@@ -235,9 +216,9 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
 
     public void loadNextTopPage(int dy) {
         if (dy > 0) {
-            visibleItemCount = mLayoutManager.getChildCount();
+            int visibleItemCount = mLayoutManager.getChildCount();
             totalItemCount = mLayoutManager.getItemCount();
-            pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
+            int pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
 
             if (loading) {
                 if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
@@ -322,20 +303,16 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
     public void deleteRows() {
         final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();
 
-        for (int i = (selected.size() - 1); i >= 0; i--) {
-            if (selected.valueAt(i)) {
-                final int finalI = i;
-                final Place place = mPlacesList.get(selected.keyAt(finalI));
+        swipeRefreshLayout.setRefreshing(true);
 
-                dataService.removePlace(mPlacesList.get(selected.keyAt(i)), new SimpleCallBack() {
+        for (int i = 0; i < selected.size(); i++) {
+            if (selected.valueAt(i)) {
+                final Place place = mPlacesList.get(selected.keyAt(i));
+
+                dataService.removePlace(place.getId(), new SimpleCallBack() {
                     @Override
                     public void response(Object o) {
-                        mPlacesList.remove(place);
-
-                        if (selected.size() > 2)
-                            mRecyclerAdapter.notifyDataSetChanged();
-                        else
-                            mRecyclerAdapter.notifyItemRemoved(selected.keyAt(finalI));
+                        onRefresh();
                     }
 
                     @Override
@@ -430,6 +407,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
     @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
-        listPLacesByForType(true);
+        mIsRefresh = true;
+        listPLacesByForType();
     }
 }

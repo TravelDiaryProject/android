@@ -104,11 +104,11 @@ class Data {
 
     }
 
-    void removePlace(Place place){
+    void removePlace(int placeId){
         Log.d(TAG, "deletePlace");
 
         realm.beginTransaction();
-        Place place1 = realm.where(Place.class).equalTo("id", place.getId()).findFirst();
+        Place place1 = realm.where(Place.class).equalTo("id", placeId).findFirst();
         place1.deleteFromRealm();
         realm.commitTransaction();
     }
@@ -174,6 +174,7 @@ class Data {
     }
 
     void removeAll(){
+        realm.removeAllChangeListeners();
         realm.beginTransaction();
         realm.deleteAll();
         realm.commitTransaction();

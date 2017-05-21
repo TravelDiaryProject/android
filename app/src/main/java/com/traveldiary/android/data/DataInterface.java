@@ -16,6 +16,9 @@ interface DataInterface {
 
     void getTopPlacesOffset(int offset, CallbackPlaces callbackPlaces);
     void getPlacesByTrip(int tripId, CallbackPlaces callbackPlaces);
+
+    void getMyPlacesByTrip(int tripId, CallbackPlaces callbackPlaces);
+
     void getPlacesByCity(int cityId, CallbackPlaces callbackPlaces);
     void getPlacesByCountry(int countryId, CallbackPlaces callbackPlaces);
 
@@ -31,12 +34,12 @@ interface DataInterface {
     void signIn(String email, String password, CallbackRegistration callbackRegistration);
     void registration(String email, String password, CallbackRegistration callbackRegistration);
 
-    void uploadPlace(MultipartBody.Part body, RequestBody tripIdRequest, SimpleCallBack simpleCallBack);
+    void uploadPlace(MultipartBody.Part body, int tripId, SimpleCallBack simpleCallBack);
 
     void getAllCities(CallbackCities callbackCities);
     void getAllCountries(CallbackCountries callbackCountries);
 
-    void removePlace(Place place, SimpleCallBack simpleCallBack);
+    void removePlace(int placeId, SimpleCallBack simpleCallBack);
     void removeTrip(int tripId, SimpleCallBack simpleCallBack);
     void removeAll();
 

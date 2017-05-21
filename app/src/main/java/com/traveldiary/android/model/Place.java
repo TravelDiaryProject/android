@@ -172,7 +172,7 @@ public class Place extends RealmObject implements Serializable {
             return false;
         }
         Place place = (Place) obj;
-        return place.id == id && place.title.equals(title)
+        return place.id == id
                 && place.tripId == tripId
                 && place.isLiked == isLiked
                 && place.isInFutureTrips == isInFutureTrips

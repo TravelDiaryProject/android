@@ -2,6 +2,7 @@ package com.traveldiary.android.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,7 +109,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    public void updateAdapter(List<Place> updateList){
+    public void updateAdapterPlace(List<Place> updateList){
         if (updateList!=null){
             mPlaceList.clear();
             mPlaceList.addAll(updateList);
@@ -127,7 +128,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public int getItemCount() {
         int size = 0;
-        if (mTripsList==null && mPlaceList.size()>0){
+        if (mTripsList==null){
             size = mPlaceList.size();
         }else if (mPlaceList==null){
             size = mTripsList.size();
@@ -211,9 +212,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             title.setText(trip.getTitle());
 
-            dataService.getPlacesByTrip(trip.getId(), new CallbackPlaces() {
+            dataService.getMyPlacesByTrip(trip.getId(), new CallbackPlaces() {
                 @Override
                 public void response(List<Place> placeList) {
+
+                    Log.d("MyPlacesByTrip", "----------------------------------------------------------------- response");
+
+
                     placesForHorizontal.clear();
                     placesForHorizontal.addAll(placeList);
                     if (placesForHorizontal.size()==0){
