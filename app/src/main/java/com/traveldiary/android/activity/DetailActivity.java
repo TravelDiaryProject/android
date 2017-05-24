@@ -17,7 +17,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.traveldiary.android.Validator;
-import com.traveldiary.android.callback.CallbackPlaces;
 import com.traveldiary.android.fragment.PlacesFragment;
 import com.traveldiary.android.R;
 import com.traveldiary.android.fragment.UploadDialog;
@@ -52,7 +50,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     private FloatingActionButton mFab;
     private TextView descriptionTrip;
-    private PlacesFragment placesFragment;
 
     private Trip mTrip;
 
@@ -100,7 +97,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        placesFragment = new PlacesFragment();
+        PlacesFragment placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);
         args.putInt(ID_STRING, mTripId);
@@ -141,9 +138,6 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.start_navigation_button:
                 startNavigation();
-                break;
-            case R.id.sorting:
-                placesFragment.sortByDistance();
                 break;
         }
 
@@ -272,6 +266,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     public void startUploadDialog(){
         DialogFragment uploadDialog = new UploadDialog();
+        uploadDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
         Bundle args = new Bundle();
         args.putInt(ID_STRING, mTripId);
         args.putString(UPLOAD_FROM, GALLERY);
