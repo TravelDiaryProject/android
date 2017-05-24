@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.traveldiary.android.R;
 import com.traveldiary.android.ToolbarActionMode;
+import com.traveldiary.android.Validator;
 import com.traveldiary.android.activity.DetailActivity;
 import com.traveldiary.android.activity.LoginActivity;
 import com.traveldiary.android.callback.SimpleCallBack;
@@ -39,6 +41,8 @@ import java.util.List;
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.FUTURE;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.IS_MY_TRIP;
+import static com.traveldiary.android.Constans.IS_TRIP_FUTURE;
 import static com.traveldiary.android.Constans.MY;
 import static com.traveldiary.android.Constans.TOKEN_CONST;
 import static com.traveldiary.android.Constans.TRIPS_FOR;
@@ -59,6 +63,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     private boolean isRefresh = false;
 
     private ActionMode mActionMode;
+
+    private View mRootView;
+
+
+    private boolean isNeedRefresh;
 
 
     public interface OnPlaneButtonListener{
@@ -88,20 +97,20 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_trips,
+        mRootView = inflater.inflate(R.layout.fragment_trips,
                 container, false);
 
-        mNoTripsTextView = (TextView) rootView.findViewById(R.id.no_trips_textView);
-        mNoTripsButton = (Button) rootView.findViewById(R.id.no_trips_planeButton);
+        mNoTripsTextView = (TextView) mRootView.findViewById(R.id.no_trips_textView);
+        mNoTripsButton = (Button) mRootView.findViewById(R.id.no_trips_planeButton);
         mNoTripsButton.setOnClickListener(this);
 
-        mProgressBar = (ProgressBar) rootView.findViewById(R.id.trips_progress);
+        mProgressBar = (ProgressBar) mRootView.findViewById(R.id.trips_progress);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.trips_swipe_refresh);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.trips_swipe_refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.trips_recycler_view);
+        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.trips_recycler_view);
         mTripList = new ArrayList<>();
         mRecyclerAdapter = new RecyclerAdapter(getActivity(), mTripList, this, null);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -112,7 +121,7 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
         listTripsByForType();
 
-        return rootView;
+        return mRootView;
     }
 
     private void listTripsByForType(){
@@ -205,7 +214,11 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
 
             Intent intent = new Intent(getActivity(), DetailActivity.class);
             intent.putExtra(ID_STRING, trip.getId());
+            intent.putExtra(IS_TRIP_FUTURE, trip.getIsMine() == 1 && trip.getIsFuture() == 1);
+            intent.putExtra(IS_MY_TRIP, trip.getIsMine() == 1 && trip.getIsFuture() == 0);
             startActivity(intent);
+
+            isNeedRefresh = true;
         }
     }
 
@@ -235,26 +248,31 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     }
 
     public void deleteRows() {
-        final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();//Get selected ids
+        if (Validator.isNetworkAvailable(getActivity())) {
 
-        for (int i = 0; i < selected.size(); i++) {
-            if (selected.valueAt(i)) {
-                final Trip trip = mTripList.get(selected.keyAt(i));
+            final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();//Get selected ids
 
-                dataService.removeTrip(trip.getId(), new SimpleCallBack() {
-                    @Override
-                    public void response(Object o) {
-                    }
+            for (int i = 0; i < selected.size(); i++) {
+                if (selected.valueAt(i)) {
+                    final Trip trip = mTripList.get(selected.keyAt(i));
 
-                    @Override
-                    public void fail(Throwable t) {
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    dataService.removeTrip(trip.getId(), new SimpleCallBack() {
+                        @Override
+                        public void response(Object o) {
+                        }
+
+                        @Override
+                        public void fail(Throwable t) {
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
+            Toast.makeText(getActivity(), selected.size() + getResources().getString(R.string.item_deleted), Toast.LENGTH_SHORT).show();//Show Toast
+            mActionMode.finish();
+        } else {
+            Snackbar.make(mRootView, "Need a connection to remove" , Snackbar.LENGTH_LONG).show();
         }
-        Toast.makeText(getActivity(), selected.size() + getResources().getString(R.string.item_deleted), Toast.LENGTH_SHORT).show();//Show Toast
-        mActionMode.finish();
     }
 
     @Override
@@ -284,6 +302,9 @@ public class TripsFragment extends Fragment implements View.OnClickListener, Rec
     @Override
     public void onResume() {
         super.onResume();
-        onRefresh();
+        if (isNeedRefresh) {
+            onRefresh();
+            isNeedRefresh = false;
+        }
     }
 }

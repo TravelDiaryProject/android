@@ -13,7 +13,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
-class Data {
+public class Data {
 
     private static String TAG = "DATA";
     private Realm realm = Realm.getDefaultInstance();
@@ -27,7 +27,7 @@ class Data {
         return realm.where(Trip.class).equalTo("isFuture", 1).equalTo("isMine", 1).findAllSorted("startDate", Sort.DESCENDING);
     }
 
-    RealmResults<Place> getPlacesByTrip(int tripId){
+    public RealmResults<Place> getPlacesByTrip(int tripId){
         Log.d(TAG, "getPlacesByTrip");
         return realm.where(Place.class).equalTo("tripId", tripId).findAllSorted("shootedAt", Sort.ASCENDING);
     }

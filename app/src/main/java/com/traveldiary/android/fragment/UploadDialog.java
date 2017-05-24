@@ -23,6 +23,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.traveldiary.android.R;
 import com.traveldiary.android.SingleShotLocationProvider;
 import com.traveldiary.android.callback.SimpleCallBack;
@@ -45,10 +49,12 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
     private static final String TAG = "UploadDialog";
 
-    private static final int LOAD_IMAGE_GALLERY = 1;
-    private static final int LOAD_IMAGE_CAMERA = 2;
+    private static final int LOAD_GALLERY_REQUEST = 1;
+    private static final int LOAD_CAMERA_REQIEST = 2;
+    private static final int PLACE_PICKER_REQUEST = 3;
 
     private String photoFromCameraPath;
+    private String photoFromGalleryPath;
 
     private int mTripId;
 
@@ -104,22 +110,22 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
         final LocationManager manager = (LocationManager) getActivity().getSystemService( Context.LOCATION_SERVICE );
 
         if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-            buildAlertMessageNoGps();
+            buildAlertNoGps();
         }
 
         if (manager.isProviderEnabled( LocationManager.GPS_PROVIDER)) {
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             i.putExtra(MediaStore.EXTRA_OUTPUT, generateFileUri());
-            startActivityForResult(i, LOAD_IMAGE_CAMERA);
+            startActivityForResult(i, LOAD_CAMERA_REQIEST);
         }
     }
 
     public void fromGallery(){
         Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, LOAD_IMAGE_GALLERY);
+        startActivityForResult(i, LOAD_GALLERY_REQUEST);
     }
 
-    private void buildAlertMessageNoGps() {
+    private void buildAlertNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.gps_disabled)
                 .setCancelable(false)
@@ -130,6 +136,61 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void buildAlertChoiceLocation(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(getString(R.string.picture_no_coordinates))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.map), new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        placePicker();
+                    }
+                })
+                .setNeutralButton(getString(R.string.gps), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        final LocationManager manager = (LocationManager) getActivity().getSystemService( Context.LOCATION_SERVICE );
+                        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+                            buildAlertNoGps();
+                        }
+
+                        if (manager.isProviderEnabled( LocationManager.GPS_PROVIDER)) {
+                            SingleShotLocationProvider.requestSingleUpdate(getActivity(),
+                                    new SingleShotLocationProvider.LocationCallback() {
+                                        @Override public void onNewLocationAvailable(SingleShotLocationProvider.GPSCoordinates location) {
+                                            setExif(photoFromGalleryPath, location.latitude, location.longitude);
+                                            if (checkLocationInImage(photoFromGalleryPath)) {
+                                                upload(photoFromGalleryPath, mTripId);
+                                            } else {
+                                                buildAlertNoLocation();
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void buildAlertNoLocation(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.picture_must_have_gps)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
                     }
                 });
@@ -150,7 +211,7 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
 
         switch (requestCode){
 
-            case LOAD_IMAGE_GALLERY:
+            case LOAD_GALLERY_REQUEST:
                 if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                     Uri selectedImage = data.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -159,18 +220,18 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                     if (cursor != null) {
                         cursor.moveToFirst();
                         columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                        String picturePath = cursor.getString(columnIndex);
+                        photoFromGalleryPath = cursor.getString(columnIndex);
                         cursor.close();
-                        if (checkLocationInImage(picturePath)) {
-                            upload(picturePath, mTripId);
+                        if (checkLocationInImage(photoFromGalleryPath)) {
+                            upload(photoFromGalleryPath, mTripId);
                         } else {
-                            informPictureNoLocation();
+                            buildAlertChoiceLocation();
                         }
                     }
                 }
                 break;
 
-            case LOAD_IMAGE_CAMERA:
+            case LOAD_CAMERA_REQIEST:
                 if (resultCode == RESULT_OK ) {
                     if (checkLocationInImage(photoFromCameraPath)) {
                         upload(photoFromCameraPath, mTripId);
@@ -182,27 +243,38 @@ public class UploadDialog extends DialogFragment implements View.OnClickListener
                                         if (checkLocationInImage(photoFromCameraPath)) {
                                             upload(photoFromCameraPath, mTripId);
                                         } else {
-                                            informPictureNoLocation();
+                                            buildAlertNoLocation();
                                         }
                                     }
                                 });
                     }
                 }
                 break;
+
+            case PLACE_PICKER_REQUEST:
+                if (requestCode == PLACE_PICKER_REQUEST) {
+                    if (resultCode == RESULT_OK) {
+                        Place place = PlacePicker.getPlace(getActivity(), data); // Place from com.google.android.gms.location.places.Place;
+                        setExif(photoFromGalleryPath, place.getLatLng().latitude, place.getLatLng().longitude);
+                        if (checkLocationInImage(photoFromGalleryPath)) {
+                            upload(photoFromGalleryPath, mTripId);
+                        } else {
+                            buildAlertNoLocation();
+                        }
+                    }
+                }
+                break;
         }
     }
 
-    public void informPictureNoLocation(){
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.picture_must_have_gps)
-                .setCancelable(false)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
+    public void placePicker(){
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+        try {
+            startActivityForResult(builder.build(getActivity()), PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setExif(String path, double latitude, double longitude){

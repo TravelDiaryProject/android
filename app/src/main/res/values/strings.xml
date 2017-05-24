@@ -14,6 +14,13 @@
     <string name="place_created">Place has been created!</string>
     <string name="picture_must_have_gps">The picture must have GPS location! Turn on GPS location info in your camera! Or choice another image!</string>
     <string name="ok">OK</string>
+    <string name="picture_no_coordinates">The picture has no coordinates, set the coordinates using:</string>
+    <string name="gps">GPS</string>
+    <string name="map">Map</string>
+    <string name="cancel">Cancel</string>
+
+
+
 
     <!--MainActivity-->
     <string name="not_authorized">Not authorized</string>

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -15,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +24,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.traveldiary.android.Validator;
 import com.traveldiary.android.adapter.ViewPagerAdapter;
 import com.traveldiary.android.fragment.FindPlaceFragment;
 import com.traveldiary.android.fragment.PlacesFragment;
@@ -58,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -268,11 +273,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onClick(View v) {
         if (v.getId()==R.id.add_trip_button){
-
-            Intent intent = new Intent(this, CreateFindActivity.class);
-                intent.putExtra(CREATE_TRIP, CREATE_TRIP);
-                startActivity(intent);
-
+            if (TOKEN_CONST!=null && !TOKEN_CONST.equals("")) {
+                if (Validator.isNetworkAvailable(this)) {
+                    Intent intent = new Intent(this, CreateFindActivity.class);
+                    intent.putExtra(CREATE_TRIP, CREATE_TRIP);
+                    startActivity(intent);
+                } else {
+                    Snackbar.make(v, "Need a connection to create new trip" , Snackbar.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.need_authorization_function), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

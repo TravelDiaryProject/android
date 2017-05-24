@@ -8,6 +8,10 @@ public class Constans {
     public static final String TRIP_ID = "tripId";
     public static final String PLACE_ID = "placeId";
 
+    public static final String IS_TRIP_FUTURE = "isTripFuture";
+    public static final String IS_MY_TRIP = "isTripMy";
+
+
     public static final String ID_STRING = "id";
     public static final String TRIPS_FOR = "tripsFor";
     public static final String PLACES_FOR = "placesFor";

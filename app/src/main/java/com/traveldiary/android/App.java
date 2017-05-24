@@ -2,6 +2,7 @@ package com.traveldiary.android;
 
 import android.app.Application;
 
+import com.traveldiary.android.data.Data;
 import com.traveldiary.android.data.DataService;
 import com.traveldiary.android.network.Network;
 
@@ -11,6 +12,7 @@ import io.realm.RealmConfiguration;
 public class App extends Application {
 
     public static Network network;
+    public static Data data;
     public static DataService dataService;
 
     @Override
@@ -20,6 +22,7 @@ public class App extends Application {
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder().build();
         Realm.setDefaultConfiguration(realmConfiguration);
 
+        data = new Data();
         network = new Network();
         dataService = new DataService();
 

@@ -1,6 +1,7 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -215,10 +216,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             dataService.getMyPlacesByTrip(trip.getId(), new CallbackPlaces() {
                 @Override
                 public void response(List<Place> placeList) {
-
-                    Log.d("MyPlacesByTrip", "----------------------------------------------------------------- response");
-
-
                     placesForHorizontal.clear();
                     placesForHorizontal.addAll(placeList);
                     if (placesForHorizontal.size()==0){
@@ -230,7 +227,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 @Override
                 public void fail(Throwable t) {
-                    Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -261,7 +258,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private PlaceViewHolder(View view) {
             super(view);
 
-            view.setOnLongClickListener(this);
+            //view.setOnLongClickListener(this);
 
             placeTitleText = (TextView) view.findViewById(R.id.placeTitleText);
             titleImageView = (ImageView) view.findViewById(R.id.placeImageView);
@@ -300,7 +297,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     })
                     .thumbnail(0.5f)
                     .crossFade()
-                    .placeholder(R.drawable.ic_image_black_24dp)
+                    //.placeholder(R.drawable.ic_image_black_24dp)
+
+                    .placeholder( ContextCompat.getDrawable(mContext, R.drawable.ic_image_black_24dp) )
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(titleImageView);
 

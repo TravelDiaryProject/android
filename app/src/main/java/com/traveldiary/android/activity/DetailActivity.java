@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -25,10 +24,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.traveldiary.android.Validator;
 import com.traveldiary.android.callback.CallbackPlaces;
 import com.traveldiary.android.fragment.PlacesFragment;
 import com.traveldiary.android.R;
-import com.traveldiary.android.adapter.RecyclerAdapter;
 import com.traveldiary.android.fragment.UploadDialog;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
@@ -36,9 +35,12 @@ import com.traveldiary.android.callback.SimpleCallBack;
 
 import java.util.List;
 
+import static com.traveldiary.android.App.data;
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.GALLERY;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.IS_MY_TRIP;
+import static com.traveldiary.android.Constans.IS_TRIP_FUTURE;
 import static com.traveldiary.android.Constans.PLACES_FOR;
 import static com.traveldiary.android.Constans.PLACES_FOR_TRIP;
 import static com.traveldiary.android.Constans.UPLOAD_FROM;
@@ -50,8 +52,13 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     private FloatingActionButton mFab;
     private TextView descriptionTrip;
+    private PlacesFragment placesFragment;
+
+    private Trip mTrip;
 
     private int mTripId;
+    private boolean mIsFutureTrip;
+    private boolean mIsMyTrip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,25 +74,24 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
         descriptionTrip = (TextView) findViewById(R.id.descriptionTrip);
 
         mTripId = getIntent().getIntExtra(ID_STRING, -1);
-        
+        mIsFutureTrip = getIntent().getBooleanExtra(IS_TRIP_FUTURE, false);
+        mIsMyTrip = getIntent().getBooleanExtra(IS_MY_TRIP, false);
+
 
         mFab = (FloatingActionButton) findViewById(R.id.add_place_button);
         mFab.setOnClickListener(this);
         mFab.hide();
 
-        Log.d("MYLOG", " tripID from Intent = " + mTripId);
+        if (mIsMyTrip){
+            mFab.show();
+        }
 
         dataService.getTripById(mTripId, new SimpleCallBack() {
             @Override
             public void response(Object o) {
-                Trip trip = (Trip) o;
-                if (trip.getIsMine()==1 && trip.getIsFuture()==0){
-                    mFab.show();
-                } else if (trip.getIsMine()==1 && trip.getIsFuture()==1){
-
-                }
-                setTitle(trip.getTitle());
-                descriptionTrip.setText(trip.getDescription());
+                mTrip = (Trip) o;
+                setTitle(mTrip.getTitle());
+                descriptionTrip.setText(mTrip.getDescription());
             }
 
             @Override
@@ -94,7 +100,7 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
 
-        PlacesFragment placesFragment = new PlacesFragment();
+        placesFragment = new PlacesFragment();
         Bundle args = new Bundle();
         args.putString(PLACES_FOR, PLACES_FOR_TRIP);
         args.putInt(ID_STRING, mTripId);
@@ -121,43 +127,47 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_detail,menu);
+        if (mIsFutureTrip) {
+            getMenuInflater().inflate(R.menu.menu_detail, menu);
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        } else if (item.getItemId() == R.id.start_navigation_button){
-            dataService.getPlacesByTrip(mTripId, new CallbackPlaces() {
-                @Override
-                public void response(List<Place> placeList) {
-
-                    StringBuilder sBuilder = new StringBuilder("https://maps.google.ch/maps?daddr=");
-                    sBuilder.append(placeList.get((placeList.size()-1)).getLatitude());
-                    sBuilder.append(",");
-                    sBuilder.append(placeList.get((placeList.size()-1)).getLongitude());
-
-                    for (int i = (placeList.size()-2); i >= 0 ; i--){
-                        sBuilder.append(" to:");
-                        sBuilder.append(placeList.get(i).getLatitude());
-                        sBuilder.append(",");
-                        sBuilder.append(placeList.get(i).getLongitude());
-                    }
-                    Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
-                            Uri.parse(sBuilder.toString()));
-                    startActivity(intent);
-
-                }
-
-                @Override
-                public void fail(Throwable t) {
-
-                }
-            });
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.start_navigation_button:
+                startNavigation();
+                break;
+            case R.id.sorting:
+                placesFragment.sortByDistance();
+                break;
         }
+
         return true;
+    }
+
+    public void startNavigation(){
+        List<Place> placeList = data.getPlacesByTrip(mTripId);
+        if (placeList!=null && placeList.size()!=0){
+            StringBuilder sBuilder = new StringBuilder("https://maps.google.ch/maps?daddr=");
+            sBuilder.append(placeList.get((placeList.size()-1)).getLatitude());
+            sBuilder.append(",");
+            sBuilder.append(placeList.get((placeList.size()-1)).getLongitude());
+
+            for (int i = (placeList.size()-2); i >= 0 ; i--){
+                sBuilder.append(" to:");
+                sBuilder.append(placeList.get(i).getLatitude());
+                sBuilder.append(",");
+                sBuilder.append(placeList.get(i).getLongitude());
+            }
+            Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                    Uri.parse(sBuilder.toString()));
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -168,7 +178,11 @@ public class DetailActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v.getId()==R.id.add_place_button){
-            permissionsSetting();
+            if (Validator.isNetworkAvailable(this)) {
+                permissionsSetting();
+            } else {
+                Snackbar.make(v, "Need a connection to upload" , Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 

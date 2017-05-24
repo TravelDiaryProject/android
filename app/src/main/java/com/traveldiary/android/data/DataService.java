@@ -22,6 +22,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+import static com.traveldiary.android.App.data;
 import static com.traveldiary.android.App.network;
 
 public class DataService implements DataInterface {
@@ -29,7 +30,6 @@ public class DataService implements DataInterface {
     private RealmResults<Trip> listMyTripDB;
     private RealmResults<Trip> listFutureTripDB;
 
-    private Data data = new Data();
     private static final int COUNT_LIMIT = 5;
 
     @Override
@@ -249,6 +249,7 @@ public class DataService implements DataInterface {
 
             @Override
             public void fail(Throwable t) {
+                callbackTrips.response(listMyTripDB);
                 callbackTrips.fail(t);
             }
         });
@@ -280,6 +281,7 @@ public class DataService implements DataInterface {
 
             @Override
             public void fail(Throwable t) {
+                callbackTrips.response(listFutureTripDB);
                 callbackTrips.fail(t);
             }
         });

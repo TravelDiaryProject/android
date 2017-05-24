@@ -1,6 +1,7 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,7 +87,8 @@ class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         }
                     })
                     .thumbnail(0.5f)
-                    .placeholder(R.drawable.ic_image_black_24dp)
+                    //.placeholder(R.drawable.ic_image_black_24dp)
+                    .placeholder( ContextCompat.getDrawable(mContext, R.drawable.ic_image_black_24dp) )
                     .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imageView);

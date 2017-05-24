@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,7 +13,6 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +39,8 @@ import java.util.List;
 
 import static com.traveldiary.android.App.dataService;
 import static com.traveldiary.android.Constans.ID_STRING;
+import static com.traveldiary.android.Constans.IS_MY_TRIP;
+import static com.traveldiary.android.Constans.IS_TRIP_FUTURE;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY;
 import static com.traveldiary.android.Constans.PLACES_BY_CITY_NAME;
 import static com.traveldiary.android.Constans.PLACES_BY_COUNTRY;
@@ -76,6 +78,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
     private ActionMode mActionMode;
 
     private boolean mIsRefresh = false;
+    private View mRootView;
+
+    private boolean mSortByDistance;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,14 +100,14 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_places,
+        mRootView = inflater.inflate(R.layout.fragment_places,
                 container, false);
 
-        mProgressBar = (ProgressBar) rootView.findViewById(R.id.places_progress);
+        mProgressBar = (ProgressBar) mRootView.findViewById(R.id.places_progress);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        mNoPlacesTextView = (TextView) rootView.findViewById(R.id.no_placess_textView);
-        mNoPlacesButton = (Button) rootView.findViewById(R.id.no_places_button);
+        mNoPlacesTextView = (TextView) mRootView.findViewById(R.id.no_placess_textView);
+        mNoPlacesButton = (Button) mRootView.findViewById(R.id.no_places_button);
         mNoPlacesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,10 +115,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
             }
         });
 
-        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.places_swipe_refresh);
+        swipeRefreshLayout = (SwipeRefreshLayout) mRootView.findViewById(R.id.places_swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.places_recycler_view);
+        mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.places_recycler_view);
 
         mPlacesList = new ArrayList<>();
 
@@ -124,7 +130,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
 
         listPLacesByForType();
 
-        return rootView;
+        return mRootView;
     }
 
     private void listPLacesByForType() {
@@ -171,7 +177,7 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
             public void fail(Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
                 mProgressBar.setVisibility(View.GONE);
-                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
                 noNetworkOrEmptyListInfo(getString(R.string.check_network_connection), getString(R.string.try_again));
             }
         };
@@ -301,29 +307,35 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
     }
 
     public void deleteRows() {
-        final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();
 
-        swipeRefreshLayout.setRefreshing(true);
+        if (Validator.isNetworkAvailable(getActivity())) {
 
-        for (int i = 0; i < selected.size(); i++) {
-            if (selected.valueAt(i)) {
-                final Place place = mPlacesList.get(selected.keyAt(i));
+            final SparseBooleanArray selected = mRecyclerAdapter.getSelectedIds();
 
-                dataService.removePlace(place.getId(), new SimpleCallBack() {
-                    @Override
-                    public void response(Object o) {
-                        onRefresh();
-                    }
+            swipeRefreshLayout.setRefreshing(true);
 
-                    @Override
-                    public void fail(Throwable t) {
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            for (int i = 0; i < selected.size(); i++) {
+                if (selected.valueAt(i)) {
+                    final Place place = mPlacesList.get(selected.keyAt(i));
+
+                    dataService.removePlace(place.getId(), new SimpleCallBack() {
+                        @Override
+                        public void response(Object o) {
+                            onRefresh();
+                        }
+
+                        @Override
+                        public void fail(Throwable t) {
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
+            Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();
+            mActionMode.finish();
+        } else {
+            Snackbar.make(mRootView, "Need a connection to remove" , Snackbar.LENGTH_LONG).show();
         }
-        Toast.makeText(getActivity(), selected.size() + " item deleted.", Toast.LENGTH_SHORT).show();
-        mActionMode.finish();
     }
 
     public void clickLogic(final View view, final int possition) {
@@ -344,6 +356,8 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
                 } else {
                     Intent intent = new Intent(getActivity(), DetailActivity.class);
                     intent.putExtra(ID_STRING, place.getTripId());
+                    intent.putExtra(IS_TRIP_FUTURE, place.getIsMine() == 1 && place.getIsInFutureTrips() == 1);
+                    intent.putExtra(IS_MY_TRIP, place.getIsMine() == 1 && place.getIsInFutureTrips() == 0);
                     startActivity(intent);
                 }
                 break;
@@ -409,5 +423,10 @@ public class PlacesFragment extends Fragment implements RecyclerAdapter.Recycler
         swipeRefreshLayout.setRefreshing(true);
         mIsRefresh = true;
         listPLacesByForType();
+    }
+
+    public void sortByDistance(){
+        mSortByDistance = true;
+        Toast.makeText(getActivity(), "Sort list", Toast.LENGTH_SHORT).show();
     }
 }
