@@ -66,7 +66,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return new PlaceViewHolder(itemView);
             case TYPE_TRIP:
                 View itemView2 = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trip_horizontal_item_layout, parent, false);
+                        .inflate(R.layout.test_trip_card, parent, false);
 
                 return new TripViewHolder(itemView2);
             case TYPE_PROGRESS:
@@ -187,9 +187,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private class TripViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
 
-        private HorizontalRecyclerAdapter horizontalRecyclerAdapter;
-        private RecyclerView horizontalRecycler;
-        private TextView title;
+        //private HorizontalRecyclerAdapter horizontalRecyclerAdapter;
+        //private RecyclerView horizontalRecycler;
+        //private TextView title;
+        //private ImageButton showOnMap;
 
         private List<Place> placesForHorizontal = new ArrayList<>();
 
@@ -197,11 +198,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             super(view);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
-            title = (TextView) view.findViewById(R.id.tvHorizontalHeader);
-            horizontalRecycler = (RecyclerView) view.findViewById(R.id.rvHorizontal);
-            horizontalRecycler.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-            horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext, recyclerItemListener);
-            horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
+            //title = (TextView) view.findViewById(R.id.tvHorizontalHeader);
+            //horizontalRecycler = (RecyclerView) view.findViewById(R.id.rvHorizontal);
+            //horizontalRecycler.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
+            //horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext, recyclerItemListener);
+            //horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
+            //showOnMap = (ImageButton) view.findViewById(R.id.tripShowOnMap);
         }
 
         private void bindData(final Trip trip, final int position) {
@@ -211,7 +213,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             else
                 itemView.setBackgroundResource(R.color.white);
 
-            title.setText(trip.getTitle());
+            /*title.setText(trip.getTitle());
 
             dataService.getMyPlacesByTrip(trip.getId(), new CallbackPlaces() {
                 @Override
@@ -229,7 +231,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 public void fail(Throwable t) {
                     //Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            });
+            });*/
+
+            //showOnMap.setImageResource(R.drawable.ic_navigation_black_24dp);
+
         }
 
         @Override

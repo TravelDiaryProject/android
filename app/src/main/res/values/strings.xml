@@ -4,6 +4,10 @@
     <string name="trips">Trips</string>
     <string name="navigation">Navigation</string>
 
+    <!--Facebook-->
+    <string name="facebook_app_id">493284224340701</string>
+    <string name="fb_login_protocol_scheme">fb493284224340701</string>
+
 
     <!--UploadDialog-->
     <string name="photo">Photo</string>

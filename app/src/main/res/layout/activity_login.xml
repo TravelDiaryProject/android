@@ -91,7 +91,22 @@
                 android:gravity="center_horizontal"
                 android:textSize="24sp" />
 
-        </LinearLayout>
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            />
+
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/login_progress"
