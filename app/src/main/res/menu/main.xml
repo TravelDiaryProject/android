@@ -6,4 +6,12 @@
         android:orderInCategory="100"
         android:title="LOGIN" />
 
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/human"
+        android:title="Login"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        />
+
 </menu>

@@ -1,6 +1,7 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -20,6 +21,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.glide.slider.library.Animations.DescriptionAnimation;
+import com.glide.slider.library.SliderLayout;
+import com.glide.slider.library.SliderTypes.BaseSliderView;
+import com.glide.slider.library.SliderTypes.DefaultSliderView;
+import com.glide.slider.library.SliderTypes.TextSliderView;
 import com.traveldiary.android.R;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
@@ -191,6 +197,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         //private RecyclerView horizontalRecycler;
         //private TextView title;
         //private ImageButton showOnMap;
+        private SliderLayout mSlider;
 
         private List<Place> placesForHorizontal = new ArrayList<>();
 
@@ -204,6 +211,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext, recyclerItemListener);
             //horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
             //showOnMap = (ImageButton) view.findViewById(R.id.tripShowOnMap);
+            mSlider = (SliderLayout) view.findViewById(R.id.slider);
         }
 
         private void bindData(final Trip trip, final int position) {
@@ -234,6 +242,45 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });*/
 
             //showOnMap.setImageResource(R.drawable.ic_navigation_black_24dp);
+
+            dataService.getMyPlacesByTrip(trip.getId(), new CallbackPlaces() {
+                @Override
+                public void response(List<Place> placeList) {
+//                    placesForHorizontal.clear();
+//                    placesForHorizontal.addAll(placeList);
+//                    if (placesForHorizontal.size()==0){
+//                        placesForHorizontal.add(new Place());
+//                    }
+                    //horizontalRecyclerAdapter.setData(placesForHorizontal, position);
+                    //horizontalRecyclerAdapter.notifyDataSetChanged();
+
+                    for (int i = 0; i < placeList.size(); i++) {
+                        DefaultSliderView defaultSliderView = new DefaultSliderView(mContext);
+
+
+                        defaultSliderView
+                                .image(ROOT_URL + placeList.get(i).getThumbnail())
+                                .setCenterCrop(true);
+                        //.setScaleType(BaseSliderView.ScaleType.Fit);
+
+                        //add your extra information
+                        defaultSliderView.bundle(new Bundle());
+                        defaultSliderView.getBundle()
+                                .putString("extra", "text");
+
+                        mSlider.addSlider(defaultSliderView);
+                    }
+                    mSlider.setPresetTransformer(SliderLayout.Transformer.Default);
+                    mSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+                    mSlider.setCustomAnimation(new DescriptionAnimation());
+                    mSlider.setDuration(3000);
+                }
+
+                @Override
+                public void fail(Throwable t) {
+                    //Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
         }
 

@@ -46,13 +46,21 @@
             android:layout_centerHorizontal="true"
             android:textSize="16sp" />
 
-        <ImageView
+        <!--<ImageView
             android:id="@+id/tripImages"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_margin="4dp"
             android:layout_below="@id/tripName"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop" />-->
+
+        <com.glide.slider.library.SliderLayout
+            android:id="@+id/slider"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@id/tripName"
+            />
 
         <TextView
             android:id="@+id/tripDescription"
@@ -61,7 +69,7 @@
             android:text="Info"
             android:textColor="@color/black"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/tripImages"
+            android:layout_below="@id/slider"
             android:textSize="16sp" />
 
         <TextView

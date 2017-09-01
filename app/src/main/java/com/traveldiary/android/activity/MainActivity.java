@@ -6,10 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -50,17 +53,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView mUserNameTextView;
     private DrawerLayout mDrawerLayout;
     private SharedPreferences mSharedPreferences;
-    private NavigationView mNavigationView;
-    private TabLayout mTabLayout;
-    private ViewPager mViewPager;
+    //private NavigationView mNavigationView;
+    //private TabLayout mTabLayout;
+    //private ViewPager mViewPager;
     private FloatingActionButton mFab;
     private long mBack_pressed;
+
+    private BottomNavigationView mBottomNavigationView;
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnBottomNavigationItemSelectedListener;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.altenative_activity_main);
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 
@@ -70,26 +76,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkAuthorizasion();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        /*ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        toggle.syncState();*/
 
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (mUserName !=null) {
-            View headerView = mNavigationView.getHeaderView(0);
-            mUserNameTextView = (TextView) headerView.findViewById(R.id.navHeaderUserEmail);
-            mUserNameTextView.setText(mUserName);
-        }
-        mNavigationView.setNavigationItemSelectedListener(this);
-        mNavigationView.setCheckedItem(R.id.menu_top_places);
-        setTitle("Top Places");
+//        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+//        if (mUserName !=null) {
+//            View headerView = mNavigationView.getHeaderView(0);
+//            mUserNameTextView = (TextView) headerView.findViewById(R.id.navHeaderUserEmail);
+//            mUserNameTextView.setText(mUserName);
+//        }
+//        mNavigationView.setNavigationItemSelectedListener(this);
+//        mNavigationView.setCheckedItem(R.id.menu_top_places);
+//        setTitle("Top Places");
 
-        mFab = (FloatingActionButton) findViewById(R.id.add_trip_button);
-        mFab.setOnClickListener(this);
-        mFab.hide();
+//        mFab = (FloatingActionButton) findViewById(R.id.add_trip_button);
+//        mFab.setOnClickListener(this);
+//        mFab.hide();
 
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        mOnBottomNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.navigation_top:
+                        PlacesFragment topPlacesFragment = new PlacesFragment();
+                        Bundle args = new Bundle();
+                        args.putString(PLACES_FOR, PLACES_FOR_TOP);
+                        topPlacesFragment.setArguments(args);
+
+                        trans(topPlacesFragment);
+                        //mTextMessage.setText(R.string.title_home);
+                        return true;
+                    case R.id.navigation_my_trips:
+                        TripsFragment myTripsFagment = new TripsFragment();
+                        args = new Bundle();
+                        args.putString(TRIPS_FOR, MY);
+                        myTripsFagment.setArguments(args);
+
+                        trans(myTripsFagment);
+                        //mTextMessage.setText(R.string.title_dashboard);
+                        return true;
+                    case R.id.navigation_future_trips:
+                        TripsFragment futureTripsFragment = new TripsFragment();
+                        args = new Bundle();
+                        args.putString(TRIPS_FOR, FUTURE);
+                        futureTripsFragment.setArguments(args);
+
+                        trans(futureTripsFragment);
+                        //mTextMessage.setText(R.string.title_notifications);
+                        return true;
+                }
+                return false;
+            }
+
+        };
+
+        mBottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(mOnBottomNavigationItemSelectedListener);
+
+        /*mViewPager = (ViewPager) findViewById(R.id.viewpager);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -132,13 +179,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mTabLayout = (TabLayout) findViewById(R.id.tablayout);
         mTabLayout.setupWithViewPager(mViewPager);
-        setupTabIcons();
+        setupTabIcons();*/
 
         //mTabLayout.getTabAt(0).select();
 
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    /*private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         PlacesFragment topPlacesFragment = new PlacesFragment();
@@ -168,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mTabLayout.getTabAt(1).setIcon(R.drawable.ic_menu_good_memories);
         mTabLayout.getTabAt(2).setIcon(R.drawable.ic_menu_future_trips);
         mTabLayout.getTabAt(3).setIcon(R.drawable.ic_menu_find_place);
-    }
+    }*/
 
     @Override
     public void onBackPressed(){
@@ -233,19 +280,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_good_memories:
-                mTabLayout.getTabAt(1).select();
+                //mTabLayout.getTabAt(1).select();
                 break;
 
             case R.id.menu_future_trips:
-                mTabLayout.getTabAt(2).select();
+                //mTabLayout.getTabAt(2).select();
                 break;
 
             case R.id.menu_find_place:
-                mTabLayout.getTabAt(3).select();
+                //mTabLayout.getTabAt(3).select();
                 break;
 
             case R.id.menu_top_places:
-                mTabLayout.getTabAt(0).select();
+                //mTabLayout.getTabAt(0).select();
                 break;
         }
 
@@ -267,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onPlaneButtonClick() {
-        mTabLayout.getTabAt(3).select();
+        //mTabLayout.getTabAt(3).select();
 }
 
     @Override
@@ -285,5 +332,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Toast.makeText(this, getString(R.string.need_authorization_function), Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void trans(Fragment fragment) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.content, fragment);
+        //ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
     }
 }

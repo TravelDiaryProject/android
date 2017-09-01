@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_top"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        android:title="Top" />
+
+    <item
+        android:id="@+id/navigation_my_trips"
+        android:icon="@drawable/ic_menu_good_memories"
+        android:title="My" />
+
+    <item
+        android:id="@+id/navigation_future_trips"
+        android:icon="@drawable/ic_menu_future_trips"
+        android:title="Future" />
+
+</menu>
