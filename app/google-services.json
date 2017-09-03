@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1099242893912",
+    "project_id": "striking-goal-159516"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1099242893912:android:b95e969697bfbc1d",
+        "android_client_info": {
+          "package_name": "com.traveldiary.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1099242893912-l7vcfbcgec977u5vk3650r6jhlceis8n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.traveldiary.android",
+            "certificate_hash": "6df68d6f6b81fadc0f6d6c66eb630b3f38c8158c"
+          }
+        },
+        {
+          "client_id": "1099242893912-e82v8uf90foqhej7bmtdskogcrtcf9eq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfzHYdPQ8AAWCAdUtodb1xUZ4S6DoWlFg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
