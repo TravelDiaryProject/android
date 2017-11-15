@@ -255,25 +255,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     //horizontalRecyclerAdapter.notifyDataSetChanged();
 
                     for (int i = 0; i < placeList.size(); i++) {
-                        DefaultSliderView defaultSliderView = new DefaultSliderView(mContext);
+                        TextSliderView textSliderView = new TextSliderView(mContext);
 
 
-                        defaultSliderView
+                        textSliderView
                                 .image(ROOT_URL + placeList.get(i).getThumbnail())
                                 .setCenterCrop(true);
-                        //.setScaleType(BaseSliderView.ScaleType.Fit);
 
-                        //add your extra information
-                        defaultSliderView.bundle(new Bundle());
-                        defaultSliderView.getBundle()
-                                .putString("extra", "text");
+                        textSliderView.bundle(new Bundle());
+                        textSliderView.getBundle().putString("extra", "text");
 
-                        mSlider.addSlider(defaultSliderView);
+                        mSlider.addSlider(textSliderView);
                     }
                     mSlider.setPresetTransformer(SliderLayout.Transformer.Default);
                     mSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
                     mSlider.setCustomAnimation(new DescriptionAnimation());
-                    mSlider.setDuration(3000);
+                    mSlider.stopAutoCycle();
                 }
 
                 @Override
