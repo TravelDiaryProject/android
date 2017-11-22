@@ -1,9 +1,9 @@
 package com.traveldiary.android.adapter;
 
 import android.content.Context;
-import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,11 +22,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.glide.slider.library.Animations.DescriptionAnimation;
-import com.glide.slider.library.SliderLayout;
-import com.glide.slider.library.SliderTypes.BaseSliderView;
-import com.glide.slider.library.SliderTypes.DefaultSliderView;
-import com.glide.slider.library.SliderTypes.TextSliderView;
 import com.traveldiary.android.R;
 import com.traveldiary.android.model.Place;
 import com.traveldiary.android.model.Trip;
@@ -39,6 +35,8 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    String TAG = "RecyclerAdapter";
+
     private static final int TYPE_TRIP = 0;
     private static final int TYPE_PLACE = 1;
     private static final int TYPE_PROGRESS = 2;
@@ -47,7 +45,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private Context mContext;
     private List<Trip> mTripsList;
-    private List<Place> mPlaceList;
+    private List<Place> mPlaceList = new ArrayList<>();
 
     private RecyclerItemListener recyclerItemListener = null;
 
@@ -72,7 +70,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 return new PlaceViewHolder(itemView);
             case TYPE_TRIP:
                 View itemView2 = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.test_trip_card, parent, false);
+                        .inflate(R.layout.trip_with_custom_slider, parent, false);
 
                 return new TripViewHolder(itemView2);
             case TYPE_PROGRESS:
@@ -191,13 +189,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return mSelectedItemsIds;
     }
 
-    private class TripViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
+    private class TripViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, ViewPager.OnPageChangeListener{
 
-        //private HorizontalRecyclerAdapter horizontalRecyclerAdapter;
-        //private RecyclerView horizontalRecycler;
-        //private TextView title;
-        //private ImageButton showOnMap;
-        private SliderLayout mSlider;
+        private CustomSliderAdapter mCustomSliderAdapter;
+        private ViewPager mViewPager;
+        private TabLayout mTabLayout;
+        private TextView mPlaceLocation;
 
         private List<Place> placesForHorizontal = new ArrayList<>();
 
@@ -205,77 +202,42 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             super(view);
             view.setOnClickListener(this);
             view.setOnLongClickListener(this);
-            //title = (TextView) view.findViewById(R.id.tvHorizontalHeader);
-            //horizontalRecycler = (RecyclerView) view.findViewById(R.id.rvHorizontal);
-            //horizontalRecycler.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-            //horizontalRecyclerAdapter = new HorizontalRecyclerAdapter(mContext, recyclerItemListener);
-            //horizontalRecycler.setAdapter(horizontalRecyclerAdapter);
-            //showOnMap = (ImageButton) view.findViewById(R.id.tripShowOnMap);
-            mSlider = (SliderLayout) view.findViewById(R.id.slider);
+
+            Log.d(TAG, "TripViewHolder: mTripsList size = " + mTripsList.size() );
+
+            mViewPager = (ViewPager) view.findViewById(R.id.pager_introduction);
+            mViewPager.addOnPageChangeListener(this);
+
+            mTabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
+            mTabLayout.setupWithViewPager(mViewPager, true);
+
+            mPlaceLocation = (TextView) view.findViewById(R.id.placeLocation);
         }
 
         private void bindData(final Trip trip, final int position) {
+
+            Log.d(TAG, "bindData: mTripsList size = " + mTripsList.size() );
 
             if (mSelectedItemsIds.get(position))
                 itemView.setBackgroundResource(R.color.grey);
             else
                 itemView.setBackgroundResource(R.color.white);
 
-            /*title.setText(trip.getTitle());
-
             dataService.getMyPlacesByTrip(trip.getId(), new CallbackPlaces() {
                 @Override
                 public void response(List<Place> placeList) {
-                    placesForHorizontal.clear();
-                    placesForHorizontal.addAll(placeList);
-                    if (placesForHorizontal.size()==0){
-                        placesForHorizontal.add(new Place());
-                    }
-                    horizontalRecyclerAdapter.setData(placesForHorizontal, position);
-                    horizontalRecyclerAdapter.notifyDataSetChanged();
+
+                    Log.d(TAG, "bindData - responseGetMyPlaces: placeList size = " + placeList.size() );
+
+                    mCustomSliderAdapter = new CustomSliderAdapter(mContext, placeList);
+                    mViewPager.setAdapter(mCustomSliderAdapter);
+                    mViewPager.setCurrentItem(0);
+//                    mPlaceLocation.setText(placeList.get(0).getCountryName() + ", " + placeList.get(0).getCityName() + ", " + placeList.get(0).getTitle());
                 }
 
                 @Override
                 public void fail(Throwable t) {
-                    //Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });*/
-
-            //showOnMap.setImageResource(R.drawable.ic_navigation_black_24dp);
-
-            dataService.getMyPlacesByTrip(trip.getId(), new CallbackPlaces() {
-                @Override
-                public void response(List<Place> placeList) {
-//                    placesForHorizontal.clear();
-//                    placesForHorizontal.addAll(placeList);
-//                    if (placesForHorizontal.size()==0){
-//                        placesForHorizontal.add(new Place());
-//                    }
-                    //horizontalRecyclerAdapter.setData(placesForHorizontal, position);
-                    //horizontalRecyclerAdapter.notifyDataSetChanged();
-
-                    for (int i = 0; i < placeList.size(); i++) {
-                        TextSliderView textSliderView = new TextSliderView(mContext);
-
-
-                        textSliderView
-                                .image(ROOT_URL + placeList.get(i).getThumbnail())
-                                .setCenterCrop(true);
-
-                        textSliderView.bundle(new Bundle());
-                        textSliderView.getBundle().putString("extra", "text");
-
-                        mSlider.addSlider(textSliderView);
-                    }
-                    mSlider.setPresetTransformer(SliderLayout.Transformer.Default);
-                    mSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
-                    mSlider.setCustomAnimation(new DescriptionAnimation());
-                    mSlider.stopAutoCycle();
-                }
-
-                @Override
-                public void fail(Throwable t) {
-                    //Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -290,6 +252,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public boolean onLongClick(View v) {
             recyclerItemListener.onItemLongClick(v, this.getLayoutPosition());
             return true;
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+
+//            mPlaceLocation.setText(mPlaceList.get(position).getCountryName() + ", " + mPlaceList.get(position).getCityName() + ", " + mPlaceList.get(position).getTitle());
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
         }
     }
 
