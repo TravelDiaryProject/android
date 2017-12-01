@@ -194,9 +194,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private CustomSliderAdapter mCustomSliderAdapter;
         private ViewPager mViewPager;
         private TabLayout mTabLayout;
-        private TextView mPlaceLocation;
-
-        private List<Place> placesForHorizontal = new ArrayList<>();
 
         private TripViewHolder(View view) {
             super(view);
@@ -211,7 +208,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             mTabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
             mTabLayout.setupWithViewPager(mViewPager, true);
 
-            mPlaceLocation = (TextView) view.findViewById(R.id.placeLocation);
         }
 
         private void bindData(final Trip trip, final int position) {
@@ -229,10 +225,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                     Log.d(TAG, "bindData - responseGetMyPlaces: placeList size = " + placeList.size() );
 
-                    mCustomSliderAdapter = new CustomSliderAdapter(mContext, placeList);
+                    mCustomSliderAdapter = new CustomSliderAdapter(mContext, placeList, TripViewHolder.this);
                     mViewPager.setAdapter(mCustomSliderAdapter);
                     mViewPager.setCurrentItem(0);
-//                    mPlaceLocation.setText(placeList.get(0).getCountryName() + ", " + placeList.get(0).getCityName() + ", " + placeList.get(0).getTitle());
                 }
 
                 @Override

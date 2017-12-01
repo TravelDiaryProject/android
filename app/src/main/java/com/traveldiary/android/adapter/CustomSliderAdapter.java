@@ -28,10 +28,12 @@ import static com.traveldiary.android.Constans.ROOT_URL;
 public class CustomSliderAdapter extends PagerAdapter {
     private Context mContext;
     private List<Place> mPlaces;
+    private View.OnClickListener mClickListener;
 
-    public CustomSliderAdapter(Context mContext, List<Place> places) {
+    public CustomSliderAdapter(Context mContext, List<Place> places, View.OnClickListener mClickListener) {
         this.mContext = mContext;
         this.mPlaces = places;
+        this.mClickListener = mClickListener;
     }
 
     @Override
@@ -45,7 +47,7 @@ public class CustomSliderAdapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(ViewGroup container, final int position) {
         View itemView = LayoutInflater.from(mContext).inflate(R.layout.pager_item_custom_slider, container, false);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.img_pager_item);
@@ -69,6 +71,8 @@ public class CustomSliderAdapter extends PagerAdapter {
                 .placeholder( ContextCompat.getDrawable(mContext, R.drawable.ic_image_black_24dp) )
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
+
+        itemView.setOnClickListener(mClickListener);
 
         container.addView(itemView);
 
