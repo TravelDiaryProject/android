@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +39,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static final int TYPE_TRIP = 0;
     private static final int TYPE_PLACE = 1;
     private static final int TYPE_PROGRESS = 2;
+    public static final int TYPE_SORT_PLACE = 3;
 
     private boolean isLoadMore = false;
 
@@ -65,18 +65,22 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         switch (viewType){
             case TYPE_PLACE:
-                View itemView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.test_place_card, parent, false);
-                return new PlaceViewHolder(itemView);
+                View placeView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.place_card, parent, false);
+                return new PlaceViewHolder(placeView);
             case TYPE_TRIP:
-                View itemView2 = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trip_with_custom_slider, parent, false);
+                View tripView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.trip_card, parent, false);
 
-                return new TripViewHolder(itemView2);
+                return new TripViewHolder(tripView);
             case TYPE_PROGRESS:
-                View itemView3 = LayoutInflater.from(parent.getContext())
+                View progressView = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.progress_item, parent, false);
-                return new ProgressHolder(itemView3);
+                return new ProgressHolder(progressView);
+            case TYPE_SORT_PLACE:
+                View sortPlaceView = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.sort_place_menu, parent, false);
+                return new SortPlaceHolder(sortPlaceView);
         }
         return null;
     }
@@ -108,7 +112,10 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             TripViewHolder tripViewHolder = (TripViewHolder) holder;
             tripViewHolder.bindData(mTripsList.get(position), position);
 
-        }else {
+        } else if (holder instanceof SortPlaceHolder){
+            SortPlaceHolder sortPlaceHolder = (SortPlaceHolder) holder;
+            sortPlaceHolder.bindData();
+        } else {
             ProgressHolder progressHolder = (ProgressHolder) holder;
             progressHolder.bindData();
         }
@@ -147,6 +154,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             return TYPE_TRIP;
         else if (mPlaceList!=null && position == mPlaceList.size() -1 && isLoadMore)
             return TYPE_PROGRESS;
+        else if (mPlaceList!=null && position == 0)
+            return TYPE_SORT_PLACE;
         else
             return TYPE_PLACE;
     }
@@ -403,6 +412,17 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }else {
                 progressBar.setVisibility(View.GONE);
             }
+        }
+    }
+
+    private class SortPlaceHolder extends RecyclerView.ViewHolder {
+
+        private SortPlaceHolder(View view) {
+            super(view);
+        }
+
+        private void bindData() {
+
         }
     }
 }
