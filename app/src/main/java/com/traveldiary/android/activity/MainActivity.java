@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -24,6 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -118,11 +118,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         mNavigationView.setCheckedItem(R.id.menu_future_trips);
                         mFab.hide();
                         break;
-                    case 3:
-                        setTitle("Find Place");
-                        mNavigationView.setCheckedItem(R.id.menu_find_place);
-                        mFab.hide();
-                        break;
                 }
             }
 
@@ -163,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adapter.addFragment(topPlacesFragment);
         adapter.addFragment(myTripsFagment);
         adapter.addFragment(futureTripsFragment);
-        adapter.addFragment(new FindPlaceFragment());
         viewPager.setAdapter(adapter);
     }
 
@@ -171,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mTabLayout.getTabAt(0).setIcon(R.drawable.ic_like);
         mTabLayout.getTabAt(1).setIcon(R.drawable.ic_menu_good_memories);
         mTabLayout.getTabAt(2).setIcon(R.drawable.ic_menu_future_trips);
-        mTabLayout.getTabAt(3).setIcon(R.drawable.ic_menu_find_place);
     }
 
     @Override
@@ -203,10 +196,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         getMenuInflater().inflate(R.menu.main, menu);
 
-        if (TOKEN_CONST != null && !TOKEN_CONST.equals("")) {
-            MenuItem singItem = menu.findItem(R.id.action_login);
+        /*if (TOKEN_CONST != null && !TOKEN_CONST.equals("")) {
+            MenuItem singItem = menu.findItem(R.id.action_menu_login);
             singItem.setTitle(getResources().getString(R.string.log_out));
-        }
+        }*/
 
         return true;
     }
@@ -214,21 +207,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        int id = item.getItemId();
-        if (id == R.id.action_login) {
-            if (TOKEN_CONST != null && !TOKEN_CONST.equals("")) {
-                TOKEN_CONST = null;
-                mSharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.remove(APP_PREFERENCES_TOKEN);
-                editor.apply();
+        switch (item.getItemId()){
+            case R.id.action_menu_search:
+//                showSearchFragment();
+                break;
+            case R.id.action_menu_filter:
+                break;
+            /*case R.id.action_menu_login:
+                if (TOKEN_CONST != null && !TOKEN_CONST.equals("")) {
+                    TOKEN_CONST = null;
+                    mSharedPreferences = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.remove(APP_PREFERENCES_TOKEN);
+                    editor.apply();
 
-                dataService.removeAll();
-            }
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+                    dataService.removeAll();
+                }
+                Intent intent = new Intent(this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                break;*/
         }
+
         return super.onOptionsItemSelected(item);
     }
 

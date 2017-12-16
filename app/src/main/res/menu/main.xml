@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_login"
+    <!--<item
+        android:id="@+id/action_menu_login"
         android:orderInCategory="100"
-        android:title="LOGIN" />
+        android:title="LOGIN" />-->
 
     <item
-        android:id="@+id/profile"
-        android:icon="@drawable/human"
-        android:title="Login"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"
-        />
+        android:id="@+id/action_menu_filter"
+        android:title="@string/action_filter"
+        android:icon="@drawable/ic_action_filter"
+        app:showAsAction="always">
+    </item>
+
+    <item
+        android:id="@+id/action_menu_search"
+        android:title="@string/action_search"
+        android:icon="@drawable/ic_action_search"
+        app:showAsAction="always">
+    </item>
 
 </menu>
